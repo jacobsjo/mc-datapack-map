@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
 import MainMap from './components/MainMap.vue';
+import Sidebar from './components/Sidebar.vue';
+
 </script>
 
 <template>
-  <MainMap />
+  <div class="layout">
+    <Sidebar />
+    <MainMap />
+  </div>
 </template>
 
 <style scoped>
-
+  .layout {
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
 </style>

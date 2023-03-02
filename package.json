@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "deepslate": "file://",
     "leaflet": "^1.7.1",
     "mc-datapack-loader": "file://",
-    "deepslate": "file://",
+    "pinia": "^2.0.32",
     "vue": "^3.2.45"
   },
   "devDependencies": {
