@@ -10,7 +10,6 @@ import { useDatapackStore } from '../stores/useDatapackStore';
     store.$subscribe(async (mutation, state) => {
         const compositeDatapack = store.getCompositeDatapack()
         dimensions.value = await compositeDatapack.getIds('dimension')
-        console.log(dimensions)
     })
 </script>
 

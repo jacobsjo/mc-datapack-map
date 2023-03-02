@@ -73,6 +73,10 @@ async function loadFolder(event: MouseEvent) {
     }
 }
 
+function reload(event: MouseEvent){
+    store.$patch({})
+}
+
 </script>
 
 <template>
@@ -83,6 +87,8 @@ async function loadFolder(event: MouseEvent) {
         <div class="buttons">
             <font-awesome-icon icon="fa-folder-open" class="button" title="Open Datapack Folder" @click="loadFolder" />
             <font-awesome-icon icon="fa-file-zipper" class="button" title="Open Datapack Zip File" @click="loadZip" />
+            <div class="spacer"></div>
+            <font-awesome-icon icon="fa-rotate-right" class="button" title="Reload Datapacks" @click="reload" />
         </div>
 
     </div>
@@ -117,5 +123,9 @@ async function loadFolder(event: MouseEvent) {
 
 .button:hover {
     background-color: rgb(177, 176, 176);
+}
+
+.spacer {
+    width: 2rem;
 }
 </style>
