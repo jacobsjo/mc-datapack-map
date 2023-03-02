@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { ref } from "vue";
 import { Identifier } from "deepslate";
-import { VanillaBiomeColors } from "../BiomeLayer/VanillaColors";
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/data-1.19.3.zip'))
@@ -14,12 +13,11 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const seed = ref(BigInt(0))
 
     async function getBiomeColors(){
-        const biomeColors = new Map(VanillaBiomeColors)
+        const biomeColors = new Map<string, {r: number, g: number, b: number}>()
 
         const compositeDatapack = getCompositeDatapack()
 
         const ids = await (compositeDatapack.getIds(""))
-        console.log(ids)
         for (const id of ids){
             if (id.path !== "biome_colors") continue;
 

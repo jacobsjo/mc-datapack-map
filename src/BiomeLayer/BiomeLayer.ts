@@ -3,7 +3,6 @@ import * as L from "leaflet"
 import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource } from "deepslate";
 import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
-import { VanillaBiomeColors } from "./VanillaColors";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 
 const WORKER_COUNT = 4
@@ -31,7 +30,7 @@ export class BiomeLayer extends L.GridLayer {
 	public y: number|"surface" = "surface"
 	public seed: bigint = BigInt(0)
 	
-	public biomeColors: Map<string, {r: number, g: number, b: number}> = VanillaBiomeColors
+	public biomeColors: Map<string, {r: number, g: number, b: number}> = new Map()
 
 	public dimension: Identifier
 	public datapack?: Datapack 

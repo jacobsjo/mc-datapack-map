@@ -1,0 +1,9 @@
+{
+  "type": "add",
+  "argument1": 128,
+  "argument2": {
+    "type": "mul",
+    "argument1": 128, 
+    "argument2": "minecraft:overworld_amplified/offset"
+  }
+}
