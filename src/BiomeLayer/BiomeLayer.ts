@@ -1,7 +1,7 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
 import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource } from "deepslate";
-import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate } from "../util";
+import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
 import { biomeColors } from "./VanillaColors";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
@@ -14,7 +14,7 @@ export type BiomeLayerSettings = {
 	seed: bigint
 }
 
-type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: {climate: Climate.TargetPoint, surface: number, biome}[][], step?: number, isRendering?: boolean } 
+type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: {climate: Climate.TargetPoint, surface: number, biome: string}[][], step?: number, isRendering?: boolean } 
 export class BiomeLayer extends L.GridLayer {
 	private next_worker_id = 0
 
@@ -103,12 +103,16 @@ export class BiomeLayer extends L.GridLayer {
 				}				
 				
 				const biome = tile.array[x + 1][z + 1].biome
-				const biomeColor = biomeColors.get(biome ?? "none")
-				if (biomeColor !== undefined) {
-					tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
-				} else {
-					tile.ctx.fillStyle = `rgba(0, 0, 0, ${1-hillshade})`
+				let biomeColor = biomeColors.get(biome)
+				if (biomeColor === undefined) {
+					const hash = hashCode(biome)
+					biomeColor = {
+						r: (hash & 0xFF0000) >> 16,
+						g: (hash & 0x00FF00) >> 8,
+						b: hash & 0x0000FF
+					}
 				}
+				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
 
 			}

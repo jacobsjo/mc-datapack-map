@@ -78,11 +78,11 @@ async function loadFolder(event: MouseEvent) {
 <template>
     <div class="datapack_list">
         <Suspense>
-            <DatapackEntry v-for="(datapack, index) in store.datapacks" :datapack="datapack.datapack" :key="datapack.key" @close="store.datapacks.splice(index, 1)"/>
+            <DatapackEntry v-for="(datapack, index) in store.datapacks" :datapack="datapack.datapack" :key="datapack.key" @close="store.removeDatapack(index)"/>
         </Suspense>
         <div class="buttons">
-            <font-awesome-icon icon="fa-folder-open" class="button" @click="loadFolder" />
-            <font-awesome-icon icon="fa-file-zipper" class="button" @click="loadZip" />
+            <font-awesome-icon icon="fa-folder-open" class="button" title="Open Datapack Folder" @click="loadFolder" />
+            <font-awesome-icon icon="fa-file-zipper" class="button" title="Open Datapack Zip File" @click="loadZip" />
         </div>
 
     </div>

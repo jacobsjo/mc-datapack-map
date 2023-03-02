@@ -1,10 +1,17 @@
 <script setup lang="ts">
     import { CompositeDatapack } from 'mc-datapack-loader';
+import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
     const compositeDatapack = store.getCompositeDatapack()
-    const dimensions = await compositeDatapack.getIds('dimension')
+    let dimensions = ref( await compositeDatapack.getIds('dimension'))
+
+    store.$subscribe(async (mutation, state) => {
+        const compositeDatapack = store.getCompositeDatapack()
+        dimensions.value = await compositeDatapack.getIds('dimension')
+        console.log(dimensions)
+    })
 </script>
 
 <template>
@@ -19,7 +26,8 @@ import { useDatapackStore } from '../stores/useDatapackStore';
 <style scoped>
     .dimension {
         width: 100%;
-        padding: 1rem;
+        max-width: 100%;
+        padding: 1rem; 
         box-sizing: border-box;
         display: flex;
         gap: 0.5rem;
@@ -35,5 +43,6 @@ import { useDatapackStore } from '../stores/useDatapackStore';
         height: 2rem;
         background-color: lightgray;
         flex-grow: 1;
+        width: 0rem;
     }
 </style>

@@ -1,18 +1,18 @@
 import { Climate, DensityFunction, Identifier, lerp, NoiseRouter, NoiseSettings, WorldgenRegistries } from "deepslate"
 
 export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
-	return new Climate.TargetPoint(
-		lerp(c, a.temperature, b.temperature),
-		lerp(c, a.humidity, b.humidity),
-		lerp(c, a.continentalness, b.continentalness),
-		lerp(c, a.erosion, b.erosion),
-		lerp(c, a.depth, b.depth),
-		lerp(c, a.weirdness, b.weirdness)
-	)
+  return new Climate.TargetPoint(
+    lerp(c, a.temperature, b.temperature),
+    lerp(c, a.humidity, b.humidity),
+    lerp(c, a.continentalness, b.continentalness),
+    lerp(c, a.erosion, b.erosion),
+    lerp(c, a.depth, b.depth),
+    lerp(c, a.weirdness, b.weirdness)
+  )
 }
 
 export function lerp2Climate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: Climate.TargetPoint, d: Climate.TargetPoint, e: number, f: number) {
-	return lerpClimate(lerpClimate(a, b, e), lerpClimate(c, d, e), f)
+  return lerpClimate(lerpClimate(a, b, e), lerpClimate(c, d, e), f)
 }
 
 
@@ -24,7 +24,7 @@ function getDimensionDensityFunction(noise_settings_id: Identifier, dimension_id
   return WorldgenRegistries.DENSITY_FUNCTION.get(new Identifier(noise_settings_id.namespace, noiseSettingsPath.join("/") + "/snowcapped_surface"))
 }
 
-export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id?: Identifier): DensityFunction{
+export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id?: Identifier): DensityFunction {
   return WorldgenRegistries.DENSITY_FUNCTION.get(new Identifier(noise_settings_id.namespace, noise_settings_id.path + "/snowcapped_surface"))
     ?? getDimensionDensityFunction(noise_settings_id, dimension_id)
     ?? WorldgenRegistries.DENSITY_FUNCTION.get(new Identifier(noise_settings_id.namespace, "snowcapped_surface"))
@@ -36,13 +36,13 @@ const zenith = 20.0 * Math.PI / 180.0;
 const azimuth = 135.0 * Math.PI / 180.0;
 
 export function calculateHillshade(slope_x: number, slope_z: number, scale: number): number {
-  const slope = Math.atan(Math.sqrt(slope_x * slope_x + slope_z * slope_z) / ( 8 * scale));
+  const slope = Math.atan(Math.sqrt(slope_x * slope_x + slope_z * slope_z) / (8 * scale));
   let aspect;
-  if (slope_x == 0.0){
-    if (slope_z < 0.0){
-    aspect = Math.PI;
+  if (slope_x == 0.0) {
+    if (slope_z < 0.0) {
+      aspect = Math.PI;
     } else {
-    aspect = 0.0;
+      aspect = 0.0;
     }
   } else {
     aspect = Math.atan2(slope_z, -slope_x);
@@ -54,4 +54,14 @@ export function calculateHillshade(slope_x: number, slope_z: number, scale: numb
 
   hillshade = hillshade * 0.7 + 0.3;
   return hillshade
+}
+
+export function hashCode(str: string) {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    let chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
   }
+  return hash;
+}

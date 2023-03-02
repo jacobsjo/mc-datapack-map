@@ -15,9 +15,17 @@ export const useDatapackStore = defineStore('datapacks', () => {
         datapacks.value.push({datapack: datapack, key: ++last_key})
     }
 
+    async function removeDatapack(id: number){
+        datapacks.value.splice(id, 1)
+        const dimensions = (await getCompositeDatapack().getIds("dimension"))
+        if (dimensions.findIndex((id) => id.equals(dimension.value)) === -1){
+            dimension.value = dimensions[0]
+        }
+    }
+
     function getCompositeDatapack(){
         return new CompositeDatapack(datapacks.value.map(d => d.datapack))
     }
 
-    return { datapacks, dimension, addDatapack, getCompositeDatapack }
+    return { datapacks, dimension, addDatapack, getCompositeDatapack, removeDatapack }
 })

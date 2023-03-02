@@ -16,7 +16,7 @@ import { onMounted } from 'vue';
     <div class="datapack">
         <img class="image" :src="image" />
         <div class="description">{{ desciption }}</div>
-        <font-awesome-icon icon="fa-xmark" class="close_button" @click="$emit('close')" />
+        <font-awesome-icon icon="fa-xmark" class="close_button" title="Remove Datapack" @click="$emit('close')" />
     </div>
 </template>
 
