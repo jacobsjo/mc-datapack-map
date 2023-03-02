@@ -3,7 +3,7 @@ import * as L from "leaflet"
 import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource } from "deepslate";
 import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
-import { biomeColors } from "./VanillaColors";
+import { VanillaBiomeColors } from "./VanillaColors";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 
 const WORKER_COUNT = 4
@@ -30,6 +30,8 @@ export class BiomeLayer extends L.GridLayer {
 	public enable_hillshading: boolean = true
 	public y: number|"surface" = "surface"
 	public seed: bigint = BigInt(0)
+	
+	public biomeColors: Map<string, {r: number, g: number, b: number}> = VanillaBiomeColors
 
 	public dimension: Identifier
 	public datapack?: Datapack 
@@ -97,7 +99,7 @@ export class BiomeLayer extends L.GridLayer {
 				}				
 				
 				const biome = tile.array[x + 1][z + 1].biome
-				let biomeColor = biomeColors.get(biome)
+				let biomeColor = this.biomeColors.get(biome)
 				if (biomeColor === undefined) {
 					const hash = hashCode(biome)
 					biomeColor = {
@@ -271,7 +273,7 @@ export class BiomeLayer extends L.GridLayer {
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.settings.y
+		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.y
 
 		var climate = this.sampler!.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
 		return this.biomeSource!.getBiome(0,0,0, climate)

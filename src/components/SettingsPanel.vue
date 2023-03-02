@@ -63,5 +63,6 @@ import { useDatapackStore } from '../stores/useDatapackStore';
         background-color: lightgray;
         flex-grow: 1;
         width: 0rem;
+        color: black;
     }
 </style>

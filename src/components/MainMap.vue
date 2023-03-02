@@ -17,7 +17,7 @@ const tooltip_top = ref(0)
 const tooltip_biome = ref(Identifier.create("void"))
 const show_tooltip = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
     const map = L.map("map", {
         zoom: 15,
         minZoom: 13,
@@ -31,6 +31,8 @@ onMounted(() => {
         store.getCompositeDatapack(),
         store.dimension   
     )
+    layer.biomeColors = await store.getBiomeColors()
+
     map.addLayer(layer)
 
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
@@ -45,10 +47,11 @@ onMounted(() => {
     })
 });
 
-store.$subscribe((mutation, state) => {
+store.$subscribe(async (mutation, state) => {
     layer.datapack = store.getCompositeDatapack()
     layer.dimension = state.dimension
     layer.seed = state.seed
+    layer.biomeColors = await store.getBiomeColors()
     layer.refresh()
 })
 </script>

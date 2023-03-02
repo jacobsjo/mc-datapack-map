@@ -1,5 +1,5 @@
 
-export const biomeColors = new Map([
+export const VanillaBiomeColors = new Map([
     ['minecraft:mushroom_fields', { r: 250, g: 145, b: 248 }],
     ['minecraft:deep_frozen_ocean', { r: 52, g: 120, b: 162 }],
     ['minecraft:deep_cold_ocean', { r: 0, g: 71, b: 133 }],
