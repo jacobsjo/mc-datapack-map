@@ -271,19 +271,15 @@ export class BiomeLayer extends L.GridLayer {
 		L.TileLayer.prototype._removeTile.call(this, key)
 	}
 
-	/*
-	getIdxs(latlng: L.LatLng): {idx: MultiNoiseIndexes, values: Climate.TargetPoint, position: {x: number, y: number, z: number}} {
+	getBiome(latlng: L.LatLng): Identifier {
 
-		const crs = this._map.options.crs
+		const crs = this._map.options.crs!
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.visualization_manager.vis_y_level === "surface" ? this.surfaceDensityFunction.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.visualization_manager.vis_y_level
+		const y: number = this.settings.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.settings.y
 
-		var climate = this.sampler.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
-		//if (this.visualization_manager.vis_y_level === "surface") climate = new Climate.TargetPoint(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0.0, climate.weirdness)
-		const idx = this.builder.getIndexes(climate)
-		return { idx: idx, values: climate, position: { x: pos.x, y: y, z: pos.y} }
-
-	}*/
+		var climate = this.sampler!.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
+		return this.biomeSource!.getBiome(0,0,0, climate)
+	}
 }
