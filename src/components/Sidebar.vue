@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DatapackSelection from './DatapackList.vue';
-import DimensionSelection from './DimensionSelection.vue';
+import SettingsPanel from './SettingsPanel.vue';
 
 
 </script>
@@ -8,7 +8,7 @@ import DimensionSelection from './DimensionSelection.vue';
 <template>
     <div class="sidebar">
         <Suspense>
-            <DimensionSelection />
+            <SettingsPanel />
         </Suspense>
         <DatapackSelection />
 </div>

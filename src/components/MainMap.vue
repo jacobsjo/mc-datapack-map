@@ -36,7 +36,6 @@ onMounted(() => {
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
         tooltip_left.value = evt.originalEvent.pageX + 10
         tooltip_top.value = evt.originalEvent.pageY + 10
-        console.log(tooltip_left.value)
         tooltip_biome.value = layer.getBiome(evt.latlng)
         show_tooltip.value = true
     })
@@ -49,6 +48,7 @@ onMounted(() => {
 store.$subscribe((mutation, state) => {
     layer.datapack = store.getCompositeDatapack()
     layer.dimension = state.dimension
+    layer.seed = state.seed
     layer.refresh()
 })
 </script>

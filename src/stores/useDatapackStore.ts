@@ -10,6 +10,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
     let last_key = 0
     const datapacks = ref([{datapack: vanillaDatapack, key: 0}])
     const dimension = ref(Identifier.create("overworld"))
+    const seed = ref(BigInt(0))
 
     function addDatapack(datapack: Datapack){
         datapacks.value.push({datapack: datapack, key: ++last_key})
@@ -27,5 +28,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
         return new CompositeDatapack(datapacks.value.map(d => d.datapack))
     }
 
-    return { datapacks, dimension, addDatapack, getCompositeDatapack, removeDatapack }
+    return { datapacks, dimension, seed, addDatapack, getCompositeDatapack, removeDatapack }
 })

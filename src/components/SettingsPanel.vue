@@ -14,19 +14,38 @@ import { useDatapackStore } from '../stores/useDatapackStore';
 </script>
 
 <template>
-    <div class="dimension">
-        <div class="title">Dimension:</div>
-        <select v-model="store.dimension">
-            <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
-        </select>
+    <div class="settings">
+        <div class="setting">
+            <div class="title">Dimension:</div>
+            <select v-model="store.dimension">
+                <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
+            </select>
+        </div>
+        <div class="setting">
+            <div class="title">Seed:</div>
+            <input :value="store.seed" @change="event => {
+                try {
+                    store.seed = BigInt((event.target as HTMLInputElement).value)
+                } catch {
+                    (event.target as HTMLInputElement).value = store.seed.toString()
+                }
+            }" type="text"/>
+        </div>
     </div>
 </template>
 
 <style scoped>
-    .dimension {
+    .settings{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+    .setting {
         width: 100%;
         max-width: 100%;
-        padding: 1rem; 
         box-sizing: border-box;
         display: flex;
         gap: 0.5rem;
@@ -35,9 +54,10 @@ import { useDatapackStore } from '../stores/useDatapackStore';
 
     .title{
         height: fit-content;
+        width: 5rem;
     }
 
-    select {
+    select, input {
         box-sizing: border-box;
         height: 2rem;
         background-color: lightgray;

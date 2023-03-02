@@ -26,11 +26,10 @@ export class BiomeLayer extends L.GridLayer {
 
 	private biomeSource?: BiomeSource
 	private datapackLoader: Promise<void> //= Promise.reject(new Error("datapackLoader not initalized"))
-	public settings: BiomeLayerSettings = {
-		enable_hillshading: true,
-		y: "surface",
-		seed: BigInt(0),
-	}
+	
+	public enable_hillshading: boolean = true
+	public y: number|"surface" = "surface"
+	public seed: bigint = BigInt(0)
 
 	public dimension: Identifier
 	public datapack?: Datapack 
@@ -51,11 +50,6 @@ export class BiomeLayer extends L.GridLayer {
 		this.datapackLoader = this.reloadDatapack()
 //		this.settings = options.settings ?? this.settings
 		this.createWorkers()
-	}
-
-	initialize(options: L.GridLayerOptions) {
-
-
 	}
 
 	private createWorkers(){
@@ -93,7 +87,7 @@ export class BiomeLayer extends L.GridLayer {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
 				
 				let hillshade = 1.0
-				if (this.settings.enable_hillshading && (this.settings.y === "surface" || tile.array[x+1][z+1].surface < this.settings.y)){
+				if (this.enable_hillshading && (this.y === "surface" || tile.array[x+1][z+1].surface < this.y)){
 					
 					hillshade = calculateHillshade(
 						tile.array[x+2][z+1].surface - tile.array[x][z+1].surface,
@@ -172,7 +166,7 @@ export class BiomeLayer extends L.GridLayer {
 			task: "setDimension",
 			biomeSourceJson: generator?.biome_source,
 			noiseGeneratorSettingsJson: noiseSettingsJson,
-			seed: this.settings.seed,
+			seed: this.seed,
 			id: noiseSettingsId.toString(),
 			dimension_id: this.dimension.toString()
 		}))
@@ -180,7 +174,7 @@ export class BiomeLayer extends L.GridLayer {
 		const noiseGeneratorSettings = noiseSettingsJson ? NoiseGeneratorSettings.fromJson(noiseSettingsJson) : NoiseGeneratorSettings.create({})
 		this.biomeSource = BiomeSource.fromJson(generator?.biome_source)
 		//this.noiseSettings = noiseGeneratorSettings.noise
-		const randomState = new RandomState(noiseGeneratorSettings, this.settings.seed)
+		const randomState = new RandomState(noiseGeneratorSettings, this.seed)
 		this.router = randomState.router
 		this.sampler = Climate.Sampler.fromRouter(this.router)
 
@@ -209,7 +203,7 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.workers.forEach(w => w.postMessage({
 			task: "setParams",
-			y: this.settings.y,
+			y: this.y,
 		}))
 
 		this.redraw()
@@ -277,7 +271,7 @@ export class BiomeLayer extends L.GridLayer {
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.settings.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.settings.y
+		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.settings.y
 
 		var climate = this.sampler!.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
 		return this.biomeSource!.getBiome(0,0,0, climate)
