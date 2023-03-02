@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { BiomeLayer } from "../BiomeLayer/BiomeLayer";
 import { onMounted } from 'vue';
-import { Identifier } from 'deepslate';
+import { CompositeDatapack } from 'mc-datapack-loader';
 
 const store = useDatapackStore();
 
@@ -21,14 +21,14 @@ onMounted(() => {
     layer = new BiomeLayer({
             tileSize: 256,
         },
-        store.datapack,
+        store.getCompositeDatapack(),
         store.dimension   
     )
     map.addLayer(layer)
 });
 
 store.$subscribe((mutation, state) => {
-    layer.datapack = state.datapack
+    layer.datapack = store.getCompositeDatapack()
     layer.dimension = state.dimension
     layer.refresh()
 })
@@ -43,5 +43,5 @@ store.$subscribe((mutation, state) => {
     #map {
         width: 100%;
         flex-grow: 1;
-}
+    }
 </style>

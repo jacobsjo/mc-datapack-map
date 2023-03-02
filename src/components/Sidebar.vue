@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DatapackSelection from './DatapackSelection.vue';
+import DatapackSelection from './DatapackList.vue';
 import DimensionSelection from './DimensionSelection.vue';
 
 
@@ -17,11 +17,19 @@ import DimensionSelection from './DimensionSelection.vue';
 <style scoped>
     .sidebar {
         height: 100%;
-        width: 25rem;
+        min-width: 18rem;
         display: flex;
         flex-direction: column;
 
         background-color: rgb(3, 33, 58);
         color: white;
+        
+        overflow-y: scroll;
+
     }
+
+    .sidebar::-webkit-scrollbar {
+        width: 0;
+    }
+
 </style>

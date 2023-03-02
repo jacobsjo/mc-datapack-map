@@ -1,15 +1,17 @@
 <script setup lang="ts">
-    import { useDatapackStore } from '../stores/useDatapackStore';
+    import { CompositeDatapack } from 'mc-datapack-loader';
+import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
-    var datapacks = await store.datapack.getIds('dimension')
+    const compositeDatapack = store.getCompositeDatapack()
+    const dimensions = await compositeDatapack.getIds('dimension')
 </script>
 
 <template>
     <div class="dimension">
         <div class="title">Dimension:</div>
         <select v-model="store.dimension">
-            <option v-for="(datapack, index) in datapacks" :value="datapack">{{ datapack }}</option>
+            <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
         </select>
     </div>
 </template>
@@ -19,15 +21,19 @@
         width: 100%;
         padding: 1rem;
         box-sizing: border-box;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
     }
 
-    .title {
-        text-align: center;
-        font-size: larger;
+    .title{
+        height: fit-content;
     }
 
     select {
         box-sizing: border-box;
-        width: 100%;
+        height: 2rem;
+        background-color: lightgray;
+        flex-grow: 1;
     }
 </style>
