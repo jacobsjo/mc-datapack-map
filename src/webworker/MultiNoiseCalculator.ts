@@ -14,7 +14,7 @@ class MultiNoiseCalculator {
   private biomeSource: BiomeSource = new FixedBiomeSource(Identifier.create("plains"))
 
   public calculateMultiNoiseValues(key: string, min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): void {
-    const array: { climate: Climate.TargetPoint, surface: number, biome: string }[][] = Array(tileSize + 2)
+    const array: { surface: number, biome: string }[][] = Array(tileSize + 2)
     const step = (max_x - min_x) / tileSize
     for (let ix = -1; ix < tileSize + 2; ix++) {
       array[ix] = Array(tileSize + 2)
@@ -23,9 +23,8 @@ class MultiNoiseCalculator {
         const z = iz * step + min_z
         const surface = this.surfaceDensityFunction?.compute(DensityFunction.context(x<<2, 0, z<<2)) ?? 0
         const y = (this.y === "surface") ? surface : this.y
-        const climate = this.sampler?.sample(x, y / 4, z) ?? new Climate.TargetPoint(0,0,0,0,0,0)
-        const biome = this.biomeSource.getBiome(0, 0, 0, climate).toString()
-        array[ix][iz] = { climate, surface, biome }
+        const biome = this.biomeSource.getBiome(x, y, z, this.sampler!).toString()
+        array[ix][iz] = { surface, biome }
       }
     }
 

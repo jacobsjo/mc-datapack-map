@@ -274,7 +274,6 @@ export class BiomeLayer extends L.GridLayer {
 
 		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.y
 
-		var climate = this.sampler!.sample(pos.x >> 2 , y >> 2, pos.y >> 2)
-		return this.biomeSource!.getBiome(0,0,0, climate)
+		return this.biomeSource!.getBiome(pos.x >> 2, y >> 2, pos.y >> 2, this.sampler!)
 	}
 }
