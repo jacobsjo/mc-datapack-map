@@ -4,17 +4,11 @@ import { ref } from 'vue';
     import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
-    const compositeDatapack = store.getCompositeDatapack()
-    let dimensions = ref( await store.getDimensions())
-    const normal_world_preset_tag = await compositeDatapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
-    console.log(normal_world_preset_tag)
-    const world_presets = ref( normal_world_preset_tag.values.map(id => Identifier.parse(id)))
+    const dimensions = ref( await store.getDimensions())
+    const world_presets = ref( await store.getWorldPresets())
 
     store.$subscribe(async (mutation, state) => {
-        const compositeDatapack = store.getCompositeDatapack()
-        const normal_world_preset_tag = await compositeDatapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
-        world_presets.value = normal_world_preset_tag.values.map(id => Identifier.parse(id))
-
+        world_presets.value = await store.getWorldPresets()
         dimensions.value = await store.getDimensions()
     })
 </script>

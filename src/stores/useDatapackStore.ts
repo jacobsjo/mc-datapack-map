@@ -13,6 +13,18 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
 
+    async function update() {
+        const dimensions = await getDimensions()
+        if (dimensions.findIndex((id) => id.equals(dimension.value)) === -1) {
+            dimension.value = dimensions[0]
+        }
+
+        const world_presets = await getWorldPresets()
+        if (world_presets.findIndex((id) => id.equals(world_preset.value)) === -1) {
+            dimension.value = world_presets[0]
+        }
+    }
+
     async function getBiomeColors() {
         const biomeColors = new Map<string, { r: number, g: number, b: number }>()
 
@@ -36,7 +48,6 @@ export const useDatapackStore = defineStore('datapacks', () => {
     async function getDimensions() {
         const compositeDatapack = getCompositeDatapack()
         const world_preset_json = await compositeDatapack.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
-        console.log(world_preset_json)
         return (await compositeDatapack.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
                 t.equals(value)
@@ -44,21 +55,24 @@ export const useDatapackStore = defineStore('datapacks', () => {
         )
     }
 
+    async function getWorldPresets() {
+        const normal_world_preset_tag = await getCompositeDatapack().get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
+        return normal_world_preset_tag.values.map(id => Identifier.parse(id))
+    }
+
     function addDatapack(datapack: Datapack) {
         datapacks.value.push({ datapack: datapack, key: ++last_key })
+        update()
     }
 
     async function removeDatapack(id: number) {
         datapacks.value.splice(id, 1)
-        const dimensions = await getDimensions()
-        if (dimensions.findIndex((id) => id.equals(dimension.value)) === -1) {
-            dimension.value = dimensions[0]
-        }
+        update()
     }
 
     function getCompositeDatapack() {
         return new CompositeDatapack(datapacks.value.map(d => d.datapack))
     }
 
-    return { datapacks, world_preset, dimension, seed, addDatapack, getCompositeDatapack, removeDatapack, getBiomeColors, getDimensions }
+    return { datapacks, world_preset, dimension, seed, addDatapack, getCompositeDatapack, removeDatapack, getBiomeColors, getDimensions, getWorldPresets }
 })
