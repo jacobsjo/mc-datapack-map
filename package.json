@@ -15,7 +15,7 @@
     "@types/wicg-file-system-access": "^2020.9.5",
     "deepslate": "^0.17.2",
     "leaflet": "^1.7.1",
-    "mc-datapack-loader": "file://",
+    "mc-datapack-loader": "^0.1.0",
     "pinia": "^2.0.32",
     "vue": "^3.2.45"
   },
