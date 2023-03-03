@@ -1,7 +1,6 @@
 <script setup lang="ts">
-    import { CompositeDatapack } from 'mc-datapack-loader';
-import { ref } from 'vue';
-import { useDatapackStore } from '../stores/useDatapackStore';
+    import { ref } from 'vue';
+    import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
     const compositeDatapack = store.getCompositeDatapack()

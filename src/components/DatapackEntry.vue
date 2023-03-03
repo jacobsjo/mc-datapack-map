@@ -1,7 +1,5 @@
 <script setup lang="ts">
-    import { buildProps } from '@vue/compiler-core';
-import { Datapack } from 'mc-datapack-loader';
-import { onMounted } from 'vue';
+    import { Datapack } from 'mc-datapack-loader';
 
     const props = defineProps({
         datapack: Object
