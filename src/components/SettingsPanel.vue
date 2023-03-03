@@ -1,19 +1,32 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { Identifier } from 'deepslate';
+import { ref } from 'vue';
     import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
     const compositeDatapack = store.getCompositeDatapack()
-    let dimensions = ref( await compositeDatapack.getIds('dimension'))
+    let dimensions = ref( await store.getDimensions())
+    const normal_world_preset_tag = await compositeDatapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
+    console.log(normal_world_preset_tag)
+    const world_presets = ref( normal_world_preset_tag.values.map(id => Identifier.parse(id)))
 
     store.$subscribe(async (mutation, state) => {
         const compositeDatapack = store.getCompositeDatapack()
-        dimensions.value = await compositeDatapack.getIds('dimension')
+        const normal_world_preset_tag = await compositeDatapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
+        world_presets.value = normal_world_preset_tag.values.map(id => Identifier.parse(id))
+
+        dimensions.value = await store.getDimensions()
     })
 </script>
 
 <template>
     <div class="settings">
+        <div class="setting">
+            <div class="title">World Preset:</div>
+            <select v-model="store.world_preset">
+                <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ world_preset }}</option>
+            </select>
+        </div>
         <div class="setting">
             <div class="title">Dimension:</div>
             <select v-model="store.dimension">
@@ -53,7 +66,7 @@
 
     .title{
         height: fit-content;
-        width: 5rem;
+        width: 6.3rem;
     }
 
     select, input {

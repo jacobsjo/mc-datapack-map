@@ -4,6 +4,7 @@ import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGenerat
 import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
+import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
 
 const WORKER_COUNT = 4
 
@@ -32,6 +33,7 @@ export class BiomeLayer extends L.GridLayer {
 	
 	public biomeColors: Map<string, {r: number, g: number, b: number}> = new Map()
 
+	public world_preset: Identifier
 	public dimension: Identifier
 	public datapack?: Datapack 
 
@@ -41,10 +43,11 @@ export class BiomeLayer extends L.GridLayer {
 
 	private depth_scale = 0;
 
-	constructor(options: L.GridLayerOptions, datapack: Datapack, dimension: Identifier) {
+	constructor(options: L.GridLayerOptions, datapack: Datapack, world_preset: Identifier, dimension: Identifier) {
 		super(options)
 		this.tileSize = options.tileSize as number
 		this.calcResolution = 1 / 4
+		this.world_preset = world_preset
 		this.datapack = datapack
 		this.dimension = dimension
 
@@ -144,8 +147,14 @@ export class BiomeLayer extends L.GridLayer {
 			WorldgenRegistries.NOISE.register(id, noise)
 		}
 
+		var dimensionJson: any
+		if (await this.datapack.has("dimension", this.dimension)){
+			dimensionJson = await this.datapack.get("dimension", this.dimension) 
+		} else {
+			const world_preset_json = (await this.datapack.get("worldgen/world_preset", this.world_preset)) as {dimensions: {[key: string]: any}}
+			dimensionJson = world_preset_json.dimensions[this.dimension.toString()]
+		}
 
-		const dimensionJson = await this.datapack.get("dimension", this.dimension) as any
 		const generator = dimensionJson?.generator ?? {}
 		if (generator?.type !== "minecraft:noise"){
 			throw new Error("Dimension without noise generator")
@@ -163,9 +172,20 @@ export class BiomeLayer extends L.GridLayer {
 			throw new Error("Malformed generator")
 		}
 
+		const biome_source = generator?.biome_source
+		if (biome_source.type === "minecraft:multi_noise" && "preset" in biome_source){
+			let preset = biome_source.preset
+			const preset_id = Identifier.parse(preset)
+			if (await this.datapack.has("worldgen/multi_noise_biome_source_parameter_list", preset_id)){
+				const parameter_list = await this.datapack.get("worldgen/multi_noise_biome_source_parameter_list", preset_id) as {preset: string}
+				preset = parameter_list.preset
+			}
+			biome_source.biomes = PRESETS[preset]
+		}
+
 		this.workers.forEach(w => w.postMessage({
 			task: "setDimension",
-			biomeSourceJson: generator?.biome_source,
+			biomeSourceJson: biome_source,
 			noiseGeneratorSettingsJson: noiseSettingsJson,
 			seed: this.seed,
 			id: noiseSettingsId.toString(),
@@ -173,7 +193,7 @@ export class BiomeLayer extends L.GridLayer {
 		}))
 
 		const noiseGeneratorSettings = noiseSettingsJson ? NoiseGeneratorSettings.fromJson(noiseSettingsJson) : NoiseGeneratorSettings.create({})
-		this.biomeSource = BiomeSource.fromJson(generator?.biome_source)
+		this.biomeSource = BiomeSource.fromJson(biome_source)
 		//this.noiseSettings = noiseGeneratorSettings.noise
 		const randomState = new RandomState(noiseGeneratorSettings, this.seed)
 		this.router = randomState.router
