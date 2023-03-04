@@ -13,8 +13,8 @@ async function loadUrl(url: string) {
 }
 
 async function loadZip(event: MouseEvent) {
-    function addZipDatapack(file: File) {
-        const datapack = new PromiseDatapack(ZipDatapack.fromFile(file))
+    async function addZipDatapack(file: File) {
+        const datapack = await ZipDatapack.fromFile(file)
         store.addDatapack(datapack)
     }
 
@@ -35,7 +35,7 @@ async function loadZip(event: MouseEvent) {
         } finally {
             if (fileHandle !== undefined){
                 const file = await fileHandle.getFile()
-                addZipDatapack(file)
+                await addZipDatapack(file)
             }
         }
     } else {
@@ -43,9 +43,9 @@ async function loadZip(event: MouseEvent) {
         input.type = 'file'
         input.accept = '.zip'
 
-        input.onchange = (evt) => {
+        input.onchange = async (evt) => {
             const file = (evt.target as HTMLInputElement).files![0]
-            addZipDatapack(file)
+            await addZipDatapack(file)
         }
 
         input.click()

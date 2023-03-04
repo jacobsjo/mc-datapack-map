@@ -1,13 +1,59 @@
 <script setup lang="ts">
+import { FileSystemDirectoryDatapack, PromiseDatapack, ZipDatapack } from 'mc-datapack-loader';
+import { ref } from 'vue';
+import { useDatapackStore } from '../stores/useDatapackStore';
 import DatapackSelection from './DatapackList.vue';
 import MenuButtons from './MenuButtons.vue';
 import SettingsPanel from './SettingsPanel.vue';
+
+    const store = useDatapackStore()
+
+    const file_dragging = ref(false)
+
+    async function dropHandler(ev: DragEvent){
+
+        if (ev.dataTransfer === null){
+            return
+        }
+        ev.preventDefault()
+        file_dragging.value = false
+
+        for (const item of ev.dataTransfer.items){
+            if ("getAsFileSystemHandle" in item){
+                const handle = await item.getAsFileSystemHandle()
+                if (handle instanceof FileSystemDirectoryHandle){
+                    store.addDatapack(new FileSystemDirectoryDatapack(handle))
+                } else if (handle instanceof FileSystemFileHandle) {
+                    console.log(handle)
+                    store.addDatapack(await ZipDatapack.fromFile(await handle.getFile()))
+                }
+            } else {
+                if ((item as DataTransferItem).type === "application/zip"){
+                    const file = (item as DataTransferItem).getAsFile()
+                    if (file){
+                        store.addDatapack(await ZipDatapack.fromFile(file))
+                    }
+                }
+            }
+        }
+    }
+
+    function dragOverHandler(ev: DragEvent){
+
+        ev.preventDefault()
+    }
 
 
 </script>
 
 <template>
-    <div class="sidebar">
+    <div class="sidebar"
+        @drop="dropHandler"
+        @dragover="dragOverHandler"
+        @dragenter="file_dragging=true"
+        @dragleave="file_dragging=false"
+        :class="{file_dragging: file_dragging}"
+    >
         <MenuButtons />
         <Suspense>
             <SettingsPanel />
@@ -32,6 +78,12 @@ import SettingsPanel from './SettingsPanel.vue';
         padding-top: 1.5rem;
         gap: 1.5rem;
         box-sizing: border-box;
+
+        transition: 0.3s;
+    }
+
+    .sidebar.file_dragging {
+        background-color: rgb(7, 68, 78);
     }
 
     .sidebar::-webkit-scrollbar {
