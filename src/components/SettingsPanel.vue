@@ -46,7 +46,6 @@ import { ref } from 'vue';
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        padding: 1rem;
         box-sizing: border-box;
     }
     .setting {

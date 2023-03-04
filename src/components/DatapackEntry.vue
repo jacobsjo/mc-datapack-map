@@ -41,6 +41,7 @@
         flex-grow: 1;
         text-align: center;
         height: fit-content;
+        overflow: hidden;
     }
 
     .close_button {
