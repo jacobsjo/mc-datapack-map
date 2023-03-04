@@ -16,9 +16,8 @@ const store = useDatapackStore();
 
 <style scoped>
 .datapack_list {
-    flex-grow: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: center;
     gap: 1rem;
 }
