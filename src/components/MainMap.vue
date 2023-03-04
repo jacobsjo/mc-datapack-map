@@ -6,7 +6,7 @@ import { BiomeLayer } from "../BiomeLayer/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import { CompositeDatapack } from 'mc-datapack-loader';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { Identifier } from 'deepslate';
+import { BlockPos, Identifier } from 'deepslate';
 
 const store = useDatapackStore();
 
@@ -15,6 +15,7 @@ let layer: BiomeLayer
 const tooltip_left = ref(0)
 const tooltip_top = ref(0)
 const tooltip_biome = ref(Identifier.create("void"))
+const tooltip_position = ref(BlockPos.ZERO)
 const show_tooltip = ref(false)
 
 onMounted(async () => {
@@ -39,7 +40,9 @@ onMounted(async () => {
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
         tooltip_left.value = evt.originalEvent.pageX + 10
         tooltip_top.value = evt.originalEvent.pageY + 10
-        tooltip_biome.value = layer.getBiome(evt.latlng)
+        const info = layer.getPositionInfo(evt.latlng)
+        tooltip_biome.value = info.biome
+        tooltip_position.value = info.pos
         show_tooltip.value = true
     })
 
@@ -63,7 +66,7 @@ store.$subscribe(async (mutation, state) => {
         <div id="map">
         </div>
     </div>
-    <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{left: tooltip_left+'px', top: tooltip_top+'px'}" :biome="tooltip_biome" />
+    <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{left: tooltip_left+'px', top: tooltip_top+'px'}" :biome="tooltip_biome" :pos="tooltip_position" />
 </template>
 
 <style scoped>

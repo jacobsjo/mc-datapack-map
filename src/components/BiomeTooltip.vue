@@ -1,22 +1,49 @@
 <script setup lang="ts">
     const props = defineProps({
-        biome: Object
+        biome: Object,
+        pos: Object
     })
 
 </script>
 
 <template>
     <div class="tooltip">
-        {{ biome }}
+        <div class="biome">
+            {{ biome }}
+        </div>
+        <div class="position">
+            <div class="coordinate">{{  pos?.[0].toFixed(0) }}</div>,
+            <div class="coordinate">{{  pos?.[1].toFixed(0) }}</div>,
+            <div class="coordinate">{{  pos?.[2].toFixed(0) }}</div>
+        </div>
     </div>
 </template>
 
 <style scoped>
     .tooltip {
         width: fit-content;
-        height: 1.5rem;
         padding: 0.25rem;
-        background-color: lightgray;
         color: black;
+    }
+
+    .biome {
+        background-color: lightgray;
+        width: fit-content;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+    }
+
+    .position {
+        background-color: lightgray;
+        width: fit-content;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .coordinate {
+        min-width: 2.8rem;
+        text-align: center;
     }
 </style>

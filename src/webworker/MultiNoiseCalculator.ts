@@ -23,7 +23,7 @@ class MultiNoiseCalculator {
         const z = iz * step + min_z
         const surface = this.surfaceDensityFunction?.compute(DensityFunction.context(x<<2, 0, z<<2)) ?? 0
         const y = (this.y === "surface") ? surface : this.y
-        const biome = this.biomeSource.getBiome(x, y, z, this.sampler!).toString()
+        const biome = this.biomeSource.getBiome(x, y>>2, z, this.sampler!).toString()
         array[ix][iz] = { surface, biome }
       }
     }

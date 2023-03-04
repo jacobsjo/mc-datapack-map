@@ -1,6 +1,6 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource } from "deepslate";
+import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource, BlockPos } from "deepslate";
 import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
@@ -286,14 +286,17 @@ export class BiomeLayer extends L.GridLayer {
 		L.TileLayer.prototype._removeTile.call(this, key)
 	}
 
-	getBiome(latlng: L.LatLng): Identifier {
+	getPositionInfo(latlng: L.LatLng): {biome: Identifier, pos: BlockPos} {
 
 		const crs = this._map.options.crs!
 		const pos = crs.project(latlng)
 		pos.y *= -1
 
-		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) + 4 : this.y
+		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : this.y
 
-		return this.biomeSource!.getBiome(pos.x >> 2, y >> 2, pos.y >> 2, this.sampler!)
+		return {
+			biome: this.biomeSource!.getBiome(pos.x >> 2, y >> 2, pos.y >> 2, this.sampler!),
+			pos: BlockPos.create(pos.x, y, pos.y)
+		}
 	}
 }
