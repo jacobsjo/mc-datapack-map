@@ -12,7 +12,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
-    const y = ref<number|"surface">(75)
+    const y = ref<number|"surface">("surface")
 
     async function update() {
         if ((await dimensions.value).findIndex((id) => id.equals(dimension.value)) === -1) {
