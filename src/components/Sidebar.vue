@@ -75,7 +75,7 @@ import SettingsPanel from './SettingsPanel.vue';
         
         overflow-y: scroll;
         padding: 1rem;
-        padding-top: 1.5rem;
+        padding-top: 1rem;
         gap: 1.5rem;
         box-sizing: border-box;
 

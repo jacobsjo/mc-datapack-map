@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Collapsable from './components/Collapsable.vue';
 import MainMap from './components/MainMap.vue';
 import Sidebar from './components/Sidebar.vue';
 
@@ -6,7 +7,9 @@ import Sidebar from './components/Sidebar.vue';
 
 <template>
   <div class="layout">
-    <Sidebar />
+    <Collapsable>
+      <Sidebar />
+    </Collapsable>
     <MainMap />
   </div>
 </template>

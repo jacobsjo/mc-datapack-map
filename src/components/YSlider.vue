@@ -19,7 +19,7 @@
         <vue-slider 
             direction="btt"
             height="6rem"
-            tooltip-placement="right"
+            tooltip-placement="left"
             tooltip="hover"
             :lazy="true"
             :process="false"

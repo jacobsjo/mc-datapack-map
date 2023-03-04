@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDatapackStore } from '../stores/useDatapackStore';
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import L, { control } from "leaflet";
 import { BiomeLayer } from "../BiomeLayer/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import { CompositeDatapack } from 'mc-datapack-loader';
@@ -24,8 +24,13 @@ onMounted(async () => {
         zoom: 15,
         minZoom: 13,
         maxZoom: 20,
-        center: [0,0]
+        center: [0,0],
+        zoomControl: false
     })
+
+    L.control.zoom({
+        position: "topright"
+    }).addTo(map)
 
     layer = new BiomeLayer({
             tileSize: 256,
@@ -98,7 +103,7 @@ store.$subscribe(async (mutation, state) => {
         position: absolute;
         z-index: 600;
         top: 5rem;
-        left: 0.8rem;
+        right: 0.85rem;
     }
 
     #tooltip{
