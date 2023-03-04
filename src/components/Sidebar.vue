@@ -3,6 +3,7 @@ import { FileSystemDirectoryDatapack, PromiseDatapack, ZipDatapack } from 'mc-da
 import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import DatapackSelection from './DatapackList.vue';
+import Footer from './Footer.vue';
 import MenuButtons from './MenuButtons.vue';
 import SettingsPanel from './SettingsPanel.vue';
 
@@ -59,6 +60,7 @@ import SettingsPanel from './SettingsPanel.vue';
             <SettingsPanel />
         </Suspense>
         <DatapackSelection />
+        <Footer @open_popup="$emit('open_popup')" />
     </div>
 </template>
 
