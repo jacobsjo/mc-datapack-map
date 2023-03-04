@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { Identifier } from "deepslate";
 
 export const useDatapackStore = defineStore('datapacks', () => {
@@ -15,27 +15,28 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const y = ref<number|"surface">(75)
 
     async function update() {
-        const dimensions = await getDimensions()
-        if (dimensions.findIndex((id) => id.equals(dimension.value)) === -1) {
-            dimension.value = dimensions[0]
+        if ((await dimensions.value).findIndex((id) => id.equals(dimension.value)) === -1) {
+            dimension.value = (await dimensions.value)[0]
         }
 
-        const world_presets = await getWorldPresets()
-        if (world_presets.findIndex((id) => id.equals(world_preset.value)) === -1) {
-            dimension.value = world_presets[0]
+        if ((await world_presets.value).findIndex((id) => id.equals(world_preset.value)) === -1) {
+            dimension.value = (await world_presets.value)[0]
         }
     }
 
-    async function getBiomeColors() {
+    const composite_datapack = computed(() => {
+        return new CompositeDatapack(datapacks.value.map(d => d.datapack))
+    })
+
+
+    const biome_colors = computed(async () => {
         const biomeColors = new Map<string, { r: number, g: number, b: number }>()
 
-        const compositeDatapack = getCompositeDatapack()
-
-        const ids = await (compositeDatapack.getIds(""))
+        const ids = await (composite_datapack.value.getIds(""))
         for (const id of ids) {
             if (id.path !== "biome_colors") continue;
 
-            const json = await compositeDatapack.get("", id) as { r: number, g: number, b: number }[]
+            const json = await composite_datapack.value.get("", id) as { r: number, g: number, b: number }[]
             for (const biome in json) {
                 const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
 
@@ -44,27 +45,25 @@ export const useDatapackStore = defineStore('datapacks', () => {
         }
 
         return biomeColors
-    }
+    })
 
     async function getYLimits() {
-        const compositeDatapack = getCompositeDatapack()
         dimension
     }
 
-    async function getDimensions() {
-        const compositeDatapack = getCompositeDatapack()
-        const world_preset_json = await compositeDatapack.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
-        return (await compositeDatapack.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
+    const dimensions = computed(async () => {
+        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
+        return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
                 t.equals(value)
             ))
         )
-    }
+    })
 
-    async function getWorldPresets() {
-        const normal_world_preset_tag = await getCompositeDatapack().get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
+    const world_presets = computed(async () => {
+        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
         return normal_world_preset_tag.values.map(id => Identifier.parse(id))
-    }
+    })
 
     function addDatapack(datapack: Datapack) {
         datapacks.value.push({ datapack: datapack, key: ++last_key })
@@ -76,9 +75,6 @@ export const useDatapackStore = defineStore('datapacks', () => {
         update()
     }
 
-    function getCompositeDatapack() {
-        return new CompositeDatapack(datapacks.value.map(d => d.datapack))
-    }
 
-    return { datapacks, world_preset, dimension, seed, y, addDatapack, getCompositeDatapack, removeDatapack, getBiomeColors, getDimensions, getWorldPresets }
+    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimensions, world_presets }
 })

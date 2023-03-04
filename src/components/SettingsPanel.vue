@@ -4,12 +4,12 @@ import { ref } from 'vue';
     import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore();
-    const dimensions = ref( await store.getDimensions())
-    const world_presets = ref( await store.getWorldPresets())
+    const dimensions = ref( await store.dimensions)
+    const world_presets = ref( await store.world_presets)
 
     store.$subscribe(async (mutation, state) => {
-        world_presets.value = await store.getWorldPresets()
-        dimensions.value = await store.getDimensions()
+        world_presets.value = await store.world_presets
+        dimensions.value = await store.dimensions
     })
 </script>
 

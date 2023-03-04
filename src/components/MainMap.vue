@@ -30,11 +30,11 @@ onMounted(async () => {
     layer = new BiomeLayer({
             tileSize: 256,
         },
-        store.getCompositeDatapack(),
+        store.composite_datapack,
         store.world_preset,
         store.dimension   
     )
-    layer.biomeColors = await store.getBiomeColors()
+    layer.biomeColors = await store.biome_colors
 
     map.addLayer(layer)
 
@@ -53,11 +53,11 @@ onMounted(async () => {
 });
 
 store.$subscribe(async (mutation, state) => {
-    layer.datapack = store.getCompositeDatapack()
+    layer.datapack = store.composite_datapack
     layer.world_preset = state.world_preset
     layer.dimension = state.dimension
     layer.seed = state.seed
-    layer.biomeColors = await store.getBiomeColors()
+    layer.biomeColors = await store.biome_colors
     layer.refresh()
 })
 </script>
