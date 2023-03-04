@@ -12,6 +12,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
+    const y = ref<number|"surface">(75)
 
     async function update() {
         const dimensions = await getDimensions()
@@ -45,6 +46,11 @@ export const useDatapackStore = defineStore('datapacks', () => {
         return biomeColors
     }
 
+    async function getYLimits() {
+        const compositeDatapack = getCompositeDatapack()
+        dimension
+    }
+
     async function getDimensions() {
         const compositeDatapack = getCompositeDatapack()
         const world_preset_json = await compositeDatapack.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
@@ -74,5 +80,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
         return new CompositeDatapack(datapacks.value.map(d => d.datapack))
     }
 
-    return { datapacks, world_preset, dimension, seed, addDatapack, getCompositeDatapack, removeDatapack, getBiomeColors, getDimensions, getWorldPresets }
+    return { datapacks, world_preset, dimension, seed, y, addDatapack, getCompositeDatapack, removeDatapack, getBiomeColors, getDimensions, getWorldPresets }
 })

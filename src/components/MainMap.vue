@@ -7,6 +7,7 @@ import { onMounted, ref } from 'vue';
 import { CompositeDatapack } from 'mc-datapack-loader';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, Identifier } from 'deepslate';
+import YSlider from './YSlider.vue';
 
 const store = useDatapackStore();
 
@@ -65,6 +66,7 @@ store.$subscribe(async (mutation, state) => {
     <div id="map_container">
         <div id="map">
         </div>
+        <YSlider class="slider" />
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{left: tooltip_left+'px', top: tooltip_top+'px'}" :biome="tooltip_biome" :pos="tooltip_position" />
 </template>
@@ -84,6 +86,13 @@ store.$subscribe(async (mutation, state) => {
 
     #map.leaflet-drag-target{
         cursor: grab;
+    }
+
+    .slider{
+        position: absolute;
+        z-index: 600;
+        top: 5rem;
+        left: 0.8rem;
     }
 
     #tooltip{
