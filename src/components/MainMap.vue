@@ -32,8 +32,10 @@ onMounted(async () => {
         },
         store.composite_datapack,
         store.world_preset,
-        store.dimension   
+        store.dimension,
+        await store.dimension_json
     )
+
     layer.biomeColors = await store.biome_colors
 
     map.addLayer(layer)
@@ -54,10 +56,12 @@ onMounted(async () => {
 
 store.$subscribe(async (mutation, state) => {
     layer.datapack = store.composite_datapack
-    layer.world_preset = state.world_preset
-    layer.dimension = state.dimension
+    layer.world_preset = store.world_preset
+    layer.dimension_id = store.dimension
+    layer.dimension_json = await store.dimension_json
     layer.seed = state.seed
     layer.biomeColors = await store.biome_colors
+    layer.y = store.y
     layer.refresh()
 })
 </script>
@@ -66,7 +70,9 @@ store.$subscribe(async (mutation, state) => {
     <div id="map_container">
         <div id="map">
         </div>
-        <YSlider class="slider" />
+        <Suspense>
+            <YSlider class="slider" />
+        </Suspense>
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{left: tooltip_left+'px', top: tooltip_top+'px'}" :biome="tooltip_biome" :pos="tooltip_position" />
 </template>

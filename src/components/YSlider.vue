@@ -1,9 +1,16 @@
 <script setup lang="ts">
+    import { ref, watch } from 'vue';
     import VueSlider from 'vue-slider-component'
     import 'vue-slider-component/theme/default.css'
-import { useDatapackStore } from '../stores/useDatapackStore';
+    import { useDatapackStore } from '../stores/useDatapackStore';
 
     const store = useDatapackStore()
+
+    const y_limits = ref(await store.y_limits)
+
+    store.$subscribe(async (mutation, state) => {
+        y_limits.value = await store.y_limits
+    })
 
 </script>
 
@@ -14,11 +21,13 @@ import { useDatapackStore } from '../stores/useDatapackStore';
             height="6rem"
             tooltip-placement="right"
             tooltip="hover"
+            :lazy="true"
             :process="false"
-            v-model="store.y"
-            :max="257"
-            :min="-64"
-            :tooltip-formatter="v => v === 257 ? 'Surface' : 'Y: ' + v" />
+            :modelValue="store.y === 'surface' ? y_limits[1] + 1 : store.y"
+            @update:model-value="(value) => store.y = (value === y_limits[1] +1 ? 'surface' : value)"
+            :max="y_limits[1] + 1"
+            :min="y_limits[0]"
+            :tooltip-formatter="v => v === y_limits[1] + 1 ? 'Surface' : 'Y: ' + v" />
     </div>
 </template>
 

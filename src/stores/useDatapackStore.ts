@@ -47,9 +47,20 @@ export const useDatapackStore = defineStore('datapacks', () => {
         return biomeColors
     })
 
-    async function getYLimits() {
-        dimension
-    }
+    var dimension_json = computed(async () => {
+        if (await composite_datapack.value.has("dimension", dimension.value)){
+            return await composite_datapack.value.get("dimension", dimension.value) 
+        } else {
+            const world_preset_json = (await composite_datapack.value.get("worldgen/world_preset", world_preset.value)) as {dimensions: {[key: string]: any}}
+            return world_preset_json.dimensions[dimension.value.toString()]
+        }
+    })
+    
+    const y_limits = computed(async () => {
+        const dimension_type_id = Identifier.parse((await dimension_json.value).type)
+        const dimension_type_json = await composite_datapack.value.get("dimension_type", dimension_type_id) as any
+        return [dimension_type_json.min_y, dimension_type_json.min_y + dimension_type_json.height]
+    })
 
     const dimensions = computed(async () => {
         const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
@@ -76,5 +87,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
     }
 
 
-    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimensions, world_presets }
+    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimensions, world_presets, dimension_json, y, y_limits }
 })

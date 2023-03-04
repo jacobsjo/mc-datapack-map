@@ -34,8 +34,9 @@ export class BiomeLayer extends L.GridLayer {
 	public biomeColors: Map<string, {r: number, g: number, b: number}> = new Map()
 
 	public world_preset: Identifier
-	public dimension: Identifier
+	public dimension_id: Identifier
 	public datapack?: Datapack 
+	public dimension_json: any
 
 	private router: any;
 	private sampler?: Climate.Sampler;
@@ -43,13 +44,14 @@ export class BiomeLayer extends L.GridLayer {
 
 	private depth_scale = 0;
 
-	constructor(options: L.GridLayerOptions, datapack: Datapack, world_preset: Identifier, dimension: Identifier) {
+	constructor(options: L.GridLayerOptions, datapack: Datapack, world_preset: Identifier, dimension_id: Identifier, dimension_json: any) {
 		super(options)
 		this.tileSize = options.tileSize as number
 		this.calcResolution = 1 / 4
 		this.world_preset = world_preset
 		this.datapack = datapack
-		this.dimension = dimension
+		this.dimension_id = dimension_id
+		this.dimension_json = dimension_json
 
 		this.datapackLoader = this.reloadDatapack()
 //		this.settings = options.settings ?? this.settings
@@ -147,15 +149,8 @@ export class BiomeLayer extends L.GridLayer {
 			WorldgenRegistries.NOISE.register(id, noise)
 		}
 
-		var dimensionJson: any
-		if (await this.datapack.has("dimension", this.dimension)){
-			dimensionJson = await this.datapack.get("dimension", this.dimension) 
-		} else {
-			const world_preset_json = (await this.datapack.get("worldgen/world_preset", this.world_preset)) as {dimensions: {[key: string]: any}}
-			dimensionJson = world_preset_json.dimensions[this.dimension.toString()]
-		}
 
-		const generator = dimensionJson?.generator ?? {}
+		const generator = this.dimension_json.generator ?? {}
 		if (generator?.type !== "minecraft:noise"){
 			throw new Error("Dimension without noise generator")
 		}
@@ -189,7 +184,7 @@ export class BiomeLayer extends L.GridLayer {
 			noiseGeneratorSettingsJson: noiseSettingsJson,
 			seed: this.seed,
 			id: noiseSettingsId.toString(),
-			dimension_id: this.dimension.toString()
+			dimension_id: this.dimension_id.toString()
 		}))
 
 		const noiseGeneratorSettings = noiseSettingsJson ? NoiseGeneratorSettings.fromJson(noiseSettingsJson) : NoiseGeneratorSettings.create({})
@@ -201,7 +196,7 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
 
-		this.surfaceDensityFunction = getSurfaceDensityFunction(noiseSettingsId, this.dimension).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
+		this.surfaceDensityFunction = getSurfaceDensityFunction(noiseSettingsId, this.dimension_id).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
 
 	}
 
