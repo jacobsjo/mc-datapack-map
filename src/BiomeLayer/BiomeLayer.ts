@@ -5,6 +5,7 @@ import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode }
 import { Datapack } from "mc-datapack-loader";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
+import { useBiomeSearchStore } from "../stores/useBiomeSearchStore";
 
 const WORKER_COUNT = 4
 
@@ -43,6 +44,8 @@ export class BiomeLayer extends L.GridLayer {
 	private surfaceDensityFunction?: DensityFunction;
 
 	private depth_scale = 0;
+
+	public show_biomes: Set<string> = new Set()
 
 	constructor(options: L.GridLayerOptions, datapack: Datapack, world_preset: Identifier, dimension_id: Identifier, dimension_json: any) {
 		super(options)
@@ -91,7 +94,12 @@ export class BiomeLayer extends L.GridLayer {
 
 		for (let x = 0; x < this.tileSize * this.calcResolution; x++) {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
+				const biome = tile.array[x + 1][z + 1].biome
 				
+				if (this.show_biomes.size > 0 && !this.show_biomes.has(biome)){
+					continue
+				}
+
 				let hillshade = 1.0
 				if (this.enable_hillshading && (this.y === "surface" || tile.array[x+1][z+1].surface < this.y)){
 					
@@ -102,7 +110,6 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}				
 				
-				const biome = tile.array[x + 1][z + 1].biome
 				let biomeColor = this.biomeColors.get(biome)
 				if (biomeColor === undefined) {
 					const hash = hashCode(biome)
@@ -210,7 +217,7 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async refresh(){
-		console.log("canceling")
+		//console.log("canceling")
 		this.workers.forEach(w => w.terminate())
 		this.createWorkers()
 

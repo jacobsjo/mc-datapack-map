@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { useDatapackStore } from '../stores/useDatapackStore';
+import { useDatapackStore } from '../../stores/useDatapackStore';
 import { Datapack, FileListDatapack, FileSystemDirectoryDatapack, PromiseDatapack, UNKOWN_PACK, ZipDatapack } from 'mc-datapack-loader';
 import DropdownEntry from './DropdownEntry.vue';
+import Dropdown from './Dropdown.vue';
 import { onMounted, ref } from 'vue';
 
 const store = useDatapackStore();
+const emit = defineEmits(['close'])
 
 
 async function loadUrl(url: string) {
     const datapack = new PromiseDatapack(ZipDatapack.fromUrl(url))
     store.addDatapack(datapack)
+    emit('close')
 }
 
 async function loadZip(event: MouseEvent) {
@@ -50,6 +53,7 @@ async function loadZip(event: MouseEvent) {
 
         input.click()
     }
+    emit('close')
 }
 
 async function loadFolder(event: MouseEvent) {
@@ -76,13 +80,8 @@ async function loadFolder(event: MouseEvent) {
     if (datapack !== undefined){
         store.addDatapack(datapack)
     }
+    emit('close')
 }
-
-const dropdown = ref<HTMLDivElement|null>(null)
-
-onMounted(() => {
-    dropdown.value?.focus()
-})
 
 const PRESET_DATAPACKS = [
     {image: UNKOWN_PACK, name:"Update 1.20", url: "vanilla_datapacks/update_1_20.zip"}
@@ -91,30 +90,15 @@ const PRESET_DATAPACKS = [
 </script>
 
 <template>
-    <div ref="dropdown" class="dropdown">
+    <Dropdown>
         <DropdownEntry icon="fa-file-zipper" @click="loadZip">Open Datapack.zip</DropdownEntry>
         <DropdownEntry icon="fa-folder-open" @click="loadFolder">Open Datapack Folder</DropdownEntry>
         <div class="spacer"></div>
         <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url)">{{preset.name}}</DropdownEntry>
-    </div>
+    </Dropdown>
 </template>
 
 <style scoped>
-.dropdown {
-    position: absolute;
-    width: max-content;
-    max-width: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    top: calc(100% + 0.25rem);
-    background-color: gray;
-    border-radius: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.05rem;
-    padding: 0.5rem;
-    outline: none;
-}
 
 .spacer {
     width: 100%;

@@ -8,8 +8,10 @@ import { CompositeDatapack } from 'mc-datapack-loader';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, Identifier } from 'deepslate';
 import YSlider from './YSlider.vue';
+import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
 
-const store = useDatapackStore();
+const datapackStore = useDatapackStore();
+const biomeSearchStore = useBiomeSearchStore();
 
 let layer: BiomeLayer
 
@@ -35,13 +37,13 @@ onMounted(async () => {
     layer = new BiomeLayer({
             tileSize: 256,
         },
-        store.composite_datapack,
-        store.world_preset,
-        store.dimension,
-        await store.dimension_json
+        datapackStore.composite_datapack,
+        datapackStore.world_preset,
+        datapackStore.dimension,
+        await datapackStore.dimension_json
     )
 
-    layer.biomeColors = await store.biome_colors
+    layer.biomeColors = await datapackStore.biome_colors
 
     map.addLayer(layer)
 
@@ -59,15 +61,20 @@ onMounted(async () => {
     })
 });
 
-store.$subscribe(async (mutation, state) => {
-    layer.datapack = store.composite_datapack
-    layer.world_preset = store.world_preset
-    layer.dimension_id = store.dimension
-    layer.dimension_json = await store.dimension_json
-    layer.seed = state.seed
-    layer.biomeColors = await store.biome_colors
-    layer.y = store.y
+datapackStore.$subscribe(async (mutation, state) => {
+    layer.datapack = datapackStore.composite_datapack
+    layer.world_preset = datapackStore.world_preset
+    layer.dimension_id = datapackStore.dimension
+    layer.dimension_json = await datapackStore.dimension_json
+    layer.seed = datapackStore.seed
+    layer.biomeColors = await datapackStore.biome_colors
+    layer.y = datapackStore.y
     layer.refresh()
+})
+
+biomeSearchStore.$subscribe((mutation, state) => {
+    layer.show_biomes = biomeSearchStore.biomes
+    layer.rerender()
 })
 </script>
   
@@ -93,6 +100,8 @@ store.$subscribe(async (mutation, state) => {
         width: 100%;
         height: 100%;
         cursor: crosshair;
+        background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill-opacity=".25" ><rect x="20" width="20" height="20" /><rect y="20" width="20" height="20" /></svg>');
+        background-size: 25px 25px;
     }
 
     #map.leaflet-drag-target{

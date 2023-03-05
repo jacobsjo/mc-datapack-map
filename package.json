@@ -13,6 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@types/wicg-file-system-access": "^2020.9.5",
+    "@vueuse/components": "^9.13.0",
     "deepslate": "^0.17.2",
     "leaflet": "^1.7.1",
     "mc-datapack-loader": "^0.1.3",
