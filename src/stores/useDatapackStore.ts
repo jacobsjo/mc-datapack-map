@@ -48,6 +48,11 @@ export const useDatapackStore = defineStore('datapacks', () => {
     })
 
     var dimension_json = computed(async () => {
+
+        //set dependencies
+        dimension.value
+        world_preset.value
+
         if (await composite_datapack.value.has("dimension", dimension.value)){
             return await composite_datapack.value.get("dimension", dimension.value) 
         } else {
@@ -63,6 +68,9 @@ export const useDatapackStore = defineStore('datapacks', () => {
     })
 
     const dimensions = computed(async () => {
+
+        world_preset.value
+
         const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
         return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
@@ -87,5 +95,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
     }
 
 
-    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimensions, world_presets, dimension_json, y, y_limits }
+    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimension_json, dimensions, world_presets, y, y_limits }
 })
