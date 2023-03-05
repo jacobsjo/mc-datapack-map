@@ -20,6 +20,7 @@ const tooltip_top = ref(0)
 const tooltip_biome = ref(Identifier.create("void"))
 const tooltip_position = ref(BlockPos.ZERO)
 const show_tooltip = ref(false)
+const show_info = ref(false)
 
 onMounted(async () => {
     const map = L.map("map", {
@@ -59,6 +60,14 @@ onMounted(async () => {
     map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
         show_tooltip.value = false
     })
+
+    map.addEventListener("contextmenu", (evt: L.LeafletMouseEvent) => {
+        const info = layer.getPositionInfo(evt.latlng)
+        navigator.clipboard.writeText(`/execute in ${datapackStore.dimension.toString()} run tp @s ${info.pos[0].toFixed(0)} ${(info.pos[1] + (datapackStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${info.pos[2].toFixed()}`)
+        show_info.value = true
+        setTimeout(() => show_info.value = false, 2000)
+    })
+    
 });
 
 datapackStore.$subscribe(async (mutation, state) => {
@@ -76,17 +85,24 @@ biomeSearchStore.$subscribe((mutation, state) => {
     layer.show_biomes = biomeSearchStore.biomes
     layer.rerender()
 })
+
+
 </script>
   
 <template>
     <div id="map_container">
-        <div id="map">
+        <div id="map" >
         </div>
         <Suspense>
             <YSlider class="slider" />
         </Suspense>
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{left: tooltip_left+'px', top: tooltip_top+'px'}" :biome="tooltip_biome" :pos="tooltip_position" />
+    <Transition>
+        <div class="info" v-if="show_info">
+            Teleport Command Copied    
+        </div>
+    </Transition>
 </template>
 
 <style scoped>
@@ -123,6 +139,21 @@ biomeSearchStore.$subscribe((mutation, state) => {
 
     .button:hover {
         background-color: rgb(177, 176, 176);
+    }
+
+    .info{
+        position: absolute;
+        background-color: rgb(3, 33, 58);
+        z-index: 500;
+        left: 50%;
+        bottom: 0.5rem;
+        transform: translateX(-50%);
+        color: rgb(189, 189, 189);
+        padding: 0.3rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 1rem;
+        user-select: none;
     }
 
 </style>
