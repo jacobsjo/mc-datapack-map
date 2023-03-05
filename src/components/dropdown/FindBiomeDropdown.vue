@@ -65,11 +65,13 @@ function toggleBiome(biome: Identifier){
         background-color: rgb(88, 88, 88);
         overflow-y: scroll;
         list-style-type: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 
 
     .biome_list::-webkit-scrollbar {
-        width: 0;
+        display: none;
     }
 
     .biome {
