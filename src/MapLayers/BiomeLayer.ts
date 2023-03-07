@@ -1,10 +1,8 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource, BlockPos, NoiseSettings, WorldgenStructure, HolderSet, StructureSet, WorldgenContext } from "deepslate";
-import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
-import { Datapack } from "mc-datapack-loader";
+import { Climate, Identifier, WorldgenStructure, WorldgenContext } from "deepslate";
+import { calculateHillshade, hashCode } from "../util";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
-import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { useBiomeSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -27,8 +25,6 @@ export class BiomeLayer extends L.GridLayer {
 	private calcResolution = 0
 
 	private workers: Worker[] = []
-
-	private targetStructure: Identifier = Identifier.create("village_plains")
 
 	public enable_hillshading: boolean = true
 
@@ -126,17 +122,6 @@ export class BiomeLayer extends L.GridLayer {
 					}
 				}
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
-
-				/*
-				const x_frac = x / this.tileSize * this.calcResolution
-				const z_frac = z / this.tileSize * this.calcResolution
-
-				const structure_id = (await this.loadedDimensionStore.structure_set).getStructureInChunk(this.settingsStore.seed, Math.floor(min.x + x_frac * size.x), Math.floor(min.y + z_frac * size.y), await this.loadedDimensionStore.biome_source, await this.loadedDimensionStore.sampler, generationConxet)
-				if (structure_id) {
-					if (structure_id?.equals(this.targetStructure)) {
-						tile.ctx.fillStyle = `rgb(255, 0, 0)`
-					}
-				}*/
 
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
 

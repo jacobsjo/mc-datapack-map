@@ -2,9 +2,8 @@
 import { useDatapackStore } from '../stores/useDatapackStore';
 import "leaflet/dist/leaflet.css";
 import L, { control } from "leaflet";
-import { BiomeLayer } from "../BiomeLayer/BiomeLayer";
+import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { onMounted, ref } from 'vue';
-import { CompositeDatapack } from 'mc-datapack-loader';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, DensityFunction, Identifier } from 'deepslate';
 import YSlider from './YSlider.vue';
@@ -51,16 +50,12 @@ onMounted(async () => {
         tooltip_left.value = evt.originalEvent.pageX + 10
         tooltip_top.value = evt.originalEvent.pageY + 10
 
-		const crs = map.options.crs!
-		const pos = crs.project(evt.latlng)
-		pos.y *= -1
+        const pos = await getPosition(map, evt.latlng)
 
-		const y: number = settingsStore.y === "surface" ? (await loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
-
-		const biome = (await loadedDimensionStore.biome_source).getBiome(pos.x >> 2, y >> 2, pos.y >> 2, await loadedDimensionStore.sampler)
+		const biome = (await loadedDimensionStore.biome_source).getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, await loadedDimensionStore.sampler)
 
         tooltip_biome.value = biome
-        tooltip_position.value = BlockPos.create(pos.x, y, pos.y)
+        tooltip_position.value = pos
         show_tooltip.value = true
     })
 
@@ -69,13 +64,22 @@ onMounted(async () => {
     })
 
     map.addEventListener("contextmenu", async (evt: L.LeafletMouseEvent) => {
-        const info = await layer.getPositionInfo(evt.latlng)
-        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${info.pos[0].toFixed(0)} ${(info.pos[1] + (settingsStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${info.pos[2].toFixed()}`)
+        const pos = await getPosition(map, evt.latlng)
+        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${pos[0].toFixed(0)} ${(pos[1] + (settingsStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${pos[2].toFixed()}`)
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
     })
     
 });
+
+async function getPosition(map: L.Map, latlng: L.LatLng){
+    const crs = map.options.crs!
+    const pos = crs.project(latlng)
+    pos.y *= -1
+
+    const y: number = settingsStore.y === "surface" ? (await loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
+    return BlockPos.create(pos.x, y, pos.y)
+}
 
 datapackStore.$subscribe((mutation, state) => {
     layer.refresh()
