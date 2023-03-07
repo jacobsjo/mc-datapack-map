@@ -1,11 +1,14 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource, BlockPos } from "deepslate";
+import { Climate, DensityFunction, Holder, Identifier, lerp, lerp2, NoiseGeneratorSettings, NoiseParameters, RandomState, WorldgenRegistries, BiomeSource, BlockPos, NoiseSettings, WorldgenStructure, HolderSet, StructureSet, WorldgenContext } from "deepslate";
 import { getSurfaceDensityFunction, calculateHillshade, lerp2Climate, hashCode } from "../util";
 import { Datapack } from "mc-datapack-loader";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { useBiomeSearchStore } from "../stores/useBiomeSearchStore";
+import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
+import { useSettingsStore } from "../stores/useSettingsStore";
+import { useDatapackStore } from "../stores/useDatapackStore";
 
 const WORKER_COUNT = 4
 
@@ -15,53 +18,37 @@ export type BiomeLayerSettings = {
 	seed: bigint
 }
 
-type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: {climate: Climate.TargetPoint, surface: number, biome: string}[][], step?: number, isRendering?: boolean } 
+type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: { climate: Climate.TargetPoint, surface: number, biome: string }[][], step?: number, isRendering?: boolean }
 export class BiomeLayer extends L.GridLayer {
 	private next_worker_id = 0
 
-	private Tiles: { [key: string]: Tile} = {}
+	private Tiles: { [key: string]: Tile } = {}
 	private tileSize = 0
 	private calcResolution = 0
 
 	private workers: Worker[] = []
 
-	private biomeSource?: BiomeSource
-	private datapackLoader: Promise<void> //= Promise.reject(new Error("datapackLoader not initalized"))
-	
+	private targetStructure: Identifier = Identifier.create("village_plains")
+
 	public enable_hillshading: boolean = true
-	public y: number|"surface" = "surface"
-	public seed: bigint = BigInt(0)
-	
-	public biomeColors: Map<string, {r: number, g: number, b: number}> = new Map()
 
-	public world_preset: Identifier
-	public dimension_id: Identifier
-	public datapack?: Datapack 
-	public dimension_json: any
+	private datapackStore = useDatapackStore()
+	private loadedDimensionStore = useLoadedDimensionStore()
+	private biomeSearchStore = useBiomeSearchStore()
+	private settingsStore = useSettingsStore()
 
-	private router: any;
-	private sampler?: Climate.Sampler;
-	private surfaceDensityFunction?: DensityFunction;
+	private datapackLoader: Promise<void> | undefined
 
-	private depth_scale = 0;
-
-	public show_biomes: Set<string> = new Set()
-
-	constructor(options: L.GridLayerOptions, datapack: Datapack, world_preset: Identifier, dimension_id: Identifier, dimension_json: any) {
+	constructor(options: L.GridLayerOptions) {
 		super(options)
 		this.tileSize = options.tileSize as number
 		this.calcResolution = 1 / 4
-		this.world_preset = world_preset
-		this.datapack = datapack
-		this.dimension_id = dimension_id
-		this.dimension_json = dimension_json
 
-		this.datapackLoader = this.reloadDatapack()
-//		this.settings = options.settings ?? this.settings
 		this.createWorkers()
+		this.datapackLoader = this.reloadDatapack()
 	}
 
-	private createWorkers(){
+	private createWorkers() {
 		this.workers = []
 		for (let i = 0; i < WORKER_COUNT; i++) {
 			const worker = new MultiNoiseCalculator()
@@ -84,33 +71,52 @@ export class BiomeLayer extends L.GridLayer {
 		}
 	}
 
-	renderTile(tile: Tile) {
+	async renderTile(tile: Tile) {
 		tile.isRendering = false
-		if (tile.array === undefined || tile.step === undefined){
+		if (tile.array === undefined || tile.step === undefined) {
 			console.warn("trying to render empty tile")
 			return
 		}
+
+		// @ts-expect-error: _tileCoordsToBounds does not exist
+		const tileBounds = this._tileCoordsToBounds(tile.coords);
+		const west = tileBounds.getWest(),
+			east = tileBounds.getEast(),
+			north = tileBounds.getNorth(),
+			south = tileBounds.getSouth();
+
+		const crs = this._map.options.crs!,
+			min = crs.project(L.latLng(north, west)).multiplyBy(0.25),
+			max = crs.project(L.latLng(south, east)).multiplyBy(0.25);
+
+		min.y *= -1
+		max.y *= -1
+
+		const size = max.subtract(min)
+
+		const generationConxet = new WorldgenStructure.GenerationContext(() => 70, WorldgenContext.create(-64, 384), 63)
+
 		tile.ctx.clearRect(0, 0, this.tileSize, this.tileSize)
 
 		for (let x = 0; x < this.tileSize * this.calcResolution; x++) {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
 				const biome = tile.array[x + 1][z + 1].biome
-				
-				if (this.show_biomes.size > 0 && !this.show_biomes.has(biome)){
+
+				if (this.biomeSearchStore.biomes.size > 0 && !this.biomeSearchStore.biomes.has(biome)) {
 					continue
 				}
 
 				let hillshade = 1.0
-				if (this.enable_hillshading && (this.y === "surface" || tile.array[x+1][z+1].surface < this.y)){
-					
+				if (this.enable_hillshading && (this.settingsStore.y === "surface" || tile.array[x + 1][z + 1].surface < this.settingsStore.y)) {
+
 					hillshade = calculateHillshade(
-						tile.array[x+2][z+1].surface - tile.array[x][z+1].surface,
-						tile.array[x+1][z+2].surface - tile.array[x+1][z].surface,
+						tile.array[x + 2][z + 1].surface - tile.array[x][z + 1].surface,
+						tile.array[x + 1][z + 2].surface - tile.array[x + 1][z].surface,
 						tile.step
 					)
-				}				
-				
-				let biomeColor = this.biomeColors.get(biome)
+				}
+
+				let biomeColor = (await this.loadedDimensionStore.biome_colors).get(biome)
 				if (biomeColor === undefined) {
 					const hash = hashCode(biome)
 					biomeColor = {
@@ -120,103 +126,66 @@ export class BiomeLayer extends L.GridLayer {
 					}
 				}
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
+
+				/*
+				const x_frac = x / this.tileSize * this.calcResolution
+				const z_frac = z / this.tileSize * this.calcResolution
+
+				const structure_id = (await this.loadedDimensionStore.structure_set).getStructureInChunk(this.settingsStore.seed, Math.floor(min.x + x_frac * size.x), Math.floor(min.y + z_frac * size.y), await this.loadedDimensionStore.biome_source, await this.loadedDimensionStore.sampler, generationConxet)
+				if (structure_id) {
+					if (structure_id?.equals(this.targetStructure)) {
+						tile.ctx.fillStyle = `rgb(255, 0, 0)`
+					}
+				}*/
+
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
 
 			}
 		}
+
 	}
 
 	async reloadDatapack() {
-		if (this.datapack === undefined){
-			throw new Error("Datapack undefined")
-			return
-		}
-
-		for (const id of await this.datapack.getIds("worldgen/density_function")) {
-			const dfJson = await this.datapack.get("worldgen/density_function", id)
+        for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/density_function")) {
+			const dfJson = await this.datapackStore.composite_datapack.get("worldgen/density_function", id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addDensityFunction",
 				json: dfJson,
 				id: id.toString()
 			}))
-
-			const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(dfJson))
-			WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
 		}
 
-		for (const id of await this.datapack.getIds("worldgen/noise")) {
-			const noiseJson = await this.datapack.get("worldgen/noise", id)
+		for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/noise")) {
+			const noiseJson = await this.datapackStore.composite_datapack.get("worldgen/noise", id)
 			this.workers.forEach(w => w.postMessage({
 				task: "addNoise",
 				json: noiseJson,
 				id: id.toString()
 			}))
 
-			const noise = NoiseParameters.fromJson(noiseJson)
-			WorldgenRegistries.NOISE.register(id, noise)
 		}
 
 
-		const generator = this.dimension_json.generator ?? {}
-		if (generator?.type !== "minecraft:noise"){
-			throw new Error("Dimension without noise generator")
-		}
-
-		let noiseSettingsJson: any
-		let noiseSettingsId: Identifier
-		if (typeof generator?.settings === "object"){
-			noiseSettingsJson = generator?.settings
-			noiseSettingsId = Identifier.parse("inline:inline")
-		} else if (typeof generator?.settings === "string"){
-			noiseSettingsJson = await this.datapack.get("worldgen/noise_settings", Identifier.parse(generator?.settings))
-			noiseSettingsId = Identifier.parse(generator?.settings)
-		} else {
-			throw new Error("Malformed generator")
-		}
-
-		const biome_source = generator?.biome_source
-		if (biome_source.type === "minecraft:multi_noise" && "preset" in biome_source){
-			let preset = biome_source.preset
-			const preset_id = Identifier.parse(preset)
-			if (await this.datapack.has("worldgen/multi_noise_biome_source_parameter_list", preset_id)){
-				const parameter_list = await this.datapack.get("worldgen/multi_noise_biome_source_parameter_list", preset_id) as {preset: string}
-				preset = parameter_list.preset
-			}
-			biome_source.biomes = PRESETS[preset]
-		}
-
-		this.workers.forEach(w => w.postMessage({
+		await Promise.all(this.workers.map(async w => w.postMessage({
 			task: "setDimension",
-			biomeSourceJson: biome_source,
-			noiseGeneratorSettingsJson: noiseSettingsJson,
-			seed: this.seed,
-			id: noiseSettingsId.toString(),
-			dimension_id: this.dimension_id.toString()
-		}))
-
-		const noiseGeneratorSettings = noiseSettingsJson ? NoiseGeneratorSettings.fromJson(noiseSettingsJson) : NoiseGeneratorSettings.create({})
-		this.biomeSource = BiomeSource.fromJson(biome_source)
-		//this.noiseSettings = noiseGeneratorSettings.noise
-		const randomState = new RandomState(noiseGeneratorSettings, this.seed)
-		this.router = randomState.router
-		this.sampler = Climate.Sampler.fromRouter(this.router)
-
-		this.depth_scale = (this.sampler.sample(0, 64, 0).depth - this.sampler.sample(0, 0, 0).depth) / 256  // don't know why 256 and not 64...
-
-		this.surfaceDensityFunction = getSurfaceDensityFunction(noiseSettingsId, this.dimension_id).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
-
+			biomeSourceJson: await this.loadedDimensionStore.biome_source_json,
+			noiseGeneratorSettingsJson: (await this.loadedDimensionStore.noise_settings).json,
+			seed: this.settingsStore.seed,
+			noiseSettingsId: (await this.loadedDimensionStore.noise_settings).id.toString(),
+			dimensionId: this.settingsStore.dimension.toString()
+		})))
 	}
 
-	async rerender(){
-		for (const key in this.Tiles){
-			if (!this.Tiles[key].isRendering){
+	async rerender() {
+		for (const key in this.Tiles) {
+			if (!this.Tiles[key].isRendering) {
 				this.Tiles[key].isRendering = true
 				setTimeout(() => this.renderTile(this.Tiles[key]), 0)
 			}
 		}
 	}
 
-	async refresh(){
+	async refresh() {
 		//console.log("canceling")
 		this.workers.forEach(w => w.terminate())
 		this.createWorkers()
@@ -226,13 +195,13 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.workers.forEach(w => w.postMessage({
 			task: "setParams",
-			y: this.y,
+			y: this.settingsStore.y,
 		}))
 
 		this.redraw()
 	}
 
-	recalculateTile(key: string, coords: L.Coords){
+	recalculateTile(key: string, coords: L.Coords) {
 		// @ts-expect-error: _tileCoordsToBounds does not exist
 		const tileBounds = this._tileCoordsToBounds(coords);
 		const west = tileBounds.getWest(),
@@ -271,7 +240,7 @@ export class BiomeLayer extends L.GridLayer {
 			return tile;
 		}
 
-		this.datapackLoader.then(() => {
+		this.datapackLoader?.then((l) => {
 			const key = this._tileCoordsToKey(coords)
 			this.Tiles[key] = { coords: coords, canvas: tile, ctx: ctx, done: done }
 
@@ -288,17 +257,4 @@ export class BiomeLayer extends L.GridLayer {
 		L.TileLayer.prototype._removeTile.call(this, key)
 	}
 
-	getPositionInfo(latlng: L.LatLng): {biome: Identifier, pos: BlockPos} {
-
-		const crs = this._map.options.crs!
-		const pos = crs.project(latlng)
-		pos.y *= -1
-
-		const y: number = this.y === "surface" ? this.surfaceDensityFunction!.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : this.y
-
-		return {
-			biome: this.biomeSource!.getBiome(pos.x >> 2, y >> 2, pos.y >> 2, this.sampler!),
-			pos: BlockPos.create(pos.x, y, pos.y)
-		}
-	}
 }

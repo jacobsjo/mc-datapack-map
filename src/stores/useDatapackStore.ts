@@ -1,77 +1,62 @@
 import { defineStore } from "pinia";
 
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
-import { computed, ref } from "vue";
-import { Identifier } from "deepslate";
+import { computed, reactive, ref, watch } from "vue";
+import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, WorldgenRegistries, WorldgenStructure } from "deepslate";
+import { useSettingsStore } from "./useSettingsStore";
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/data-1.19.3.zip'))
 
     let last_key = 0
-    const datapacks = ref([{ datapack: vanillaDatapack, key: 0 }])
-    const world_preset = ref(Identifier.create("normal"))
-    const dimension = ref(Identifier.create("overworld"))
-    const seed = ref(BigInt(0))
-    const y = ref<number|"surface">("surface")
-
-    async function update() {
-        if ((await dimensions.value).findIndex((id) => id.equals(dimension.value)) === -1) {
-            dimension.value = (await dimensions.value)[0]
-        }
-
-        if ((await world_presets.value).findIndex((id) => id.equals(world_preset.value)) === -1) {
-            dimension.value = (await world_presets.value)[0]
-        }
-    }
+    const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
+    const settingsStore = useSettingsStore()
 
     const composite_datapack = computed(() => {
-        return new CompositeDatapack(datapacks.value.map(d => d.datapack))
+        return new CompositeDatapack(datapacks.map(d => d.datapack))
     })
 
+    const registered = computed(async () => {
+        // register density functions
+        WorldgenRegistries.DENSITY_FUNCTION.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/density_function")) {
+            const dfJson = await composite_datapack.value.get("worldgen/density_function", id)
 
-    const biome_colors = computed(async () => {
-        const biomeColors = new Map<string, { r: number, g: number, b: number }>()
-
-        const ids = await (composite_datapack.value.getIds(""))
-        for (const id of ids) {
-            if (id.path !== "biome_colors") continue;
-
-            const json = await composite_datapack.value.get("", id) as { r: number, g: number, b: number }[]
-            for (const biome in json) {
-                const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
-
-                biomeColors.set(biome_id, json[biome])
-            }
+            const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(dfJson))
+            WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
         }
 
-        return biomeColors
-    })
+        // register noises
+        WorldgenRegistries.NOISE.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/noise")) {
+            const noiseJson = await composite_datapack.value.get("worldgen/noise", id)
 
-    var dimension_json = computed(async () => {
-
-        //set dependencies
-        dimension.value
-        world_preset.value
-
-        if (await composite_datapack.value.has("dimension", dimension.value)){
-            return await composite_datapack.value.get("dimension", dimension.value) 
-        } else {
-            const world_preset_json = (await composite_datapack.value.get("worldgen/world_preset", world_preset.value)) as {dimensions: {[key: string]: any}}
-            return world_preset_json.dimensions[dimension.value.toString()]
+            const noise = NoiseParameters.fromJson(noiseJson)
+            WorldgenRegistries.NOISE.register(id, noise)
         }
-    })
-    
-    const y_limits = computed(async () => {
-        const dimension_type_id = Identifier.parse((await dimension_json.value).type)
-        const dimension_type_json = await composite_datapack.value.get("dimension_type", dimension_type_id) as any
-        return [dimension_type_json.min_y, dimension_type_json.min_y + dimension_type_json.height]
+
+        // register biome tags
+        WorldgenRegistries.BIOME.clear()
+        for (const id of await composite_datapack.value.getIds("tags/worldgen/biome")) {
+            const biomeTagJson = await composite_datapack.value.get("tags/worldgen/biome", id)
+            const biomeTag = HolderSet.direct<unknown>(WorldgenRegistries.BIOME, biomeTagJson)
+            WorldgenRegistries.BIOME.getTagRegistry().register(id, biomeTag)
+        }
+
+        // register (worldgen) structures
+        WorldgenRegistries.STRUCTURE.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/structure")) {
+            const structureJson = await composite_datapack.value.get("worldgen/structure", id)
+            const structure = WorldgenStructure.fromJson(structureJson)
+            WorldgenRegistries.STRUCTURE.register(id, structure)
+        }
     })
 
     const dimensions = computed(async () => {
 
-        world_preset.value
+        settingsStore.world_preset
 
-        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", world_preset.value) as { dimensions: { [key: string]: unknown } }
+        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
         return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
                 t.equals(value)
@@ -80,20 +65,18 @@ export const useDatapackStore = defineStore('datapacks', () => {
     })
 
     const world_presets = computed(async () => {
-        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as {values: string[]}
+        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
         return normal_world_preset_tag.values.map(id => Identifier.parse(id))
     })
 
     function addDatapack(datapack: Datapack) {
-        datapacks.value.push({ datapack: datapack, key: ++last_key })
-        update()
+        datapacks.push({ datapack: datapack, key: ++last_key })
     }
 
     async function removeDatapack(id: number) {
-        datapacks.value.splice(id, 1)
-        update()
+        datapacks.splice(id, 1)
     }
 
 
-    return { datapacks, world_preset, dimension, seed, addDatapack, composite_datapack, removeDatapack, biome_colors, dimension_json, dimensions, world_presets, y, y_limits }
+    return { datapacks, composite_datapack, addDatapack, removeDatapack, dimensions, world_presets, registered }
 })

@@ -6,12 +6,16 @@ import { BiomeLayer } from "../BiomeLayer/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import { CompositeDatapack } from 'mc-datapack-loader';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, Identifier } from 'deepslate';
+import { BlockPos, DensityFunction, Identifier } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
+import { useSettingsStore } from '../stores/useSettingsStore';
+import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
 
-const datapackStore = useDatapackStore();
-const biomeSearchStore = useBiomeSearchStore();
+const datapackStore = useDatapackStore()
+const biomeSearchStore = useBiomeSearchStore()
+const settingsStore = useSettingsStore()
+const loadedDimensionStore = useLoadedDimensionStore()
 
 let layer: BiomeLayer
 
@@ -38,22 +42,25 @@ onMounted(async () => {
     layer = new BiomeLayer({
             tileSize: 256,
         },
-        datapackStore.composite_datapack,
-        datapackStore.world_preset,
-        datapackStore.dimension,
-        await datapackStore.dimension_json
     )
-
-    layer.biomeColors = await datapackStore.biome_colors
 
     map.addLayer(layer)
 
-    map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
+    map.addEventListener("mousemove", async (evt: L.LeafletMouseEvent) => {
+        await datapackStore.registered
         tooltip_left.value = evt.originalEvent.pageX + 10
         tooltip_top.value = evt.originalEvent.pageY + 10
-        const info = layer.getPositionInfo(evt.latlng)
-        tooltip_biome.value = info.biome
-        tooltip_position.value = info.pos
+
+		const crs = map.options.crs!
+		const pos = crs.project(evt.latlng)
+		pos.y *= -1
+
+		const y: number = settingsStore.y === "surface" ? (await loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
+
+		const biome = (await loadedDimensionStore.biome_source).getBiome(pos.x >> 2, y >> 2, pos.y >> 2, await loadedDimensionStore.sampler)
+
+        tooltip_biome.value = biome
+        tooltip_position.value = BlockPos.create(pos.x, y, pos.y)
         show_tooltip.value = true
     })
 
@@ -61,28 +68,25 @@ onMounted(async () => {
         show_tooltip.value = false
     })
 
-    map.addEventListener("contextmenu", (evt: L.LeafletMouseEvent) => {
-        const info = layer.getPositionInfo(evt.latlng)
-        navigator.clipboard.writeText(`/execute in ${datapackStore.dimension.toString()} run tp @s ${info.pos[0].toFixed(0)} ${(info.pos[1] + (datapackStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${info.pos[2].toFixed()}`)
+    map.addEventListener("contextmenu", async (evt: L.LeafletMouseEvent) => {
+        const info = await layer.getPositionInfo(evt.latlng)
+        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${info.pos[0].toFixed(0)} ${(info.pos[1] + (settingsStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${info.pos[2].toFixed()}`)
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
     })
     
 });
 
-datapackStore.$subscribe(async (mutation, state) => {
-    layer.datapack = datapackStore.composite_datapack
-    layer.world_preset = datapackStore.world_preset
-    layer.dimension_id = datapackStore.dimension
-    layer.dimension_json = await datapackStore.dimension_json
-    layer.seed = datapackStore.seed
-    layer.biomeColors = await datapackStore.biome_colors
-    layer.y = datapackStore.y
+datapackStore.$subscribe((mutation, state) => {
     layer.refresh()
-})
+})  
+
+settingsStore.$subscribe((mutation, state) => {
+    layer.refresh()
+})  
+
 
 biomeSearchStore.$subscribe((mutation, state) => {
-    layer.show_biomes = biomeSearchStore.biomes
     layer.rerender()
 })
 

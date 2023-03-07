@@ -2,14 +2,16 @@
     import { Identifier } from 'deepslate';
 import { ref } from 'vue';
     import { useDatapackStore } from '../stores/useDatapackStore';
+import { useSettingsStore } from '../stores/useSettingsStore';
 
-    const store = useDatapackStore();
-    const dimensions = ref( await store.dimensions)
-    const world_presets = ref( await store.world_presets)
+    const datapackStore = useDatapackStore();
+    const settingsStore = useSettingsStore()
+    const dimensions = ref( await datapackStore.dimensions)
+    const world_presets = ref( await datapackStore.world_presets)
 
-    store.$subscribe(async (mutation, state) => {
-        world_presets.value = await store.world_presets
-        dimensions.value = await store.dimensions
+    datapackStore.$subscribe(async (mutation, state) => {
+        world_presets.value = await datapackStore.world_presets
+        dimensions.value = await datapackStore.dimensions
     })
 </script>
 
@@ -17,23 +19,23 @@ import { ref } from 'vue';
     <div class="settings">
         <div class="setting">
             <div class="title">World Preset:</div>
-            <select v-model="store.world_preset">
+            <select v-model="settingsStore.world_preset">
                 <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ world_preset }}</option>
             </select>
         </div>
         <div class="setting">
             <div class="title">Dimension:</div>
-            <select v-model="store.dimension">
+            <select v-model="settingsStore.dimension">
                 <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
             </select>
         </div>
         <div class="setting">
             <div class="title">Seed:</div>
-            <input :value="store.seed" @change="event => {
+            <input :value="settingsStore.seed" @change="event => {
                 try {
-                    store.seed = BigInt((event.target as HTMLInputElement).value)
+                    settingsStore.seed = BigInt((event.target as HTMLInputElement).value)
                 } catch {
-                    (event.target as HTMLInputElement).value = store.seed.toString()
+                    (event.target as HTMLInputElement).value = settingsStore.seed.toString()
                 }
             }" type="text"/>
         </div>

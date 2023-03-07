@@ -7,7 +7,6 @@ import { Climate, DensityFunction, WorldgenRegistries, Identifier, Holder, Noise
 import { getSurfaceDensityFunction } from "../util"
 
 class MultiNoiseCalculator {
-  private router?: NoiseRouter
   private sampler?: Climate.Sampler
   private y: number | "surface" = "surface"
   private surfaceDensityFunction?: DensityFunction
@@ -21,9 +20,9 @@ class MultiNoiseCalculator {
       for (let iz = -1; iz < tileSize + 2; iz++) {
         const x = ix * step + min_x
         const z = iz * step + min_z
-        const surface = this.surfaceDensityFunction?.compute(DensityFunction.context(x<<2, 0, z<<2)) ?? 0
+        const surface = this.surfaceDensityFunction?.compute(DensityFunction.context(x << 2, 0, z << 2)) ?? 0
         const y = (this.y === "surface") ? surface : this.y
-        const biome = this.biomeSource.getBiome(x, y>>2, z, this.sampler!).toString()
+        const biome = this.biomeSource.getBiome(x, y >> 2, z, this.sampler!).toString()
         array[ix][iz] = { surface, biome }
       }
     }
@@ -32,13 +31,12 @@ class MultiNoiseCalculator {
 
   }
 
-  public setDimension(biomeSourceJson: unknown, noiseGeneratorSettingsJson: unknown, seed: bigint, id: string, dimension_id: string) {
+  public setDimension(biomeSourceJson: unknown, noiseGeneratorSettingsJson: unknown, seed: bigint, noiseSettingsId: string, dimensionId: string) {
     this.biomeSource = BiomeSource.fromJson(biomeSourceJson)
     const noiseGeneratorSettings = noiseGeneratorSettingsJson ? NoiseGeneratorSettings.fromJson(noiseGeneratorSettingsJson) : NoiseGeneratorSettings.create({})
     const randomState = new RandomState(noiseGeneratorSettings, seed)
-    this.router = randomState.router
-    this.sampler = Climate.Sampler.fromRouter(this.router)
-    this.surfaceDensityFunction =  getSurfaceDensityFunction(Identifier.parse(id), Identifier.parse(dimension_id)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
+    this.sampler = Climate.Sampler.fromRouter(randomState.router)
+    this.surfaceDensityFunction = getSurfaceDensityFunction(Identifier.parse(noiseSettingsId), Identifier.parse(dimensionId)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
 
   }
 
@@ -58,10 +56,16 @@ class MultiNoiseCalculator {
   }
 
   public handleMessage(evt: ExtendableMessageEvent) {
+
     if (evt.data.task === "calculate") {
       this.calculateMultiNoiseValues(evt.data.key, evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
     } else if (evt.data.task === "setDimension") {
-      this.setDimension(evt.data.biomeSourceJson, evt.data.noiseGeneratorSettingsJson, evt.data.seed, evt.data.id, evt.data.dimension_id)
+      this.setDimension(
+        evt.data.biomeSourceJson,
+        evt.data.noiseGeneratorSettingsJson,
+        evt.data.seed,
+        evt.data.noiseSettingsId,
+        evt.data.dimensionId)
     } else if (evt.data.task === "addDensityFunction") {
       this.addDensityFunction(Identifier.parse(evt.data.id), evt.data.json)
     } else if (evt.data.task === "addNoise") {
@@ -70,7 +74,7 @@ class MultiNoiseCalculator {
       this.setParams(evt.data.y)
     }
   }
-  
+
 }
 
 
