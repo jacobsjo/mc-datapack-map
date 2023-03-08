@@ -5,7 +5,7 @@ import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, DensityFunction, Identifier } from 'deepslate';
+import { BlockPos, ChunkPos, DensityFunction, Identifier, WorldgenContext, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -25,8 +25,11 @@ const tooltip_position = ref(BlockPos.ZERO)
 const show_tooltip = ref(false)
 const show_info = ref(false)
 
+var map: L.Map
+var markers: L.LayerGroup
+
 onMounted(async () => {
-    const map = L.map("map", {
+    map = L.map("map", {
         zoom: 15,
         minZoom: 13,
         maxZoom: 20,
@@ -45,6 +48,10 @@ onMounted(async () => {
 
     map.addLayer(layer)
 
+    markers = L.layerGroup().addTo(map)
+
+    setStructureMarkers()
+
     map.addEventListener("mousemove", async (evt: L.LeafletMouseEvent) => {
         await datapackStore.registered
         tooltip_left.value = evt.originalEvent.pageX + 10
@@ -58,6 +65,7 @@ onMounted(async () => {
         tooltip_position.value = pos
         show_tooltip.value = true
     })
+
 
     map.addEventListener("mouseout", (evt: L.LeafletMouseEvent) => {
         show_tooltip.value = false
@@ -81,12 +89,38 @@ async function getPosition(map: L.Map, latlng: L.LatLng){
     return BlockPos.create(pos.x, y, pos.y)
 }
 
-datapackStore.$subscribe((mutation, state) => {
+function refresh() {
     layer.refresh()
+    setStructureMarkers()
+}
+
+async function setStructureMarkers(){
+    markers.clearLayers()
+    const structure_set = await loadedDimensionStore.structure_set
+    const biome_source = await loadedDimensionStore.biome_source
+    const sampler = await loadedDimensionStore.sampler
+    const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
+
+    const chunks: ChunkPos[] = structure_set.placement.getPotentialStructureChunks(settingsStore.seed, -150, -150, 150, 150)
+
+    const crs = map.options.crs!
+
+    chunks.forEach(chunk => {
+        const structureId = structure_set.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], biome_source, sampler, context)
+        if (structureId){
+            const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
+            const popup = L.popup().setContent(structureId.toString())
+            L.marker(crs.unproject(pos)).bindPopup(popup).addTo(markers)
+        }
+    });
+}
+
+datapackStore.$subscribe((mutation, state) => {
+    refresh()
 })  
 
 settingsStore.$subscribe((mutation, state) => {
-    layer.refresh()
+    refresh()
 })  
 
 
