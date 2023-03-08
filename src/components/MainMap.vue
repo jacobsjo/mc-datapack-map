@@ -11,7 +11,6 @@ import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
 
-const datapackStore = useDatapackStore()
 const biomeSearchStore = useBiomeSearchStore()
 const settingsStore = useSettingsStore()
 const loadedDimensionStore = useLoadedDimensionStore()
@@ -28,7 +27,7 @@ const show_info = ref(false)
 var map: L.Map
 var markers: L.LayerGroup
 
-onMounted(async () => {
+onMounted(() => {
     map = L.map("map", {
         zoom: 15,
         minZoom: 13,
@@ -52,14 +51,14 @@ onMounted(async () => {
 
     setStructureMarkers()
 
-    map.addEventListener("mousemove", async (evt: L.LeafletMouseEvent) => {
-        await datapackStore.registered
+    map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
+//        await datapackStore.registered
         tooltip_left.value = evt.originalEvent.pageX + 10
         tooltip_top.value = evt.originalEvent.pageY + 10
 
-        const pos = await getPosition(map, evt.latlng)
+        const pos = getPosition(map, evt.latlng)
 
-		const biome = (await loadedDimensionStore.biome_source).getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, await loadedDimensionStore.sampler)
+		const biome = loadedDimensionStore.loaded_dimension.biome_source?.getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, loadedDimensionStore.sampler) ?? Identifier.create("plains")
 
         tooltip_biome.value = biome
         tooltip_position.value = pos
@@ -72,7 +71,7 @@ onMounted(async () => {
     })
 
     map.addEventListener("contextmenu", async (evt: L.LeafletMouseEvent) => {
-        const pos = await getPosition(map, evt.latlng)
+        const pos = getPosition(map, evt.latlng)
         navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${pos[0].toFixed(0)} ${(pos[1] + (settingsStore.y === "surface" ? 10 : 0) ).toFixed(0)} ${pos[2].toFixed()}`)
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
@@ -80,12 +79,12 @@ onMounted(async () => {
     
 });
 
-async function getPosition(map: L.Map, latlng: L.LatLng){
+function getPosition(map: L.Map, latlng: L.LatLng){
     const crs = map.options.crs!
     const pos = crs.project(latlng)
     pos.y *= -1
 
-    const y: number = settingsStore.y === "surface" ? (await loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
+    const y: number = settingsStore.y === "surface" ? (loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
     return BlockPos.create(pos.x, y, pos.y)
 }
 
@@ -94,19 +93,21 @@ function refresh() {
     setStructureMarkers()
 }
 
-async function setStructureMarkers(){
+function setStructureMarkers(){
     markers.clearLayers()
-    const structure_set = await loadedDimensionStore.structure_set
-    const biome_source = await loadedDimensionStore.biome_source
-    const sampler = await loadedDimensionStore.sampler
+
+    if (loadedDimensionStore.loaded_dimension.biome_source === undefined || loadedDimensionStore.loaded_dimension.structure_set === undefined){
+        return
+    }
+
     const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
 
-    const chunks: ChunkPos[] = structure_set.placement.getPotentialStructureChunks(settingsStore.seed, -150, -150, 150, 150)
+    const chunks: ChunkPos[] = loadedDimensionStore.loaded_dimension.structure_set.placement.getPotentialStructureChunks(settingsStore.seed, -150, -150, 150, 150)
 
     const crs = map.options.crs!
 
     chunks.forEach(chunk => {
-        const structureId = structure_set.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], biome_source, sampler, context)
+        const structureId = loadedDimensionStore.loaded_dimension.structure_set!.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], loadedDimensionStore.loaded_dimension.biome_source!, loadedDimensionStore.sampler, context)
         if (structureId){
             const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
             const popup = L.popup().setContent(structureId.toString())
@@ -115,14 +116,9 @@ async function setStructureMarkers(){
     });
 }
 
-datapackStore.$subscribe((mutation, state) => {
+loadedDimensionStore.$subscribe((mutation, state) => {
     refresh()
 })  
-
-settingsStore.$subscribe((mutation, state) => {
-    refresh()
-})  
-
 
 biomeSearchStore.$subscribe((mutation, state) => {
     layer.rerender()

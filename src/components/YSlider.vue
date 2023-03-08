@@ -9,21 +9,21 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 const loadedDimensionStore = useLoadedDimensionStore()
 const settingsStore = useSettingsStore()
 
-const y_limits = ref(await loadedDimensionStore.y_limits)
+const y_limits = ref(await loadedDimensionStore.loaded_dimension.y_limits)
 
 loadedDimensionStore.$subscribe(async (mutation, state) => {
-    y_limits.value = await loadedDimensionStore.y_limits
+    y_limits.value = await loadedDimensionStore.loaded_dimension.y_limits
 })
 
 </script>
 
 <template>
     <div class="slider">
-        <vue-slider direction="btt" height="6rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
+        <vue-slider v-if="y_limits !== undefined" direction="btt" height="6rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
             :modelValue="settingsStore.y === 'surface' ? y_limits[1] + 1 : settingsStore.y"
-            @update:model-value="(value) => settingsStore.y = (value === y_limits[1] + 1 ? 'surface' : value)"
+            @update:model-value="(value) => settingsStore.y = (value === y_limits![1] + 1 ? 'surface' : value)"
             :max="y_limits[1] + 1" :min="y_limits[0]"
-            :tooltip-formatter="v => v === y_limits[1] + 1 ? 'Surface' : 'Y: ' + v" />
+            :tooltip-formatter="v => v === y_limits![1] + 1 ? 'Surface' : 'Y: ' + v" />
     </div>
 </template>
 

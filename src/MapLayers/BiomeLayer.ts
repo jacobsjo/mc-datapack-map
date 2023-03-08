@@ -7,6 +7,7 @@ import { useBiomeSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useDatapackStore } from "../stores/useDatapackStore";
+import { toRaw } from "vue";
 
 const WORKER_COUNT = 4
 
@@ -67,30 +68,12 @@ export class BiomeLayer extends L.GridLayer {
 		}
 	}
 
-	async renderTile(tile: Tile) {
+	renderTile(tile: Tile) {
 		tile.isRendering = false
 		if (tile.array === undefined || tile.step === undefined) {
 			console.warn("trying to render empty tile")
 			return
 		}
-
-		// @ts-expect-error: _tileCoordsToBounds does not exist
-		const tileBounds = this._tileCoordsToBounds(tile.coords);
-		const west = tileBounds.getWest(),
-			east = tileBounds.getEast(),
-			north = tileBounds.getNorth(),
-			south = tileBounds.getSouth();
-
-		const crs = this._map.options.crs!,
-			min = crs.project(L.latLng(north, west)).multiplyBy(0.25),
-			max = crs.project(L.latLng(south, east)).multiplyBy(0.25);
-
-		min.y *= -1
-		max.y *= -1
-
-		const size = max.subtract(min)
-
-		const generationConxet = new WorldgenStructure.GenerationContext(() => 70, WorldgenContext.create(-64, 384), 63)
 
 		tile.ctx.clearRect(0, 0, this.tileSize, this.tileSize)
 
@@ -112,7 +95,7 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}
 
-				let biomeColor = (await this.loadedDimensionStore.biome_colors).get(biome)
+				let biomeColor = this.loadedDimensionStore.loaded_dimension.biome_colors?.get(biome)
 				if (biomeColor === undefined) {
 					const hash = hashCode(biome)
 					biomeColor = {
@@ -150,15 +133,16 @@ export class BiomeLayer extends L.GridLayer {
 
 		}
 
-
-		await Promise.all(this.workers.map(async w => w.postMessage({
+		const message = {
 			task: "setDimension",
-			biomeSourceJson: await this.loadedDimensionStore.biome_source_json,
-			noiseGeneratorSettingsJson: (await this.loadedDimensionStore.noise_settings).json,
+			biomeSourceJson: toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json),
+			noiseGeneratorSettingsJson: toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json),
 			seed: this.settingsStore.seed,
-			noiseSettingsId: (await this.loadedDimensionStore.noise_settings).id.toString(),
+			noiseSettingsId: this.loadedDimensionStore.loaded_dimension.noise_settings_id?.toString() ?? "minecraft:empty",
 			dimensionId: this.settingsStore.dimension.toString()
-		})))
+		}
+
+		this.workers.forEach(w => w.postMessage(message))
 	}
 
 	async rerender() {

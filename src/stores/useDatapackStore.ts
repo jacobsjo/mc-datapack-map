@@ -16,7 +16,31 @@ export const useDatapackStore = defineStore('datapacks', () => {
         return new CompositeDatapack(datapacks.map(d => d.datapack))
     })
 
-    const registered = computed(async () => {
+    const dimensions = computed(async () => {
+        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
+        return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
+            index === self.findIndex((t) => (
+                t.equals(value)
+            ))
+        )
+    })
+
+    const world_presets = computed(async () => {
+        // TODO use deepslate HolderSet 
+        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
+        return normal_world_preset_tag.values.map(id => Identifier.parse(id))
+    })
+
+    const registered = computed(reloadDatapack)
+
+    async function reloadDimensions() {
+        settingsStore.world_preset
+
+    }
+
+    async function reloadDatapack() {
+        composite_datapack.value
+
         // register density functions
         WorldgenRegistries.DENSITY_FUNCTION.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/density_function")) {
@@ -39,7 +63,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
         WorldgenRegistries.BIOME.clear()
         for (const id of await composite_datapack.value.getIds("tags/worldgen/biome")) {
             const biomeTagJson = await composite_datapack.value.get("tags/worldgen/biome", id)
-            const biomeTag = HolderSet.direct<unknown>(WorldgenRegistries.BIOME, biomeTagJson)
+            const biomeTag = HolderSet.direct<unknown>(WorldgenRegistries.BIOME, biomeTagJson, true)
             WorldgenRegistries.BIOME.getTagRegistry().register(id, biomeTag)
         }
 
@@ -50,24 +74,12 @@ export const useDatapackStore = defineStore('datapacks', () => {
             const structure = WorldgenStructure.fromJson(structureJson)
             WorldgenRegistries.STRUCTURE.register(id, structure)
         }
-    })
 
-    const dimensions = computed(async () => {
+        await reloadDimensions()
 
-        settingsStore.world_preset
+    }
 
-        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
-        return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
-            index === self.findIndex((t) => (
-                t.equals(value)
-            ))
-        )
-    })
-
-    const world_presets = computed(async () => {
-        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
-        return normal_world_preset_tag.values.map(id => Identifier.parse(id))
-    })
+    reloadDatapack()
 
     function addDatapack(datapack: Datapack) {
         datapacks.push({ datapack: datapack, key: ++last_key })
@@ -78,5 +90,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
     }
 
 
-    return { datapacks, composite_datapack, addDatapack, removeDatapack, dimensions, world_presets, registered }
+    return { datapacks, composite_datapack, registered, addDatapack, removeDatapack, dimensions, world_presets }
 })
