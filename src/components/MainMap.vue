@@ -5,7 +5,7 @@ import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, ChunkPos, DensityFunction, Identifier, WorldgenContext, WorldgenStructure } from 'deepslate';
+import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, WorldgenContext, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -26,6 +26,8 @@ const show_info = ref(false)
 
 var map: L.Map
 var markers: L.LayerGroup
+
+const marker_map = new Map<string, {marker: L.Marker | undefined, pos: ChunkPos}>()
 
 onMounted(() => {
     map = L.map("map", {
@@ -48,8 +50,6 @@ onMounted(() => {
     map.addLayer(layer)
 
     markers = L.layerGroup().addTo(map)
-
-    setStructureMarkers()
 
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
 //        await datapackStore.registered
@@ -76,7 +76,20 @@ onMounted(() => {
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
     })
+
+    layer.on("tileload", (evt) => {
+		// @ts-expect-error: _tileCoordsToBounds does not exist
+		const tileBounds = layer._tileCoordsToBounds(evt.coords);
+
+        addStructureMarkers(tileBounds)
+    })
+
+    map.on("moveend", (evt) => {
+
+        removeStructureMarkers(map.getBounds())
+    })
     
+
 });
 
 function getPosition(map: L.Map, latlng: L.LatLng){
@@ -89,31 +102,57 @@ function getPosition(map: L.Map, latlng: L.LatLng){
 }
 
 function refresh() {
+    markers.clearLayers()
+    marker_map.clear()
     layer.refresh()
-    setStructureMarkers()
+    //updateStructureMarkers()
 }
 
-function setStructureMarkers(){
-    markers.clearLayers()
+function addStructureMarkers(bounds?: L.LatLngBounds){
 
     if (loadedDimensionStore.loaded_dimension.biome_source === undefined || loadedDimensionStore.loaded_dimension.structure_set === undefined){
         return
     }
 
-    const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
-
-    const chunks: ChunkPos[] = loadedDimensionStore.loaded_dimension.structure_set.placement.getPotentialStructureChunks(settingsStore.seed, -150, -150, 150, 150)
-
     const crs = map.options.crs!
 
-    chunks.forEach(chunk => {
-        const structureId = loadedDimensionStore.loaded_dimension.structure_set!.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], loadedDimensionStore.loaded_dimension.biome_source!, loadedDimensionStore.sampler, context)
-        if (structureId){
-            const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-            const popup = L.popup().setContent(structureId.toString())
-            L.marker(crs.unproject(pos)).bindPopup(popup).addTo(markers)
+    const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
+
+    bounds = bounds ?? map.getBounds()
+
+    const minChunk = crs.project(bounds.getNorthWest())
+    const maxChunk = crs.project(bounds.getSouthEast())
+
+    const chunks: ChunkPos[] = loadedDimensionStore.loaded_dimension.structure_set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk.x >> 4, -minChunk.y >> 4, maxChunk.x >> 4, -maxChunk.y >> 4)
+
+    for (const chunk of chunks){
+        if (!marker_map.has(`${chunk[0]},${chunk[1]}`)){
+            const structureId = loadedDimensionStore.loaded_dimension.structure_set.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], loadedDimensionStore.loaded_dimension.biome_source!, loadedDimensionStore.sampler, context)
+            if (structureId){
+                const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
+                const popup = L.popup().setContent(structureId.toString())
+                const marker = L.marker(crs.unproject(pos))
+                marker.bindPopup(popup).addTo(markers)
+                marker_map.set(`${chunk[0]},${chunk[1]}`, {marker, pos: chunk})
+            } else {
+                marker_map.set(`${chunk[0]},${chunk[1]}`, {marker: undefined, pos: chunk})
+            }
         }
-    });
+    }
+}
+
+function removeStructureMarkers(outside_bounds: L.LatLngBounds) {
+    const crs = map.options.crs!
+
+    const minChunk = crs.project(outside_bounds.getNorthWest())
+    const maxChunk = crs.project(outside_bounds.getSouthEast())
+
+    for (const [id, m] of marker_map){
+        if (m.pos[0] < minChunk.x >> 4 || m.pos[0] > maxChunk.x >> 4 || m.pos[1] < -minChunk.y >> 4 || m.pos[1] > -maxChunk.y >> 4){
+            m.marker?.remove()
+            marker_map.delete(id)
+        }
+    }
 }
 
 loadedDimensionStore.$subscribe((mutation, state) => {
