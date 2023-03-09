@@ -3,7 +3,7 @@ import * as L from "leaflet"
 import { Climate, Identifier, WorldgenStructure, WorldgenContext } from "deepslate";
 import { calculateHillshade, hashCode } from "../util";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
-import { useBiomeSearchStore } from "../stores/useBiomeSearchStore";
+import { useSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useDatapackStore } from "../stores/useDatapackStore";
@@ -31,7 +31,7 @@ export class BiomeLayer extends L.GridLayer {
 
 	private datapackStore = useDatapackStore()
 	private loadedDimensionStore = useLoadedDimensionStore()
-	private biomeSearchStore = useBiomeSearchStore()
+	private searchStore = useSearchStore()
 	private settingsStore = useSettingsStore()
 
 	private datapackLoader: Promise<void> | undefined
@@ -81,7 +81,7 @@ export class BiomeLayer extends L.GridLayer {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
 				const biome = tile.array[x + 1][z + 1].biome
 
-				if (this.biomeSearchStore.biomes.size > 0 && !this.biomeSearchStore.biomes.has(biome)) {
+				if (this.searchStore.biomes.size > 0 && !this.searchStore.biomes.has(biome)) {
 					continue
 				}
 

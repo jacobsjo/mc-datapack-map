@@ -13,7 +13,6 @@ export type LoadedDimension = {
     noise_settings_json?: {[x: string]: unknown},
     biome_source_json?: {[x: string]: unknown},
     biome_source?: BiomeSource,
-    structure_set?: StructureSet,
 }
 
 export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
@@ -95,8 +94,6 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
 
         ld.biome_source = BiomeSource.fromJson(ld.biome_source_json)
-
-        ld.structure_set = StructureSet.fromJson(await datapackStore.composite_datapack.get("worldgen/structure_set", Identifier.create("villages")))
 
         Object.assign(loaded_dimension, ld)
     }

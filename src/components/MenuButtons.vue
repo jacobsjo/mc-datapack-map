@@ -4,24 +4,34 @@ import { useDatapackStore } from '../stores/useDatapackStore';
 import FindBiomeDropdown from './dropdown/FindBiomeDropdown.vue';
 import OpenDropdown from './dropdown/OpenDropdown.vue';
 import { vOnClickOutside }from '@vueuse/components';
-import { useBiomeSearchStore } from '../stores/useBiomeSearchStore';
+import { useSearchStore } from '../stores/useBiomeSearchStore';
+import StructureDropdown from './dropdown/StructureDropdown.vue';
 
 const datapackStore = useDatapackStore();
-const biomeSearchStore = useBiomeSearchStore();
+const searchStore = useSearchStore();
 
 const openDropdownOpen = ref(false)
 const searchBiomeDropdownOpen = ref(false)
+const structureDropdownOpen = ref(false)
 
 function reload(event: MouseEvent){
     datapackStore.$patch({})
 }
 
 function clearBiomeSearch(event: Event){
-    biomeSearchStore.biomes.clear()
-    biomeSearchStore.$patch({})
+    searchStore.biomes.clear()
+    searchStore.$patch({})
     searchBiomeDropdownOpen.value = false
     event.preventDefault()
 }
+
+function clearStructureSearch(event: Event){
+    searchStore.structures.clear()
+    searchStore.$patch({})
+    structureDropdownOpen.value = false
+    event.preventDefault()
+}
+
 
 </script>
 
@@ -36,7 +46,7 @@ function clearBiomeSearch(event: Event){
             class="button"
             :class="{
                 open: searchBiomeDropdownOpen,
-                active: biomeSearchStore.biomes.size > 0
+                active: searchStore.biomes.size > 0
             }"
             title="Search Biome"
             @click="searchBiomeDropdownOpen = true"
@@ -48,6 +58,24 @@ function clearBiomeSearch(event: Event){
                 <FindBiomeDropdown v-if="searchBiomeDropdownOpen" v-on-click-outside="() => {searchBiomeDropdownOpen=false}" tabindex="-1"/>
             </Suspense>
         </Transition>
+        <font-awesome-icon
+            icon="fa-location-dot"
+            class="button"
+            :class="{
+                open: structureDropdownOpen,
+               active: searchStore.structures.size > 0
+            }"
+            title="Structure Positions"
+            @click="structureDropdownOpen = true"
+            @contextmenu="clearStructureSearch"    
+            @dblclick="clearStructureSearch"
+        />
+        <Transition>
+            <Suspense>
+                <StructureDropdown v-if="structureDropdownOpen" v-on-click-outside="() => {structureDropdownOpen=false}" tabindex="-1"/>
+            </Suspense>
+        </Transition>
+
         <font-awesome-icon icon="fa-rotate-right" class="button" title="Reload Datapacks" @click="reload" />
     </div>
 </template>
@@ -58,8 +86,12 @@ function clearBiomeSearch(event: Event){
     flex-direction: row;
     gap: 0.5rem;
     width: 100%;
-    justify-content: center;
+    justify-content: left;
     position: relative;
+}
+
+.button:first-child{
+    margin-left: 1.2rem;
 }
 
 .button {

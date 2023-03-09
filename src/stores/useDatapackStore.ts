@@ -2,8 +2,9 @@ import { defineStore } from "pinia";
 
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { computed, reactive, ref, watch } from "vue";
-import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, WorldgenRegistries, WorldgenStructure } from "deepslate";
+import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
+import { Registries } from "../util/Registries";
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/data-1.19.3.zip'))
@@ -73,6 +74,14 @@ export const useDatapackStore = defineStore('datapacks', () => {
             const structureJson = await composite_datapack.value.get("worldgen/structure", id)
             const structure = WorldgenStructure.fromJson(structureJson)
             WorldgenRegistries.STRUCTURE.register(id, structure)
+        }
+
+        // register structure_sets
+        Registries.STRUCTURE_SET.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/structure_set")) {
+            const structureSetJson = await composite_datapack.value.get("worldgen/structure_set", id)
+            const structureSet = StructureSet.fromJson(structureSetJson)
+            Registries.STRUCTURE_SET.register(id, structureSet)
         }
 
         await reloadDimensions()
