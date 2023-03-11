@@ -10,7 +10,6 @@ import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
-import { Registries } from '../util/Registries';
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
@@ -138,7 +137,7 @@ function addStructureMarkers(bounds?: L.LatLngBounds) {
     const maxChunk = ChunkPos.create(maxPos.x >> 4, -maxPos.y >> 4)
 
     for (const id of searchStore.structure_sets) {
-        const set = Registries.STRUCTURE_SET.get(id)
+        const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
         const chunks: ChunkPos[] = set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
 

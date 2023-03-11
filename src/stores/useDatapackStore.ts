@@ -2,9 +2,8 @@ import { defineStore } from "pinia";
 
 import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
 import { computed, reactive, ref, watch } from "vue";
-import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure } from "deepslate";
+import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
-import { Registries } from "../util/Registries";
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/data-1.19.3.zip'))
@@ -64,24 +63,39 @@ export const useDatapackStore = defineStore('datapacks', () => {
         WorldgenRegistries.BIOME.clear()
         for (const id of await composite_datapack.value.getIds("tags/worldgen/biome")) {
             const biomeTagJson = await composite_datapack.value.get("tags/worldgen/biome", id)
-            const biomeTag = HolderSet.direct<unknown>(WorldgenRegistries.BIOME, biomeTagJson, true)
+            const biomeTag = HolderSet.fromJson<undefined>(WorldgenRegistries.BIOME, biomeTagJson, id, true)
             WorldgenRegistries.BIOME.getTagRegistry().register(id, biomeTag)
         }
 
         // register (worldgen) structures
-        WorldgenRegistries.STRUCTURE.clear()
+        WorldgenStructure.REGISTRY.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/structure")) {
             const structureJson = await composite_datapack.value.get("worldgen/structure", id)
             const structure = WorldgenStructure.fromJson(structureJson)
-            WorldgenRegistries.STRUCTURE.register(id, structure)
+            WorldgenStructure.REGISTRY.register(id, structure)
         }
 
         // register structure_sets
-        Registries.STRUCTURE_SET.clear()
+        StructureSet.REGISTRY.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/structure_set")) {
             const structureSetJson = await composite_datapack.value.get("worldgen/structure_set", id)
             const structureSet = StructureSet.fromJson(structureSetJson)
-            Registries.STRUCTURE_SET.register(id, structureSet)
+            StructureSet.REGISTRY.register(id, structureSet)
+        }
+        
+        StructureTemplatePool.REGISTRY.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/template_pool")) {
+            const templatePoolJson = await composite_datapack.value.get("worldgen/template_pool", id)
+            const templatePool = StructureTemplatePool.fromJson(templatePoolJson)
+            StructureTemplatePool.REGISTRY.register(id, templatePool)
+        }
+
+        Structure.REGISTRY.clear()
+        for (const id of await composite_datapack.value.getIds("structures")) {
+            const arrayBuffer = await composite_datapack.value.get("structures", id) as ArrayBuffer
+            const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
+            const templatePool = Structure.fromNbt(nbt.root)
+            Structure.REGISTRY.register(id, templatePool)
         }
 
         await reloadDimensions()

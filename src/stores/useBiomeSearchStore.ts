@@ -1,8 +1,6 @@
-import { Identifier } from "deepslate";
+import { Identifier, StructureSet } from "deepslate";
 import { defineStore } from "pinia";
 import { computed, reactive } from "vue";
-import { Registries } from "../util/Registries";
-
 
 
 export const useSearchStore = defineStore('search', () => {
@@ -11,8 +9,8 @@ export const useSearchStore = defineStore('search', () => {
 
     const structure_sets = computed(() => {
         const sets = []
-        for (const id of Registries.STRUCTURE_SET.keys()){
-            const set = Registries.STRUCTURE_SET.get(id)
+        for (const id of StructureSet.REGISTRY.keys()){
+            const set = StructureSet.REGISTRY.get(id)
             if (!set) continue
 
             for (const entry of set?.structures){
