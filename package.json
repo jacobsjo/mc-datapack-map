@@ -16,7 +16,7 @@
     "@vueuse/components": "^9.13.0",
     "deepslate": "^0.17.2",
     "leaflet": "^1.9.3",
-    "mc-datapack-loader": "^0.1.3",
+    "mc-datapack-loader": "file:../mc-datapack-loader",
     "pinia": "^2.0.32",
     "vue": "^3.2.45",
     "vue-slider-component": "^4.1.0-beta.7"

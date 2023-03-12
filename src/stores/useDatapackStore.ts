@@ -33,11 +33,6 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     const registered = computed(reloadDatapack)
 
-    async function reloadDimensions() {
-        settingsStore.world_preset
-
-    }
-
     async function reloadDatapack() {
         composite_datapack.value
 
@@ -59,11 +54,16 @@ export const useDatapackStore = defineStore('datapacks', () => {
             WorldgenRegistries.NOISE.register(id, noise)
         }
 
-        // register biome tags
+        // register biome ids
         WorldgenRegistries.BIOME.clear()
+        for (const id of await composite_datapack.value.getIds("worldgen/biome")) {
+            WorldgenRegistries.BIOME.register(id, {})
+        }
+
+        // register biome tags
         for (const id of await composite_datapack.value.getIds("tags/worldgen/biome")) {
             const biomeTagJson = await composite_datapack.value.get("tags/worldgen/biome", id)
-            const biomeTag = HolderSet.fromJson<undefined>(WorldgenRegistries.BIOME, biomeTagJson, id, true)
+            const biomeTag = HolderSet.fromJson<{}>(WorldgenRegistries.BIOME, biomeTagJson, id)
             WorldgenRegistries.BIOME.getTagRegistry().register(id, biomeTag)
         }
 
@@ -83,6 +83,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
             StructureSet.REGISTRY.register(id, structureSet)
         }
         
+        // register template pools
         StructureTemplatePool.REGISTRY.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/template_pool")) {
             const templatePoolJson = await composite_datapack.value.get("worldgen/template_pool", id)
@@ -90,19 +91,22 @@ export const useDatapackStore = defineStore('datapacks', () => {
             StructureTemplatePool.REGISTRY.register(id, templatePool)
         }
 
+        // register structure nbt
         Structure.REGISTRY.clear()
         for (const id of await composite_datapack.value.getIds("structures")) {
-            const arrayBuffer = await composite_datapack.value.get("structures", id) as ArrayBuffer
-            const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
-            const templatePool = Structure.fromNbt(nbt.root)
-            Structure.REGISTRY.register(id, templatePool)
+            try {
+                const arrayBuffer = await composite_datapack.value.get("structures", id) as ArrayBuffer
+                Structure.REGISTRY.register(id, () => {
+                    const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
+                    return Structure.fromNbt(nbt.root)
+                })
+            } catch (e) {
+                console.warn(`Failed to load structure ${id.toString()}: ${e}`)
+            }
         }
-
-        await reloadDimensions()
-
     }
 
-    reloadDatapack()
+    //reloadDatapack()
 
     function addDatapack(datapack: Datapack) {
         datapacks.push({ datapack: datapack, key: ++last_key })
