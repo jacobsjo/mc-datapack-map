@@ -5,7 +5,7 @@ import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, StructureSet, WorldgenContext, WorldgenStructure } from 'deepslate';
+import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, StructurePlacement, StructureSet, WorldgenContext, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -27,7 +27,8 @@ const show_info = ref(false)
 var map: L.Map
 var markers: L.LayerGroup
 
-const marker_map = new Map<string, { marker: Promise<{marker: L.Marker, structure: Identifier} | undefined>, pos: ChunkPos }>()
+var marker_map = new Map<string, { marker: Promise<{ marker: L.Marker, structure: Identifier } | undefined>, pos: ChunkPos }>()
+var needs_zoom = ref(false)
 
 onMounted(() => {
     map = L.map("map", {
@@ -52,8 +53,6 @@ onMounted(() => {
     map.addLayer(layer)
 
     markers = L.layerGroup().addTo(map)
-
-    addStructureMarkers(map.getBounds())
 
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
         //        await datapackStore.registered
@@ -86,6 +85,9 @@ onMounted(() => {
         updateMarkers()
     })
 
+    map.on("zoomend", () => {
+        console.log(map.getZoom())
+    })
     /*
     layer.on("tileunload", (evt) => {
         // @ts-expect-error: _tileCoordsToBounds does not exist
@@ -108,26 +110,19 @@ function refresh() {
     layer.refresh()
 }
 
-function updateMarkers() {
-    if (map.getZoom() >= 15) {
-        addStructureMarkers(map.getBounds())
-        removeStructureMarkers(map.getBounds())
-    } else {
-        markers.clearLayers()
-        marker_map.clear()
-    }
+function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
+    return (pos[0] >= min[0] && pos[0] <= max[0] && pos[1] >= min[1] && pos[1] <= max[1])
 }
 
-function addStructureMarkers(bounds?: L.LatLngBounds) {
+function updateMarkers() {
 
     if (loadedDimensionStore.loaded_dimension.biome_source === undefined) {
         return
     }
 
-
     const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
 
-    bounds = bounds ?? map.getBounds()
+    const bounds = map.getBounds()
 
     const crs = map.options.crs!
     const minPos = crs.project(bounds.getNorthWest())
@@ -136,55 +131,88 @@ function addStructureMarkers(bounds?: L.LatLngBounds) {
     const minChunk = ChunkPos.create(minPos.x >> 4, -minPos.y >> 4)
     const maxChunk = ChunkPos.create(maxPos.x >> 4, -maxPos.y >> 4)
 
+    const new_markers = new Map<string, { marker: Promise<{ marker: L.Marker, structure: Identifier } | undefined>, pos: ChunkPos }>()
+
+    var _needs_zoom = false
+
     for (const id of searchStore.structure_sets) {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
-        const chunks: ChunkPos[] = set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
 
-        for (const chunk of chunks) {
-            if (!marker_map.has(`${id.toString()} ${chunk[0]},${chunk[1]}`)) {
-                marker_map.set(`${id.toString()} ${chunk[0]},${chunk[1]}`, { marker: new Promise((resolve) => setTimeout(() => resolve(getMarker(set, chunk, context)), 1)), pos: chunk })
-            }
+        var minZoom = 15
+        if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
+            const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
+            minZoom = 18 - Math.log2(0.01/chunkFrequency)
         }
+
+        if (map.getZoom() >= minZoom){
+            const chunks: ChunkPos[] = set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
+
+            for (const chunk of chunks) {
+
+                if (!isInBounds(chunk, minChunk, maxChunk)) {
+                    continue
+                }
+                const storage_id = `${id.toString()} ${chunk[0]},${chunk[1]}`
+                const marker = marker_map.get(storage_id) ?? {
+                    marker: new Promise((resolve) => setTimeout(async () => {
+                        if (!isInBounds(chunk, minChunk, maxChunk)) {
+                            resolve(undefined)
+                        } else {
+                            resolve(await getMarker(set, chunk, context))
+                        }
+                    }, 1)), pos: chunk
+                }
+                marker_map.delete(storage_id)
+                new_markers.set(storage_id, marker)
+            }
+        } else {
+            _needs_zoom = true
+        }
+    }
+    for (const marker of marker_map.values()){
+        marker.marker.then(m => m?.marker.remove())
+    }
+
+    needs_zoom.value = _needs_zoom
+
+    marker_map.clear()
+    for (const marker of new_markers){
+        marker_map.set(marker[0], marker[1])
     }
 }
 
-function getMarker(set: StructureSet, chunk: ChunkPos, context: WorldgenStructure.GenerationContext) {
+async function getMarker(set: StructureSet, chunk: ChunkPos, context: WorldgenStructure.GenerationContext) {
     const structureId = set.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], loadedDimensionStore.loaded_dimension.biome_source!, loadedDimensionStore.sampler, context)
     const crs = map.options.crs!
     if (structureId && searchStore.structures.has(structureId.toString())) {
         const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
         const popup = L.popup().setContent(structureId.toString())
-        const marker = L.marker(crs.unproject(pos))
+        const marker = L.marker(crs.unproject(pos), {
+            icon: L.icon({
+                iconUrl: await loadedDimensionStore.getIcon(structureId),
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                shadowUrl: 'shadow.png',
+                shadowSize: [40, 40],
+                shadowAnchor: [20, 20],
+                popupAnchor: [0, -10]
+            })
+        })
         marker.bindPopup(popup).addTo(markers)
-        return {structure: structureId, marker}
+        return { structure: structureId, marker }
     } else {
         return undefined
     }
 }
 
-async function removeStructureMarkers(bounds: L.LatLngBounds) {
-    const crs = map.options.crs!
-
-    const minPos = crs.project(bounds.getNorthWest())
-    const maxPos = crs.project(bounds.getSouthEast())
-
-    const minChunk = ChunkPos.create(minPos.x >> 4, -minPos.y >> 4)
-    const maxChunk = ChunkPos.create(maxPos.x >> 4, -maxPos.y >> 4)
-
-
-    for (const [id, m] of marker_map) {
-        setTimeout(async () => {
-            if ((m.pos[0] < minChunk[0] - 20 || m.pos[0] > maxChunk[0] + 20 || m.pos[1] < minChunk[1] - 20 || m.pos[1] > maxChunk[1] + 20) || !searchStore.structures.has((await m.marker)?.structure.toString() ?? "")) {
-                (await m.marker)?.marker.remove()
-                marker_map.delete(id)
-            }
-        }, 1)
-    }
-}
-
 loadedDimensionStore.$subscribe((mutation, state) => {
     refresh()
+    for (const marker of marker_map.values()){
+        marker.marker.then(m => m?.marker.remove())
+    }
+    marker_map.clear()
+    updateMarkers()
 })
 
 searchStore.$subscribe((mutation, state) => {
@@ -206,7 +234,12 @@ searchStore.$subscribe((mutation, state) => {
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{ left: tooltip_left + 'px', top: tooltip_top + 'px' }"
         :biome="tooltip_biome" :pos="tooltip_position" />
     <Transition>
-        <div class="info" v-if="show_info">
+        <div class="info zoom" v-if="needs_zoom">
+            Some structures are hidden. &ThickSpace; Zoom in to see more.
+        </div>
+    </Transition>
+    <Transition>
+        <div class="info teleport" v-if="show_info">
             Teleport Command Copied
         </div>
     </Transition>
@@ -250,16 +283,26 @@ searchStore.$subscribe((mutation, state) => {
 
 .info {
     position: absolute;
-    background-color: rgb(3, 33, 58);
     z-index: 500;
     left: 50%;
-    bottom: 0.5rem;
     transform: translateX(-50%);
-    color: rgb(189, 189, 189);
     padding: 0.3rem;
     padding-left: 1rem;
     padding-right: 1rem;
     border-radius: 1rem;
+    background-color: rgb(3, 33, 58);
+    color: rgb(189, 189, 189);
     user-select: none;
+}
+
+.info.teleport {
+    bottom: 0.5rem;
+}
+
+.info.zoom {
+    border: 2px solid black;
+    color: white;
+    font-weight: 600;
+    top: 0.5rem;
 }
 </style>

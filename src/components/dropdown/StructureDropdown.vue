@@ -1,15 +1,12 @@
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useDatapackStore } from '../../stores/useDatapackStore';
 import { useSearchStore } from '../../stores/useBiomeSearchStore'
-import { Identifier } from 'deepslate';
+import { Identifier, WorldgenStructure } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
+import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
 
-const datapackStore = useDatapackStore()
 const searchStore = useSearchStore()
-
-const structures = reactive(await datapackStore.composite_datapack.getIds("worldgen/structure"))
+const loadedDimensionStore = useLoadedDimensionStore()
 
 function toggleStructure(structure: Identifier){
     if (searchStore.structures.has(structure.toString())){
@@ -22,9 +19,8 @@ function toggleStructure(structure: Identifier){
 
 </script>
 
-
 <template>
-    <ListDropdown placeholder="Search Structure" :entries="structures" :selected="searchStore.structures" @toggle="toggleStructure" />
+    <ListDropdown placeholder="Search Structure" :entries="WorldgenStructure.REGISTRY.keys()" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" />
 </template>
 
 <style scoped>

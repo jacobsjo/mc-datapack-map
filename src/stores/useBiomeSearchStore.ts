@@ -9,6 +9,7 @@ export const useSearchStore = defineStore('search', () => {
 
     const structure_sets = computed(() => {
         const sets = []
+        sets:
         for (const id of StructureSet.REGISTRY.keys()){
             const set = StructureSet.REGISTRY.get(id)
             if (!set) continue
@@ -16,6 +17,7 @@ export const useSearchStore = defineStore('search', () => {
             for (const entry of set?.structures){
                 if (structures.has(entry.structure.key()?.toString() ?? "<>")){
                     sets.push(id)
+                    continue sets
                 }
             }
         }

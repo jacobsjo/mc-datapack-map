@@ -2,12 +2,15 @@ import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, Densi
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref } from "vue";
 import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
-import { getSurfaceDensityFunction } from "../util";
+import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
+import { getSurfaceDensityFunction, hashCode } from "../util";
+import { StructureIcons } from "../util/StructureIcons";
 import { useDatapackStore } from "./useDatapackStore";
 import { useSettingsStore } from "./useSettingsStore";
 
 export type LoadedDimension = {
     biome_colors?: Map<string, { r: number, g: number, b: number } >,
+    structure_icons?: Map<string, Identifier>,
     y_limits?: [number, number],
     noise_settings_id?: Identifier,
     noise_settings_json?: {[x: string]: unknown},
@@ -36,16 +39,24 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         const ld: LoadedDimension = {}
 
         ld.biome_colors = new Map<string, { r: number, g: number, b: number }>()
+        ld.structure_icons = new Map<string, Identifier>()
 
         const ids = await (datapackStore.composite_datapack.getIds(""))
         for (const id of ids) {
-            if (id.path !== "biome_colors") continue;
+            if (id.path === "biome_colors"){
+                const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: { r: number, g: number, b: number }}
+                for (const biome in json) {
+                    const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
 
-            const json = await datapackStore.composite_datapack.get("", id) as { r: number, g: number, b: number }[]
-            for (const biome in json) {
-                const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
+                    ld.biome_colors.set(biome_id, json[biome])
+                }
+            } else if (id.path === "structure_icons"){
+                const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: string}
+                for (const structure in json) {
+                    const structure_id = structure.indexOf(":") === -1 ? id.namespace + ":" + structure : structure
 
-                ld.biome_colors.set(biome_id, json[biome])
+                    ld.structure_icons.set(structure_id, Identifier.parse(json[structure]))
+                }
             }
         }
 
@@ -113,6 +124,11 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         return getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
     })
 
-    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload }
+    function getIcon(id: Identifier){
+        const item = loaded_dimension.structure_icons?.get(id.toString()) ?? Identifier.create(VANILLA_ITEMS[Math.abs(hashCode(id.toString())) % VANILLA_ITEMS.length]) 
+        return StructureIcons.getItemDataURL(item)
+    }
+
+    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon }
 })
 

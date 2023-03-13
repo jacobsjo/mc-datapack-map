@@ -3,11 +3,13 @@
 import { computed, ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import { Identifier } from 'deepslate';
+import ListDropdownEntry from './ListDropdownEntry.vue';
 
 const props = defineProps({
         placeholder: String,
         entries: Object,
-        selected: Object
+        selected: Object,
+        icons: Function
 })
 
 const search = ref("")
@@ -22,12 +24,7 @@ const filtered_entries = computed(() => {
     <Dropdown class="dropdown">
         <input id="search" :placeholder="props.placeholder" spellcheck="false" v-model="search" />
         <div class="entry_list">
-            <div class="entry"
-                v-for="biome in filtered_entries"
-                :class="{selected: selected?.has(biome.toString())}"
-                @click="$emit('toggle', biome)">
-                {{ biome.toString() }}
-            </div>
+            <ListDropdownEntry v-for="entry in filtered_entries" :entry="entry" :selected="selected?.has(entry.toString())" :icons="icons" @toggle="$emit('toggle', entry)" />
         </div>
     </Dropdown>
 </template>
