@@ -6,8 +6,8 @@ defineEmits(['close'])
     <div class="overlay"></div>
     <div class=popup>
         <div class="content">
-            <font-awesome-icon icon="fa-xmark" class="close_button" title="Close" @click="$emit('close')" />
             <slot></slot>
+            <font-awesome-icon icon="fa-xmark" class="close_button" title="Close" @click="$emit('close')" tabindex="0" @keypress.enter="$emit('close')"/>
         </div>
     </div>
 </template>

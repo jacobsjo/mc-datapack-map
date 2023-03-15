@@ -18,12 +18,14 @@ const color = await props.colors?.(props.entry)
     <div class="entry"
         :class="{ selected }"
         @click="$emit('toggle')"
+        @keypress="$event => {if ($event.key === 'Enter') $emit('toggle')}"
         @contextmenu="$event => {
             if (selected){
                 $emit('toggle')
                 $event.preventDefault()
             }
         }"    
+        tabindex="0"
     >
         <img v-if="icon" :src="icon" />
         <div v-if="color" class="color_display" :style="{ 'background-color': color }"></div>

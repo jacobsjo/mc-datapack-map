@@ -28,12 +28,17 @@ function isGroupSelected (selected: any, group_name: any) {
     <div class="header"
         :class="{selected: isGroupSelected(selected, group_name)}"
         @click="shown = !shown"
+        @keypress="$event => {
+            if ($event.key === 'Enter')
+                shown = !shown
+        }"
         @contextmenu="$event => {
             if (isGroupSelected(selected, group_name)){
                 $emit('disableGroup')
                 $event.preventDefault()   
             }
         }"
+        tabindex="0"
     >
         <font-awesome-icon class="open_icon" :icon="shown ? 'fa-angle-down' : 'fa-angle-right'"/>
         {{ group_name }}

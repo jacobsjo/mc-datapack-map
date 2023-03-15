@@ -6,7 +6,7 @@
 </script>
 
 <template>
-    <div class="dropdown-entry">
+    <div class="dropdown-entry" tabindex="0">
         <font-awesome-icon v-if="icon !== undefined" class="icon" :icon="icon"/>
         <img v-if="image !== undefined" :src="image" class="image"/>
         <div class="name"><slot></slot></div>

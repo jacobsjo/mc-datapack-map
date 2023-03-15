@@ -91,10 +91,10 @@ const PRESET_DATAPACKS = [
 
 <template>
     <Dropdown>
-        <DropdownEntry icon="fa-file-zipper" @click="loadZip">Open Datapack.zip</DropdownEntry>
-        <DropdownEntry icon="fa-folder-open" @click="loadFolder">Open Datapack Folder</DropdownEntry>
+        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">Open Datapack.zip</DropdownEntry>
+        <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder">Open Datapack Folder</DropdownEntry>
         <div class="spacer"></div>
-        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url)">{{preset.name}}</DropdownEntry>
+        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);" @keypress.enter="loadUrl(preset.url)">{{preset.name}}</DropdownEntry>
     </Dropdown>
 </template>
 

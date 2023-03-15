@@ -11,6 +11,7 @@ import { useSettingsStore } from "./useSettingsStore";
 export type LoadedDimension = {
     biome_colors?: Map<string, { r: number, g: number, b: number } >,
     structure_icons?: Map<string, Identifier>,
+    hidden_structures?: Set<string>
     y_limits?: [number, number],
     noise_settings_id?: Identifier,
     noise_settings_json?: {[x: string]: unknown},
@@ -40,6 +41,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
         ld.biome_colors = new Map<string, { r: number, g: number, b: number }>()
         ld.structure_icons = new Map<string, Identifier>()
+        ld.hidden_structures = new Set()
 
         const ids = await (datapackStore.composite_datapack.getIds(""))
         for (const id of ids) {
@@ -51,11 +53,18 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                     ld.biome_colors.set(biome_id, json[biome])
                 }
             } else if (id.path === "structure_icons"){
-                const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: string}
+                const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: {item?: string, hidden?: boolean} | string}
                 for (const structure in json) {
                     const structure_id = structure.indexOf(":") === -1 ? id.namespace + ":" + structure : structure
 
-                    ld.structure_icons.set(structure_id, Identifier.parse(json[structure]))
+                    const structure_config = json[structure]
+                    if (typeof structure_config === 'string'){
+                        ld.structure_icons.set(structure_id, Identifier.parse(structure_config))
+                    } else if (structure_config.hidden){
+                        ld.hidden_structures.add(structure_id)
+                    } else if (structure_config.item){
+                        ld.structure_icons.set(structure_id, Identifier.parse(structure_config.item))
+                    }
                 }
             }
         }

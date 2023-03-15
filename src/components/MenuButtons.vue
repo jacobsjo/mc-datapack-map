@@ -37,19 +37,29 @@ function clearStructureSearch(event: Event){
 
 <template>
     <div class="buttons">
-        <font-awesome-icon icon="fa-plus" class="button" :class="{open: openDropdownOpen }" title="Add Datapack" @click="openDropdownOpen = true" />
+        <font-awesome-icon
+            icon="fa-plus"
+            class="button"
+            tabindex="0"
+            :class="{open: openDropdownOpen }"
+            title="Add Datapack"
+            @click="openDropdownOpen = true"
+            @keypress.enter="openDropdownOpen = true"
+        />
         <Transition>
             <OpenDropdown v-if="openDropdownOpen" v-on-click-outside="() => {openDropdownOpen=false}" @close="openDropdownOpen=false" tabindex="-1"/>
         </Transition>
         <font-awesome-icon
             icon="fa-magnifying-glass"
             class="button"
+            tabindex="0"
             :class="{
                 open: searchBiomeDropdownOpen,
                 active: searchStore.biomes.size > 0
             }"
             title="Search Biome"
             @click="searchBiomeDropdownOpen = true"
+            @keypress.enter="searchBiomeDropdownOpen = true"
             @contextmenu="clearBiomeSearch"    
             @dblclick="clearBiomeSearch"
         />
@@ -61,12 +71,14 @@ function clearStructureSearch(event: Event){
         <font-awesome-icon
             icon="fa-location-dot"
             class="button"
+            tabindex="0"
             :class="{
                 open: structureDropdownOpen,
                active: searchStore.structures.size > 0
             }"
             title="Structure Positions"
             @click="structureDropdownOpen = true"
+            @keypress.enter="structureDropdownOpen = true"
             @contextmenu="clearStructureSearch"    
             @dblclick="clearStructureSearch"
         />
@@ -76,7 +88,7 @@ function clearStructureSearch(event: Event){
             </Suspense>
         </Transition>
 
-        <font-awesome-icon icon="fa-rotate-right" class="button" title="Reload Datapacks" @click="reload" />
+        <font-awesome-icon icon="fa-rotate-right" class="button" tabindex="0" title="Reload Datapacks" @click="reload" @keypress.enter="reload" />
     </div>
 </template>
 

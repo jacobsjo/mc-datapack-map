@@ -14,7 +14,7 @@
     <div class="datapack">
         <img class="image" :src="image" />
         <div class="description">{{ desciption }}</div>
-        <font-awesome-icon icon="fa-xmark" class="close_button" title="Remove Datapack" @click="$emit('close')" />
+        <font-awesome-icon icon="fa-xmark" class="close_button" tabindex="0" title="Remove Datapack" @click="$emit('close')" @keypress.enter="$emit('close')" />
     </div>
 </template>
 
@@ -57,11 +57,11 @@
         cursor: pointer;
     }
 
-    .datapack:hover .close_button {
+    .datapack:hover .close_button, .close_button:focus {
         opacity: 1;
     }
 
-    .close_button:hover {
+    .close_button:hover, .close_button:focus {
         background-color: rgb(158, 0, 0);
     }
 </style>

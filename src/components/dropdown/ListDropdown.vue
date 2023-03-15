@@ -70,6 +70,10 @@ const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
         border-bottom:  2px solid transparent;
     }
 
+    input:hover {
+        border-bottom-color: rgb(31, 98, 129);
+    }
+
     input:focus {
         border-bottom-color: rgb(25, 156, 218);
     }

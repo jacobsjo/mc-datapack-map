@@ -4,6 +4,7 @@ import { useSearchStore } from '../../stores/useBiomeSearchStore'
 import { Identifier, WorldgenStructure } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
+import { computed } from '@vue/reactivity';
 
 const searchStore = useSearchStore()
 const loadedDimensionStore = useLoadedDimensionStore()
@@ -24,11 +25,10 @@ function disableGroup(group: string){
     });
 }
 
-
 </script>
 
 <template>
-    <ListDropdown placeholder="Search Structure" :entries="WorldgenStructure.REGISTRY.keys()" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
+    <ListDropdown placeholder="Search Structure" :entries="WorldgenStructure.REGISTRY.keys().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>
