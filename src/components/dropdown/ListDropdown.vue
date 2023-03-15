@@ -4,17 +4,29 @@ import { computed, ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import { Identifier } from 'deepslate';
 import ListDropdownEntry from './ListDropdownEntry.vue';
+import ListDropdownGroup from './ListDropdownGroup.vue';
 
 const props = defineProps({
         placeholder: String,
         entries: Object,
         selected: Object,
-        icons: Function
+        icons: Function,
+        colors: Function
 })
 
+defineEmits(['toggle', 'disableGroup'])
+
 const search = ref("")
-const filtered_entries = computed(() => {
+const filtered_entries = computed<Identifier[]>(() => {
     return props.entries?.filter((b: Identifier) => b.toString().includes(search.value)).sort()
+})
+
+const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
+    return filtered_entries.value.reduce((groups, entry) => {
+        groups[entry.namespace] = groups[entry.namespace] ?? []
+        groups[entry.namespace].push(entry)
+        return groups
+    }, {} as {[key: string]: Identifier[]})
 })
 
 </script>
@@ -22,9 +34,18 @@ const filtered_entries = computed(() => {
 
 <template>
     <Dropdown class="dropdown">
-        <input id="search" :placeholder="props.placeholder" spellcheck="false" v-model="search" />
+        <input id="search" :placeholder="props.placeholder" spellcheck="false" v-model="search" /> 
         <div class="entry_list">
-            <ListDropdownEntry v-for="entry in filtered_entries" :entry="entry" :selected="selected?.has(entry.toString())" :icons="icons" @toggle="$emit('toggle', entry)" />
+            <ListDropdownGroup
+                v-for="group in Object.entries(grouped_entries)"
+                :entries="group[1]"
+                :group_name="group[0]"
+                :selected="selected"
+                :icons="icons"
+                :colors="colors"
+                @toggle="(entry: Identifier) => $emit('toggle', entry)" 
+                @disableGroup="() => $emit('disableGroup', group[0])"
+                />
         </div>
     </Dropdown>
 </template>
@@ -40,10 +61,17 @@ const filtered_entries = computed(() => {
         background-color: rgb(59, 59, 59);
         color: white;
         padding: 0.5rem;
+        padding-bottom: 0.1rem;
         width: 95%;
         box-sizing: border-box;
         border: 0;
         outline: 0;
+        margin-bottom: 0.4rem;
+        border-bottom:  2px solid transparent;
+    }
+
+    input:focus {
+        border-bottom-color: rgb(25, 156, 218);
     }
 
     .entry_list {
@@ -63,30 +91,5 @@ const filtered_entries = computed(() => {
         display: none;
     }
 
-    .entry {
-        background-color: rgb(88, 88, 88);
-        transition: 0.3s;
-        cursor: pointer;
-        padding: 0.1rem;
-        padding-left: 0.4rem;
-        padding-right: 0.4rem;
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        box-sizing: border-box;
-        user-select: none;
-    }
-
-    .entry:hover {
-        background-color: rgb(126, 126, 126);
-    }
-
-    .entry.selected {
-        background-color: rgb(135, 156, 14);
-    }
-
-    .entry.selected:hover {
-        background-color: rgb(168, 192, 30);
-    }
 
 </style>

@@ -17,10 +17,18 @@ function toggleStructure(structure: Identifier){
     searchStore.$patch({}) // call $subscribe, not sure why this is necessary
 }
 
+function disableGroup(group: string){
+    [...searchStore.structures].forEach(structure => {
+        if (structure.startsWith(group + ":"))
+            searchStore.structures.delete(structure)
+    });
+}
+
+
 </script>
 
 <template>
-    <ListDropdown placeholder="Search Structure" :entries="WorldgenStructure.REGISTRY.keys()" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" />
+    <ListDropdown placeholder="Search Structure" :entries="WorldgenStructure.REGISTRY.keys()" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

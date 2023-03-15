@@ -121,7 +121,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     })
 
     const surface_density_function = computed(() => {
-        return getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
+        return new DensityFunction.HolderHolder(Holder.reference(WorldgenRegistries.DENSITY_FUNCTION, getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension))).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
     })
 
     function getIcon(id: Identifier){
@@ -129,6 +129,19 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         return StructureIcons.getItemDataURL(item)
     }
 
-    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon }
+    function getBiomeColor(id: string){
+        var biomeColor = loaded_dimension.biome_colors?.get(id)
+        if (biomeColor === undefined) {
+            const hash = hashCode(id)
+            biomeColor = {
+                r: (hash & 0xFF0000) >> 16,
+                g: (hash & 0x00FF00) >> 8,
+                b: hash & 0x0000FF
+            }
+        }
+        return biomeColor
+    }
+
+    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon, getBiomeColor }
 })
 

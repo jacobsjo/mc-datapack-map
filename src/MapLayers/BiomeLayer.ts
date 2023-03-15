@@ -1,13 +1,13 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { Climate, Identifier, WorldgenStructure, WorldgenContext } from "deepslate";
-import { calculateHillshade, hashCode } from "../util";
+import { Climate } from "deepslate";
+import { calculateHillshade, getSurfaceDensityFunction, hashCode } from "../util";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { useSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useDatapackStore } from "../stores/useDatapackStore";
-import { toRaw } from "vue";
+import { toRaw, watch } from "vue";
 
 const WORKER_COUNT = 4
 
@@ -17,7 +17,21 @@ export type BiomeLayerSettings = {
 	seed: bigint
 }
 
-type Tile = { coords: L.Coords, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, done: L.DoneCallback, array?: { climate: Climate.TargetPoint, surface: number, biome: string }[][], step?: number, isRendering?: boolean }
+type Tile = {
+	coords: L.Coords,
+	canvas: HTMLCanvasElement, 
+	ctx: CanvasRenderingContext2D, 
+	done: L.DoneCallback, 
+	array?: {
+		climate: Climate.TargetPoint,
+		surface: number,
+		biome: string
+	}[][],
+	step?: number,
+	isRendering?: boolean,
+	workerId: number
+}
+
 export class BiomeLayer extends L.GridLayer {
 	private next_worker_id = 0
 
@@ -36,38 +50,37 @@ export class BiomeLayer extends L.GridLayer {
 
 	private datapackLoader: Promise<void> | undefined
 
+	private generationVersion = 0
+
 	constructor(options: L.GridLayerOptions) {
 		super(options)
 		this.tileSize = options.tileSize as number
 		this.calcResolution = 1 / 4
 
 		this.createWorkers()
-		this.datapackLoader = this.reloadDatapack()
+		this.datapackLoader = this.updateWorkers({
+			dimension: true,
+			registires: true,
+			settings: true,
+		})
+
+		this.searchStore.$subscribe((mutation, state) => {
+			this.rerender()
+		})
+
+		this.loadedDimensionStore.$subscribe(async (mutation, state) => {
+			await this.updateWorkers({
+				settings: true,
+				dimension: true,
+				registires: true				
+			})
+			this.redraw()
+		})
+
 	}
 
-	private createWorkers() {
-		this.workers = []
-		for (let i = 0; i < WORKER_COUNT; i++) {
-			const worker = new MultiNoiseCalculator()
-			worker.onmessage = (ev) => {
-				const tile = this.Tiles[ev.data.key]
-				if (tile === undefined)
-					return
 
-				tile.array = ev.data.array
-				tile.step = ev.data.step
-
-				tile.isRendering = true
-				this.renderTile(tile)
-
-				tile.done()
-				tile.done = () => { /* nothing */ }
-			}
-
-			this.workers.push(worker)
-		}
-	}
-
+	// ===== Draw tiles that have generated biomes =====
 	renderTile(tile: Tile) {
 		tile.isRendering = false
 		if (tile.array === undefined || tile.step === undefined) {
@@ -95,15 +108,7 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}
 
-				let biomeColor = this.loadedDimensionStore.loaded_dimension.biome_colors?.get(biome)
-				if (biomeColor === undefined) {
-					const hash = hashCode(biome)
-					biomeColor = {
-						r: (hash & 0xFF0000) >> 16,
-						g: (hash & 0x00FF00) >> 8,
-						b: hash & 0x0000FF
-					}
-				}
+				let biomeColor = this.loadedDimensionStore.getBiomeColor(biome)
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
 
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
@@ -111,38 +116,6 @@ export class BiomeLayer extends L.GridLayer {
 			}
 		}
 
-	}
-
-	async reloadDatapack() {
-        for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/density_function")) {
-			const dfJson = await this.datapackStore.composite_datapack.get("worldgen/density_function", id)
-			this.workers.forEach(w => w.postMessage({
-				task: "addDensityFunction",
-				json: dfJson,
-				id: id.toString()
-			}))
-		}
-
-		for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/noise")) {
-			const noiseJson = await this.datapackStore.composite_datapack.get("worldgen/noise", id)
-			this.workers.forEach(w => w.postMessage({
-				task: "addNoise",
-				json: noiseJson,
-				id: id.toString()
-			}))
-
-		}
-
-		const message = {
-			task: "setDimension",
-			biomeSourceJson: toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json),
-			noiseGeneratorSettingsJson: toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json),
-			seed: this.settingsStore.seed,
-			noiseSettingsId: this.loadedDimensionStore.loaded_dimension.noise_settings_id?.toString() ?? "minecraft:empty",
-			dimensionId: this.settingsStore.dimension.toString()
-		}
-
-		this.workers.forEach(w => w.postMessage(message))
 	}
 
 	async rerender() {
@@ -154,23 +127,69 @@ export class BiomeLayer extends L.GridLayer {
 		}
 	}
 
-	async refresh() {
-		//console.log("canceling")
-		this.workers.forEach(w => w.terminate())
-		this.createWorkers()
 
-		this.datapackLoader = this.reloadDatapack()
-		await this.datapackLoader
+	// ==== Manage workers to generate biomes of tiles
+	private createWorkers() {
+		this.workers = []
+		for (let i = 0; i < WORKER_COUNT; i++) {
+			const worker = new MultiNoiseCalculator()
+			worker.onmessage = (ev) => {
+				if (ev.data.generationVersion < this.generationVersion){
+					return
+				}
+				const tile = this.Tiles[ev.data.key]
+				if (tile === undefined)
+					return
 
-		this.workers.forEach(w => w.postMessage({
-			task: "setParams",
-			y: this.settingsStore.y,
-		}))
+				tile.array = ev.data.array
+				tile.step = ev.data.step
 
-		this.redraw()
+				tile.isRendering = true
+				this.renderTile(tile)
+
+				tile.done()
+				tile.done = () => { /* nothing */ }
+			}
+
+			this.workers.push(worker)
+		}
 	}
 
-	recalculateTile(key: string, coords: L.Coords) {
+	async updateWorkers(do_update: {
+		registires?: boolean,
+		dimension?: boolean,
+		settings?: boolean,
+	}) {
+		this.generationVersion++		
+		const update: any = {generationVersion: this.generationVersion}
+
+		if (do_update.registires){
+			update.densityFunctions = {}
+			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/density_function")) {
+				update.densityFunctions[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/density_function", id)
+			}
+	
+			update.noises = {}
+			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/noise")) {
+				update.noises[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/noise", id)
+			}
+		}
+
+		if (do_update.dimension){
+			update.biomeSourceJson = toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json)
+			update.noiseGeneratorSettingsJson = toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json)
+			update.surfaceDensityFunctionId = getSurfaceDensityFunction(this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension).toString()
+		}
+
+		if (do_update.settings){
+			update.seed = this.settingsStore.seed
+			update.y = this.settingsStore.y
+		}
+
+		this.workers.forEach(w => w.postMessage({update}))
+	}
+
+	generateTile(key: string, coords: L.Coords, worker_id: number) {
 		// @ts-expect-error: _tileCoordsToBounds does not exist
 		const tileBounds = this._tileCoordsToBounds(coords);
 		const west = tileBounds.getWest(),
@@ -185,16 +204,14 @@ export class BiomeLayer extends L.GridLayer {
 		min.y *= -1
 		max.y *= -1
 
-		const message = {
-			task: "calculate",
+		const task = {
 			key,
 			min,
 			max,
 			tileSize: this.tileSize * this.calcResolution
 		}
 
-		this.workers[this.next_worker_id].postMessage(message)
-		this.next_worker_id = (this.next_worker_id + 1) % WORKER_COUNT
+		this.workers[worker_id].postMessage({task})
 	}
 
 	createTile(coords: L.Coords, done: L.DoneCallback): HTMLElement {
@@ -209,17 +226,20 @@ export class BiomeLayer extends L.GridLayer {
 			return tile;
 		}
 
-		this.datapackLoader?.then((l) => {
+		this.datapackLoader?.then(() => {
 			const key = this._tileCoordsToKey(coords)
-			this.Tiles[key] = { coords: coords, canvas: tile, ctx: ctx, done: done }
+			this.Tiles[key] = { coords: coords, canvas: tile, ctx: ctx, done: done, workerId: this.next_worker_id }
 
-			this.recalculateTile(key, coords)
+			this.generateTile(key, coords, this.next_worker_id)
+			this.next_worker_id = (this.next_worker_id + 1) % WORKER_COUNT
 		})
 
 		return tile
 	}
 
 	_removeTile(key: string) {
+		this.workers[this.Tiles[key].workerId].postMessage({cancel: key})
+
 		delete this.Tiles[key]
 
 		// @ts-expect-error: _removeTile does not exist

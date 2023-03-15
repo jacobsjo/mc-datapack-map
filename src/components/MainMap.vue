@@ -5,7 +5,7 @@ import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { onMounted, ref } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, StructurePlacement, StructureSet, WorldgenContext, WorldgenStructure } from 'deepslate';
+import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, Structure, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -106,10 +106,6 @@ function getPosition(map: L.Map, latlng: L.LatLng) {
     return BlockPos.create(pos.x, y, pos.y)
 }
 
-function refresh() {
-    layer.refresh()
-}
-
 function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
     return (pos[0] >= min[0] && pos[0] <= max[0] && pos[1] >= min[1] && pos[1] <= max[1])
 }
@@ -120,7 +116,7 @@ function updateMarkers() {
         return
     }
 
-    const context = new WorldgenStructure.GenerationContext(() => 66, WorldgenContext.create(-64, 384), 63)
+    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, loadedDimensionStore.loaded_dimension.biome_source, loadedDimensionStore.noise_generator_settings)
 
     const bounds = map.getBounds()
 
@@ -135,9 +131,12 @@ function updateMarkers() {
 
     var _needs_zoom = false
 
-    for (const id of searchStore.structure_sets) {
+    for (const id of searchStore.structure_sets.sets) {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
+
+        if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement) continue
+        //set.placement.prepare(loadedDimensionStore.loaded_dimension.biome_source, loadedDimensionStore.sampler, settingsStore.seed)
 
         var minZoom = 15
         if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
@@ -183,11 +182,11 @@ function updateMarkers() {
 }
 
 async function getMarker(set: StructureSet, chunk: ChunkPos, context: WorldgenStructure.GenerationContext) {
-    const structureId = set.getStructureInChunk(settingsStore.seed, chunk[0], chunk[1], loadedDimensionStore.loaded_dimension.biome_source!, loadedDimensionStore.sampler, context)
+    const structureId = set.getStructureInChunk(chunk[0], chunk[1], context)
     const crs = map.options.crs!
     if (structureId && searchStore.structures.has(structureId.toString())) {
         const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-        const popup = L.popup().setContent(structureId.toString())
+        const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0]}, ${chunk[1]}`)
         const marker = L.marker(crs.unproject(pos), {
             icon: L.icon({
                 iconUrl: await loadedDimensionStore.getIcon(structureId),
@@ -207,7 +206,6 @@ async function getMarker(set: StructureSet, chunk: ChunkPos, context: WorldgenSt
 }
 
 loadedDimensionStore.$subscribe((mutation, state) => {
-    refresh()
     for (const marker of marker_map.values()){
         marker.marker.then(m => m?.marker.remove())
     }
@@ -216,7 +214,6 @@ loadedDimensionStore.$subscribe((mutation, state) => {
 })
 
 searchStore.$subscribe((mutation, state) => {
-    layer.rerender()
     updateMarkers()
 })
 
@@ -233,13 +230,20 @@ searchStore.$subscribe((mutation, state) => {
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{ left: tooltip_left + 'px', top: tooltip_top + 'px' }"
         :biome="tooltip_biome" :pos="tooltip_position" />
+    <div class="top">
+        <Transition>
+            <div class="info zoom" v-if="needs_zoom">
+                Some structures are hidden. &ThickSpace; Zoom in to see more.
+            </div>
+        </Transition>
+        <Transition>
+            <div class="info unsupported" v-if="searchStore.structure_sets.has_invalid">
+                Some selected structures are unsupported! Sorry.
+            </div>
+        </Transition>
+    </div>
     <Transition>
-        <div class="info zoom" v-if="needs_zoom">
-            Some structures are hidden. &ThickSpace; Zoom in to see more.
-        </div>
-    </Transition>
-    <Transition>
-        <div class="info teleport" v-if="show_info">
+        <div class="info bottom teleport" v-if="show_info">
             Teleport Command Copied
         </div>
     </Transition>
@@ -281,28 +285,42 @@ searchStore.$subscribe((mutation, state) => {
     background-color: rgb(177, 176, 176);
 }
 
-.info {
+
+.top{
     position: absolute;
     z-index: 500;
     left: 50%;
     transform: translateX(-50%);
+    top: 0.5rem;
+}
+
+.bottom {
+    position: absolute;
+    z-index: 500;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0.5rem;
+}
+
+.info {
     padding: 0.3rem;
     padding-left: 1rem;
     padding-right: 1rem;
     border-radius: 1rem;
     background-color: rgb(3, 33, 58);
-    color: rgb(189, 189, 189);
+    color: rgb(255, 255, 255);
     user-select: none;
+    margin: 0.2rem;
 }
 
-.info.teleport {
-    bottom: 0.5rem;
+.teleport {
+    color: rgb(189, 189, 189);
 }
 
-.info.zoom {
-    border: 2px solid black;
-    color: white;
-    font-weight: 600;
-    top: 0.5rem;
+.unsupported {
+    background-color: rgb(165, 33, 33);
+    border: 2px solid white
 }
+
+
 </style>

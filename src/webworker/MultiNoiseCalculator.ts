@@ -4,82 +4,131 @@ declare const self: ServiceWorkerGlobalScope;
 export { };
 
 import { Climate, DensityFunction, WorldgenRegistries, Identifier, Holder, NoiseRouter, NoiseGeneratorSettings, RandomState, NoiseParameters, MultiNoiseBiomeSource, BiomeSource, FixedBiomeSource } from "deepslate"
-import { getSurfaceDensityFunction } from "../util"
 
 class MultiNoiseCalculator {
-  private sampler?: Climate.Sampler
-  private y: number | "surface" = "surface"
-  private surfaceDensityFunction?: DensityFunction
-  private biomeSource: BiomeSource = new FixedBiomeSource(Identifier.create("plains"))
 
-  public calculateMultiNoiseValues(key: string, min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): void {
-    const array: { surface: number, biome: string }[][] = Array(tileSize + 2)
-    const step = (max_x - min_x) / tileSize
-    for (let ix = -1; ix < tileSize + 2; ix++) {
-      array[ix] = Array(tileSize + 2)
-      for (let iz = -1; iz < tileSize + 2; iz++) {
-        const x = ix * step + min_x
-        const z = iz * step + min_z
-        const surface = this.surfaceDensityFunction?.compute(DensityFunction.context(x << 2, 0, z << 2)) ?? 0
-        const y = (this.y === "surface") ? surface : this.y
-        const biome = this.biomeSource.getBiome(x, y >> 2, z, this.sampler!).toString()
-        array[ix][iz] = { surface, biome }
-      }
-    }
+	private state: {
+		sampler?: Climate.Sampler,
+		biomeSource?: BiomeSource,
+		surfaceDensityFunction?: DensityFunction,
+		noiseGeneratorSettings?: NoiseGeneratorSettings
+		randomState?: RandomState
+		y: number | "surface",
+		seed: bigint,
+		generationVersion: number
+	} = {
+		y: "surface",
+		seed: BigInt(0),
+		generationVersion: -1
+	}
 
-    postMessage({ key, array, step })
+	private taskQueue: any[] = []
 
-  }
+	public update(update: {
+		biomeSourceJson?: unknown,
+		noiseGeneratorSettingsJson?: unknown,
+		densityFunctions?: { [key: string]: unknown },
+		noises?: { [key: string]: unknown },
+		surfaceDensityFunctionId?: string,
+		generationVersion?: number
 
-  public setDimension(biomeSourceJson: unknown, noiseGeneratorSettingsJson: unknown, seed: bigint, noiseSettingsId: string, dimensionId: string) {
-    this.biomeSource = BiomeSource.fromJson(biomeSourceJson)
-    const noiseGeneratorSettings = noiseGeneratorSettingsJson ? NoiseGeneratorSettings.fromJson(noiseGeneratorSettingsJson) : NoiseGeneratorSettings.create({})
-    const randomState = new RandomState(noiseGeneratorSettings, seed)
-    this.sampler = Climate.Sampler.fromRouter(randomState.router)
-    this.surfaceDensityFunction = getSurfaceDensityFunction(Identifier.parse(noiseSettingsId), Identifier.parse(dimensionId)).mapAll(randomState.createVisitor(noiseGeneratorSettings.noise, noiseGeneratorSettings.legacyRandomSource))
+		seed?: bigint,
+		y?: number | "surface",
+	}) {
+		this.state.seed = update.seed ?? this.state.seed
+		this.state.y = update.y ?? this.state.y
+		this.state.generationVersion = update.generationVersion ?? this.state.generationVersion
 
-  }
-
-  public addDensityFunction(id: Identifier, json: unknown) {
-    const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))
-    WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
-  }
-
-  public addNoise(id: Identifier, json: unknown) {
-    const noise = NoiseParameters.fromJson(json)
-    WorldgenRegistries.NOISE.register(id, noise)
-  }
+		if (update.biomeSourceJson) {
+			this.state.biomeSource = BiomeSource.fromJson(update.biomeSourceJson)
+		}
 
 
-  public setParams(y: number | "surface") {
-    this.y = y
-  }
+		if (update.densityFunctions) {
+			WorldgenRegistries.DENSITY_FUNCTION.clear()
+			for (const id in update.densityFunctions) {
+				const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(update.densityFunctions[id]))
+				WorldgenRegistries.DENSITY_FUNCTION.register(Identifier.parse(id), df)
+			}
+		}
 
-  public handleMessage(evt: ExtendableMessageEvent) {
+		if (update.noises) {
+			WorldgenRegistries.NOISE.clear()
+			for (const id in update.noises) {
+				const noise = NoiseParameters.fromJson(update.noises[id])
+				WorldgenRegistries.NOISE.register(Identifier.parse(id), noise)
+			}
+		}
 
-    if (evt.data.task === "calculate") {
-      this.calculateMultiNoiseValues(evt.data.key, evt.data.min.x, evt.data.min.y, evt.data.max.x, evt.data.max.y, evt.data.tileSize)
-    } else if (evt.data.task === "setDimension") {
-      this.setDimension(
-        evt.data.biomeSourceJson,
-        evt.data.noiseGeneratorSettingsJson,
-        evt.data.seed,
-        evt.data.noiseSettingsId,
-        evt.data.dimensionId)
-    } else if (evt.data.task === "addDensityFunction") {
-      this.addDensityFunction(Identifier.parse(evt.data.id), evt.data.json)
-    } else if (evt.data.task === "addNoise") {
-      this.addNoise(Identifier.parse(evt.data.id), evt.data.json)
-    } else if (evt.data.task === "setParams") {
-      this.setParams(evt.data.y)
-    }
-  }
+		if (update.noiseGeneratorSettingsJson) {
+			this.state.noiseGeneratorSettings = NoiseGeneratorSettings.fromJson(update.noiseGeneratorSettingsJson)
+			this.state.randomState = new RandomState(this.state.noiseGeneratorSettings, this.state.seed)
+			this.state.sampler = Climate.Sampler.fromRouter(this.state.randomState.router)
+		}
 
+		if (update.surfaceDensityFunctionId && this.state.randomState && this.state.noiseGeneratorSettings) {
+			this.state.surfaceDensityFunction = new DensityFunction.HolderHolder(
+				Holder.reference(
+					WorldgenRegistries.DENSITY_FUNCTION,
+					Identifier.parse(update.surfaceDensityFunctionId)
+				)).mapAll(this.state.randomState.createVisitor(this.state.noiseGeneratorSettings.noise, this.state.noiseGeneratorSettings.legacyRandomSource))
+		}
+
+		this.taskQueue = []
+	}
+
+	public addTask(task: any){
+		this.taskQueue.push(task)
+	}
+
+	public removeTask(key: string){
+		const index = this.taskQueue.findIndex((task) => task.key === key)
+		if (index >= 0){
+			this.taskQueue.splice(index, 1)
+		}
+	}
+
+	public async loop() {
+		while (true) {
+			if (this.taskQueue.length === 0) {
+				await new Promise(r => setTimeout(r, 1000));
+			} else {
+				const nextTaks = this.taskQueue.shift()
+				this.calculateMultiNoiseValues(nextTaks.key, nextTaks.min.x, nextTaks.min.y, nextTaks.max.x, nextTaks.max.y, nextTaks.tileSize)
+				await new Promise(r => setTimeout(r, 0));
+			}
+		}
+	}
+
+	private calculateMultiNoiseValues(key: string, min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): void {
+		const array: { surface: number, biome: string }[][] = Array(tileSize + 2)
+		const step = (max_x - min_x) / tileSize
+		for (let ix = -1; ix < tileSize + 2; ix++) {
+			array[ix] = Array(tileSize + 2)
+			for (let iz = -1; iz < tileSize + 2; iz++) {
+				const x = ix * step + min_x
+				const z = iz * step + min_z
+				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x << 2, 0, z << 2)) ?? 0
+				const y = (this.state.y === "surface") ? surface : this.state.y
+				const biome = this.state.biomeSource?.getBiome(x, y >> 2, z, this.state.sampler!).toString() ?? "minecraft:plains"
+				array[ix][iz] = { surface, biome }
+			}
+		}
+
+		postMessage({ key, array, step, generationVersion: this.state.generationVersion })
+	}
 }
 
 
 const multiNoiseCalculator = new MultiNoiseCalculator()
+multiNoiseCalculator.loop()
 
 self.onmessage = (evt: ExtendableMessageEvent) => {
-  multiNoiseCalculator.handleMessage(evt)
+	if ("update" in evt.data){
+		multiNoiseCalculator.update(evt.data.update)
+	} else if ("task" in evt.data){
+		multiNoiseCalculator.addTask(evt.data.task)
+	} else if ("cancel" in evt.data){
+		multiNoiseCalculator.removeTask(evt.data.cancel)
+	}
 }

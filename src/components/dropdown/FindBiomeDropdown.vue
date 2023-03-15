@@ -1,30 +1,40 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { useDatapackStore } from '../../stores/useDatapackStore';
 import { useSearchStore } from '../../stores/useBiomeSearchStore'
-import { Identifier } from 'deepslate';
+import { Identifier, WorldgenRegistries } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
+import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
 
-const datapackStore = useDatapackStore()
-const biomeSearchStore = useSearchStore()
-
-const biomes = reactive(await datapackStore.composite_datapack.getIds("worldgen/biome"))
+const searchStore = useSearchStore()
+const loadedDimensionStore = useLoadedDimensionStore()
 
 function toggleBiome(biome: Identifier){
-    if (biomeSearchStore.biomes.has(biome.toString())){
-        biomeSearchStore.biomes.delete(biome.toString())
+    if (searchStore.biomes.has(biome.toString())){
+        searchStore.biomes.delete(biome.toString())
     } else {
-        biomeSearchStore.biomes.add(biome.toString())
+        searchStore.biomes.add(biome.toString())
     }
-    biomeSearchStore.$patch({}) // call $subscribe, not sure why this is necessary
+    searchStore.$patch({}) // call $subscribe, not sure why this is necessary
+}
+
+function disableGroup(group: string){
+    [...searchStore.biomes].forEach(biome => {
+        if (biome.startsWith(group + ":"))
+            searchStore.biomes.delete(biome)
+    });
+}
+
+function getColorString(biome: Identifier){
+    const color = loadedDimensionStore.getBiomeColor(biome.toString())
+    return `rgb(${color.r}, ${color.g}, ${color.b})`
 }
 
 </script>
 
 
 <template>
-    <ListDropdown placeholder="Search Biome" :entries="biomes" :selected="biomeSearchStore.biomes" @toggle="toggleBiome" />
+    <ListDropdown placeholder="Search Biome" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>
