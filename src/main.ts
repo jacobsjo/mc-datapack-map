@@ -10,7 +10,8 @@ import App from './App.vue'
 library.add(faFileZipper, faFolderOpen, faXmark, faRotateRight, faPlus, faBars, faMagnifyingGlass, faLocationDot, faAngleRight, faAngleDown);
 
 const pinia = createPinia()
-createApp(App)
-    .use(pinia)
-    .component("font-awesome-icon", FontAwesomeIcon)
-    .mount('#app')
+const app = createApp(App)
+app.use(pinia)
+app.component("font-awesome-icon", FontAwesomeIcon)
+app.config.globalProperties.window = window
+app.mount('#app')

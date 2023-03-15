@@ -8,6 +8,7 @@ export const useSearchStore = defineStore('search', () => {
     const structures = reactive<Set<string>>(new Set())
 
     const structure_sets = computed(() => {
+        structures.size // make sure any change to structures triggers recomputation
         const sets: Identifier[] = []
 
         var has_invalid_set = false

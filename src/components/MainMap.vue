@@ -27,7 +27,7 @@ const show_info = ref(false)
 var map: L.Map
 var markers: L.LayerGroup
 
-var marker_map = new Map<string, { marker: Promise<{ marker: L.Marker, structure: Identifier } | undefined>, pos: ChunkPos }>()
+var marker_map = new Map<string, { marker?: L.Marker, structure?: Identifier }>()
 var needs_zoom = ref(false)
 
 onMounted(() => {
@@ -82,7 +82,7 @@ onMounted(() => {
 
 
     map.on("moveend", (evt) => {
-        updateMarkers()
+        setTimeout(updateMarkers, 5)
     })
 
     map.on("zoomend", () => {
@@ -127,9 +127,11 @@ function updateMarkers() {
     const minChunk = ChunkPos.create(minPos.x >> 4, -minPos.y >> 4)
     const maxChunk = ChunkPos.create(maxPos.x >> 4, -maxPos.y >> 4)
 
-    const new_markers = new Map<string, { marker: Promise<{ marker: L.Marker, structure: Identifier } | undefined>, pos: ChunkPos }>()
-
     var _needs_zoom = false
+
+    const keptMarkers: Set<string> = new Set()
+
+    const scheduler = ('scheduler' in window) ? ((task: () => void) => (window as any).scheduler.postTask(task, {priority: "background"})) : ((task: () => void) => setTimeout(task, 1))
 
     for (const id of searchStore.structure_sets.sets) {
         const set = StructureSet.REGISTRY.get(id)
@@ -148,72 +150,85 @@ function updateMarkers() {
             const chunks: ChunkPos[] = set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
 
             for (const chunk of chunks) {
-
-                if (!isInBounds(chunk, minChunk, maxChunk)) {
-                    continue
-                }
                 const storage_id = `${id.toString()} ${chunk[0]},${chunk[1]}`
-                const marker = marker_map.get(storage_id) ?? {
-                    marker: new Promise((resolve) => setTimeout(async () => {
-                        if (!isInBounds(chunk, minChunk, maxChunk)) {
-                            resolve(undefined)
-                        } else {
-                            resolve(await getMarker(set, chunk, context))
+                const inBounds = isInBounds(chunk, minChunk, maxChunk)
+                const stored = marker_map.get(storage_id)
+
+                if (inBounds){
+                    if (stored === undefined) {
+                        const m: { marker?: L.Marker, structure?: Identifier } = {}
+
+                        marker_map.set(storage_id, m)
+
+
+                        scheduler(() => {
+                            if (marker_map.get(storage_id) !== m) return
+
+                            const structureId = set.getStructureInChunk(chunk[0], chunk[1], context)
+                            const marker = structureId && searchStore.structures.has(structureId.toString()) ? getMarker(structureId, chunk) : undefined
+                            m.structure = structureId
+                            m.marker = marker
+                        })
+                    } else {
+                        if (stored.structure){
+                            const should_have_marker = searchStore.structures.has(stored.structure?.toString())
+                            if (should_have_marker && stored.marker === undefined){
+                                stored.marker = getMarker(stored.structure, chunk)
+                            } else if (!should_have_marker && stored.marker !== undefined){
+                                stored.marker.remove()
+                                stored.marker = undefined
+                            }
                         }
-                    }, 1)), pos: chunk
+                    }
+                    keptMarkers.add(storage_id)
                 }
-                marker_map.delete(storage_id)
-                new_markers.set(storage_id, marker)
             }
         } else {
             _needs_zoom = true
         }
     }
-    for (const marker of marker_map.values()){
-        marker.marker.then(m => m?.marker.remove())
+
+    for (const key of marker_map.keys()){
+        if (!keptMarkers.has(key)){
+            const marker = marker_map.get(key)
+            marker?.marker?.remove()
+            marker_map.delete(key)
+        }
     }
 
     needs_zoom.value = _needs_zoom
-
-    marker_map.clear()
-    for (const marker of new_markers){
-        marker_map.set(marker[0], marker[1])
-    }
 }
 
-async function getMarker(set: StructureSet, chunk: ChunkPos, context: WorldgenStructure.GenerationContext) {
-    const structureId = set.getStructureInChunk(chunk[0], chunk[1], context)
+function getMarker(structureId: Identifier, chunk: ChunkPos) {
     const crs = map.options.crs!
-    if (structureId && searchStore.structures.has(structureId.toString())) {
-        const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-        const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0]}, ${chunk[1]}`)
-        const marker = L.marker(crs.unproject(pos), {
-            icon: L.icon({
-                iconUrl: await loadedDimensionStore.getIcon(structureId),
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                shadowUrl: 'shadow.png',
-                shadowSize: [40, 40],
-                shadowAnchor: [20, 20],
-                popupAnchor: [0, -10]
-            })
-        })
-        marker.bindPopup(popup).addTo(markers)
-        return { structure: structureId, marker }
-    } else {
-        return undefined
-    }
+    const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
+    const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0]}, ${chunk[1]}`)
+    const marker = L.marker(crs.unproject(pos))
+    marker.bindPopup(popup).addTo(markers)
+    loadedDimensionStore.getIcon(structureId).then((icon) => {
+        marker.setIcon(L.icon({
+            iconUrl: icon,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            shadowUrl: 'shadow.png',
+            shadowSize: [40, 40],
+            shadowAnchor: [20, 20],
+            popupAnchor: [0, -10]
+        }))
+    })
+    return marker
 }
 
 loadedDimensionStore.$subscribe((mutation, state) => {
     for (const marker of marker_map.values()){
-        marker.marker.then(m => m?.marker.remove())
+        marker.marker?.remove()
     }
     marker_map.clear()
     updateMarkers()
 })
 
 searchStore.$subscribe((mutation, state) => {
+    console.log("updateMarkers")
     updateMarkers()
 })
 
