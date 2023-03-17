@@ -64,7 +64,8 @@ export class BiomeLayer extends L.GridLayer {
 			settings: true,
 		})
 
-		this.searchStore.$subscribe((mutation, state) => {
+
+		watch(this.searchStore.biomes, () => {
 			this.rerender()
 		})
 

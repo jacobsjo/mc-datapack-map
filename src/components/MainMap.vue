@@ -3,13 +3,14 @@ import { useDatapackStore } from '../stores/useDatapackStore';
 import "leaflet/dist/leaflet.css";
 import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, Structure, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
+import { CachedBiomeSource } from '../util/CachedBiomeSource';
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
@@ -110,13 +111,14 @@ function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
     return (pos[0] >= min[0] && pos[0] <= max[0] && pos[1] >= min[1] && pos[1] <= max[1])
 }
 
-function updateMarkers() {
 
+function updateMarkers() {
     if (loadedDimensionStore.loaded_dimension.biome_source === undefined) {
         return
     }
 
-    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, loadedDimensionStore.loaded_dimension.biome_source, loadedDimensionStore.noise_generator_settings)
+    const cachedBiomeSource = new CachedBiomeSource(loadedDimensionStore.loaded_dimension.biome_source)
+    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings)
 
     const bounds = map.getBounds()
 
@@ -164,7 +166,9 @@ function updateMarkers() {
                         scheduler(() => {
                             if (marker_map.get(storage_id) !== m) return
 
+                            cachedBiomeSource.setupCache(chunk[0] << 2, chunk[1] << 2)
                             const structureId = set.getStructureInChunk(chunk[0], chunk[1], context)
+
                             const marker = structureId && searchStore.structures.has(structureId.toString()) ? getMarker(structureId, chunk) : undefined
                             m.structure = structureId
                             m.marker = marker
@@ -227,8 +231,7 @@ loadedDimensionStore.$subscribe((mutation, state) => {
     updateMarkers()
 })
 
-searchStore.$subscribe((mutation, state) => {
-    console.log("updateMarkers")
+watch(searchStore.structures, () => {
     updateMarkers()
 })
 
