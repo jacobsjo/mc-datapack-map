@@ -14,9 +14,9 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@types/wicg-file-system-access": "^2020.9.5",
     "@vueuse/components": "^9.13.0",
-    "deepslate": "^0.17.2",
+    "deepslate": "github:jacobsjo/deepslate#dev-deploy",
     "leaflet": "^1.9.3",
-    "mc-datapack-loader": "file:../mc-datapack-loader",
+    "mc-datapack-loader": "0.1.4",
     "pinia": "^2.0.32",
     "vue": "^3.2.45",
     "vue-slider-component": "^4.1.0-beta.7"
