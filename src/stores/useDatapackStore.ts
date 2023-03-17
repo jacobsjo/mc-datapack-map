@@ -75,6 +75,15 @@ export const useDatapackStore = defineStore('datapacks', () => {
             WorldgenStructure.REGISTRY.register(id, structure)
         }
 
+        // register (worldgen) structure tags
+        /*
+        for (const id of await composite_datapack.value.getIds("tags/worldgen/structure")) {
+            const structureTagJson = await composite_datapack.value.get("tags/worldgen/structure", id)
+            const structureTag = HolderSet.fromJson(WorldgenStructure.REGISTRY, structureTagJson, id)
+            WorldgenStructure.REGISTRY.getTagRegistry().register(id, structureTag)
+        }
+        */
+
         // register structure_sets
         StructureSet.REGISTRY.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/structure_set")) {

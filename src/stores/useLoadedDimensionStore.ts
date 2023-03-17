@@ -59,7 +59,11 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
                     const structure_config = json[structure]
                     if (typeof structure_config === 'string'){
-                        ld.structure_icons.set(structure_id, Identifier.parse(structure_config))
+                        if (structure_config === 'hidden'){
+                            ld.hidden_structures.add(structure_id)
+                        } else {
+                            ld.structure_icons.set(structure_id, Identifier.parse(structure_config))
+                        }
                     } else if (structure_config.hidden){
                         ld.hidden_structures.add(structure_id)
                     } else if (structure_config.item){

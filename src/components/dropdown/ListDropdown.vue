@@ -8,6 +8,7 @@ import ListDropdownGroup from './ListDropdownGroup.vue';
 
 const props = defineProps({
         placeholder: String,
+        tags: Object,
         entries: Object,
         selected: Object,
         icons: Function,
@@ -17,17 +18,24 @@ const props = defineProps({
 defineEmits(['toggle', 'disableGroup'])
 
 const search = ref("")
-const filtered_entries = computed<Identifier[]>(() => {
-    return props.entries?.filter((b: Identifier) => b.toString().includes(search.value)).sort()
-})
 
-const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
-    return filtered_entries.value.reduce((groups, entry) => {
+function group(entries: Identifier[]){
+    return entries.filter((b: Identifier) => b.toString().includes(search.value)).sort().reduce((groups, entry) => {
         groups[entry.namespace] = groups[entry.namespace] ?? []
         groups[entry.namespace].push(entry)
         return groups
     }, {} as {[key: string]: Identifier[]})
+}
+
+const grouped_tags = computed<{[key: string]: Identifier[]}>(() => {
+    return props.tags ? group(props.tags as Identifier[]) : {}
 })
+
+const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
+    return props.entries ? group(props.entries as Identifier[]) : {}
+})
+
+
 
 </script>
 
@@ -36,6 +44,14 @@ const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
     <Dropdown class="dropdown">
         <input id="search" :placeholder="props.placeholder" spellcheck="false" v-model="search" /> 
         <div class="entry_list">
+            <ListDropdownGroup
+                v-for="group in Object.entries(grouped_tags)"
+                :entries="group[1]"
+                :group_name="`#${group[0]}`"
+                :selected="selected"
+                @toggle="(entry: Identifier) => $emit('toggle', entry)" 
+                @disableGroup="() => $emit('disableGroup', group[0])"
+                />            
             <ListDropdownGroup
                 v-for="group in Object.entries(grouped_entries)"
                 :entries="group[1]"
