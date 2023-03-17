@@ -67,8 +67,8 @@ import SettingsPanel from './SettingsPanel.vue';
 <style scoped>
     .sidebar {
         height: 100%;
-        min-width: 18rem;
-        max-width: 18rem;
+        min-width: 19rem;
+        max-width: 19rem;
         display: flex;
         flex-direction: column;
 

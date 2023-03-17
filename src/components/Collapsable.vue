@@ -40,7 +40,7 @@ const open = ref(true)
 }
 
 .toggle.open {
-    left: 14.8rem
+    left: 15.8rem
 }
 
 .icon {

@@ -103,7 +103,7 @@ function clearStructureSearch(event: Event){
 }
 
 .button:first-child{
-    margin-left: 1.2rem;
+    margin-left: 1.7rem;
 }
 
 .button {
