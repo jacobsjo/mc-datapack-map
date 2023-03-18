@@ -12,7 +12,7 @@
 
 <template>
     <div class="datapack">
-        <img class="image" :src="image" />
+        <img class="image" :src="image" alt="pack.png" />
         <div class="description">{{ desciption }}</div>
         <font-awesome-icon icon="fa-xmark" class="close_button" tabindex="0" title="Remove Datapack" @click="$emit('close')" @keypress.enter="$emit('close')" />
     </div>
@@ -23,7 +23,7 @@
         width: 100%;
         height: 4rem;
         box-sizing: border-box;
-        background-color: gray;
+        background-color: rgb(66, 66, 66);
         border-radius: 0.5rem;
         display: flex;
         align-items: center;
