@@ -6,7 +6,7 @@ import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, Struct
 import { useSettingsStore } from "./useSettingsStore";
 
 export const useDatapackStore = defineStore('datapacks', () => {
-    const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/data-1.19.3.zip'))
+    const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/vanilla.zip'))
 
     let last_key = 0
     const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])

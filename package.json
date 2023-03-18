@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --force --host",
+    "createZips": "python scripts/createVanillaZips.py",
     "build": "vue-tsc && vite build",
     "preview": "vite preview --host"
   },
