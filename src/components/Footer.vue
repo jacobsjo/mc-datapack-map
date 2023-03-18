@@ -34,11 +34,16 @@
         text-decoration: underline;
     }
 
+
+    a:hover {
+        color: lightgray;
+    }
+
     .highlight{
         color: rgb(243, 221, 122);
     }
 
-    a:hover {
-        color: lightgray;
+    a.highlight:hover {
+        color: rgb(255, 239, 21);
     }
 </style>

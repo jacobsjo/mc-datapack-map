@@ -39,7 +39,7 @@ function randomizeSeed() {
         <div class="setting">
             <div class="title short">Seed:</div>
             <font-awesome-icon icon="fa-dice" class="button" tabindex="0" @click="randomizeSeed"
-                @keypress:enter="randomizeSeed" title="Randomize Seed" />
+                @keypress.enter="randomizeSeed" title="Randomize Seed" />
             <input aria-label="Seed" :value="settingsStore.seed" @change="event => {
                 try {
                     settingsStore.seed = BigInt((event.target as HTMLInputElement).value)
