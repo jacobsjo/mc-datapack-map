@@ -34,7 +34,7 @@ function getColorString(biome: Identifier){
 
 
 <template>
-    <ListDropdown placeholder="Search Biome" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
+    <ListDropdown :placeholder="$t('dropdown.search_biome.placeholder')" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

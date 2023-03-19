@@ -14,7 +14,7 @@
     <div class="datapack">
         <img class="image" :src="image" alt="pack.png" />
         <div class="description">{{ desciption }}</div>
-        <font-awesome-icon icon="fa-xmark" class="close_button" tabindex="0" title="Remove Datapack" @click="$emit('close')" @keypress.enter="$emit('close')" />
+        <font-awesome-icon icon="fa-xmark" class="close_button" tabindex="0" :title="$t('datapack_list.remove_datapack.title')" @click="$emit('close')" @keypress.enter="$emit('close')" />
     </div>
 </template>
 

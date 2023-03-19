@@ -1,0 +1,38 @@
+{
+    "settings.world_preset.label": "Vorlage:",
+    "settings.world_preset.aria-label": "Vorlage",
+    "settings.dimension.label": "Dimension:",
+    "settings.dimension.aria-label": "Dimension",
+    "settings.seed.label": "Seed:",
+    "settings.seed.aria-label": "Seed",
+    "settings.seed.randomize_button.title": "Zufälliger Seed",
+
+    "footer.about": "Über diese Seite",
+    "footer.view_source": "Quellcode",
+    "footer.report_issue": "Problem Melden",
+    "footer.sponsor": "Sponsor",
+
+    "datapack_list.remove_datapack.title": "Datapack entfernen",
+
+    "menu.add_datapack.title": "Datapack hinzufügen",
+    "menu.search_biome.title": "Biom suchen",
+    "menu.structure_positions.title": "Strukturpositionen",
+    "menu.reload_datapacks.title": "Datapacks neuladen",
+
+    "dropdown.add_datapack.zip": "Datapack.zip öffnen",
+    "dropdown.add_datapack.folder": "Datapack Ornder öffnen",
+    "dropdown.add_datapack.update_1_20": "Version 1.20",    
+
+    "dropdown.search_biome.placeholder": "Biom suchen",
+    "dropdown.structure_positions.placeholder": "Struktur suchen",
+
+    "toggle_sidebar.title": "Seitenleise umschalten",
+
+    "map.info.structures_hidden": "Einige Strukturen werden nicht angezeigt. Heranzoomen um mehr zu sehen.",
+    "map.info.teleport_command_copied": "Teleport-Befehl kopiert",
+    "map.error.structures_unsupported": "Einige ausgewählte Strukturen werden nicht unterstützt! Sorry.",
+
+    "map.yslider.at_surface": "Oberfläche",
+    "map.yslider.aria-label": "Y Wert",
+    "map.yslider.y-label": "Y: {y}"
+}

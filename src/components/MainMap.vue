@@ -251,18 +251,18 @@ watch(searchStore.structures, () => {
     <div class="top">
         <Transition>
             <div class="info zoom" v-if="needs_zoom">
-                Some structures are hidden. &ThickSpace; Zoom in to see more.
+                {{ $t('map.info.structures_hidden') }}
             </div>
         </Transition>
         <Transition>
             <div class="info unsupported" v-if="searchStore.structure_sets.has_invalid">
-                Some selected structures are unsupported! Sorry.
+                {{ $t('map.error.structures_unsupported') }}
             </div>
         </Transition>
     </div>
     <Transition>
         <div class="info bottom teleport" v-if="show_info">
-            Teleport Command Copied
+            {{ $t('map.info.teleport_command_copied') }}
         </div>
     </Transition>
 </template>

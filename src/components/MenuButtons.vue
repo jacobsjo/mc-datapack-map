@@ -42,7 +42,7 @@ function clearStructureSearch(event: Event){
             class="button"
             tabindex="0"
             :class="{open: openDropdownOpen }"
-            title="Add Datapack"
+            :title="$t('menu.add_datapack.title')"
             @click="openDropdownOpen = true"
             @keypress.enter="openDropdownOpen = true"
         />
@@ -57,7 +57,7 @@ function clearStructureSearch(event: Event){
                 open: searchBiomeDropdownOpen,
                 active: searchStore.biomes.size > 0
             }"
-            title="Search Biome"
+            :title="$t('menu.search_biome.title')"
             @click="searchBiomeDropdownOpen = true"
             @keypress.enter="searchBiomeDropdownOpen = true"
             @contextmenu="clearBiomeSearch"    
@@ -76,7 +76,7 @@ function clearStructureSearch(event: Event){
                 open: structureDropdownOpen,
                active: searchStore.structures.size > 0
             }"
-            title="Structure Positions"
+            :title="$t('menu.structure_positions.title')"
             @click="structureDropdownOpen = true"
             @keypress.enter="structureDropdownOpen = true"
             @contextmenu="clearStructureSearch"    
@@ -88,7 +88,7 @@ function clearStructureSearch(event: Event){
             </Suspense>
         </Transition>
 
-        <font-awesome-icon icon="fa-rotate-right" class="button" tabindex="0" title="Reload Datapacks" @click="reload" @keypress.enter="reload" />
+        <font-awesome-icon icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
     </div>
 </template>
 

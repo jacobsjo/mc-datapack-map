@@ -1,0 +1,38 @@
+{
+    "settings.world_preset.label": "World Preset:",
+    "settings.world_preset.aria-label": "World Preset",
+    "settings.dimension.label": "Dimension:",
+    "settings.dimension.aria-label": "Dimension",
+    "settings.seed.label": "Seed:",
+    "settings.seed.aria-label": "Seed",
+    "settings.seed.randomize_button.title": "Randomize Seed",
+
+    "footer.about": "About",
+    "footer.view_source": "View Source",
+    "footer.report_issue": "Report Issue",
+    "footer.sponsor": "Sponsor",
+
+    "datapack_list.remove_datapack.title": "Remove Datapack",
+
+    "menu.add_datapack.title": "Add Datapack",
+    "menu.search_biome.title": "Search Biome",
+    "menu.structure_positions.title": "Structure Positions",
+    "menu.reload_datapacks.title": "Reload Datapacks",
+
+    "dropdown.add_datapack.zip": "Open Datapack.zip",
+    "dropdown.add_datapack.folder": "Open Datapack Folder",
+    "dropdown.add_datapack.update_1_20": "Update 1.20",    
+
+    "dropdown.search_biome.placeholder": "Search Biome",
+    "dropdown.structure_positions.placeholder": "Search Structure",
+
+    "toggle_sidebar.title": "Toggle Sidebar",
+
+    "map.info.structures_hidden": "Some structures are hidden. Zoom in to see more.",
+    "map.info.teleport_command_copied": "Teleport Command Copied",
+    "map.error.structures_unsupported": "Some selected structures are unsupported! Sorry.",
+
+    "map.yslider.at_surface": "Surface",
+    "map.yslider.aria-label": "Y Level",
+    "map.yslider.y-label": "Y: {y}"
+}

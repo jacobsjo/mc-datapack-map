@@ -25,22 +25,22 @@ function randomizeSeed() {
 <template>
     <div class="settings">
         <div class="setting">
-            <div class="title">World Preset:</div>
-            <select aria-label="World Preset" v-model="settingsStore.world_preset">
+            <div class="title">{{ $t('settings.world_preset.label') }}</div>
+            <select :aria-label=" $t('settings.world_preset.aria-label')" v-model="settingsStore.world_preset">
                 <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ world_preset }}</option>
             </select>
         </div>
         <div class="setting">
-            <div class="title">Dimension:</div>
-            <select aria-label="Dimension" v-model="settingsStore.dimension">
+            <div class="title">{{ $t('settings.dimension.label') }}</div>
+            <select :aria-label="$t('settings.dimension.aria-label')" v-model="settingsStore.dimension">
                 <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
             </select>
         </div>
         <div class="setting">
-            <div class="title short">Seed:</div>
+            <div class="title short">{{ $t('settings.seed.label') }}</div>
             <font-awesome-icon icon="fa-dice" class="button" tabindex="0" @click="randomizeSeed"
-                @keypress.enter="randomizeSeed" title="Randomize Seed" />
-            <input aria-label="Seed" :value="settingsStore.seed" @change="event => {
+                @keypress.enter="randomizeSeed" :title="$t('settings.seed.randomize_button.title')" />
+            <input @aria-label="$t('settings.seed.aria-label')" :value="settingsStore.seed" @change="event => {
                 try {
                     settingsStore.seed = BigInt((event.target as HTMLInputElement).value)
                 } catch {

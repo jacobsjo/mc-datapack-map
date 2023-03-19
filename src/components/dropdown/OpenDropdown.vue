@@ -84,17 +84,17 @@ async function loadFolder(event: MouseEvent) {
 }
 
 const PRESET_DATAPACKS = [
-    {image: UNKOWN_PACK, name:"Update 1.20", url: "vanilla_datapacks/update_1_20.zip"}
+    {image: UNKOWN_PACK, message_key: "dropdown.add_datapack.update_1_20", url: "vanilla_datapacks/update_1_20.zip"}
 ]
 
 </script>
 
 <template>
     <Dropdown>
-        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">Open Datapack.zip</DropdownEntry>
-        <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder">Open Datapack Folder</DropdownEntry>
+        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add_datapack.zip') }}</DropdownEntry>
+        <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{ $t('dropdown.add_datapack.folder') }} </DropdownEntry>
         <div class="spacer"></div>
-        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);" @keypress.enter="loadUrl(preset.url)">{{preset.name}}</DropdownEntry>
+        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);" @keypress.enter="loadUrl(preset.url)">{{ $t(preset.message_key) }}</DropdownEntry>
     </Dropdown>
 </template>
 

@@ -6,7 +6,7 @@ const open = ref(true)
 
 <template>
     <div class="toggle" :class="{open}" >
-        <font-awesome-icon icon="fa-bars" class="icon" tabindex="0" @click="open = !open" @keypress.enter="open = !open" title="Toggle Sidebar" />
+        <font-awesome-icon icon="fa-bars" class="icon" tabindex="0" @click="open = !open" @keypress.enter="open = !open" :title="$t('toggle_sidebar.title')" />
     </div>
     <div class="content">
         <Transition name="slide">

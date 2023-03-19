@@ -5,10 +5,10 @@
 <template>
     <div class="footer">
         <p>Copyright © 2023 jacobsjo</p>
-        <a href="#" @click="$emit('open_popup')">About</a>
-        <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">View Source</a>
-        <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">Report Issue</a>
-        <a href="https://github.com/sponsors/jacobsjo" class="highlight" target="_blank">Sponsor</a>
+        <a href="#" @click="$emit('open_popup')">{{ $t('footer.about') }}</a>
+        <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ $t('footer.view_source') }}</a>
+        <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ $t('footer.report_issue') }}</a>
+        <a href="https://github.com/sponsors/jacobsjo" class="highlight" target="_blank">{{ $t('footer.sponsor') }}</a>
     </div>
 </template>
 
