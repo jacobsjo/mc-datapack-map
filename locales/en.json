@@ -1,4 +1,7 @@
 {
+    "locale.local_name": "English",
+    "locale.change_locale.title": "Change Language",
+    
     "settings.world_preset.label": "World Preset:",
     "settings.world_preset.aria-label": "World Preset",
     "settings.dimension.label": "Dimension:",

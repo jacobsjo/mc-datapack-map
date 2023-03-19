@@ -1,13 +1,16 @@
 {
-    "settings.world_preset.label": "Vorlage:",
-    "settings.world_preset.aria-label": "Vorlage",
+    "locale.local_name": "Deutsch",
+    "locale.change_locale.title": "Sprache ändern",
+
+    "settings.world_preset.label": "Weltvorlage:",
+    "settings.world_preset.aria-label": "Weltvorlage",
     "settings.dimension.label": "Dimension:",
     "settings.dimension.aria-label": "Dimension",
     "settings.seed.label": "Seed:",
     "settings.seed.aria-label": "Seed",
     "settings.seed.randomize_button.title": "Zufälliger Seed",
 
-    "footer.about": "Über diese Seite",
+    "footer.about": "Info",
     "footer.view_source": "Quellcode",
     "footer.report_issue": "Problem Melden",
     "footer.sponsor": "Sponsor",

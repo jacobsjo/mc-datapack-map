@@ -24,12 +24,12 @@
   },
   "devDependencies": {
     "@types/wicg-file-system-access": "^2020.9.5",
-    "@intlify/unplugin-vue-i18n": "^0.9.2",
     "@types/leaflet": "^1.9.0",
     "@types/node": "^18.15.3",
     "@vitejs/plugin-vue": "^4.0.0",
     "typescript": "^4.9.3",
     "vite": "^4.1.0",
-    "vue-tsc": "^1.0.24"
+    "vue-tsc": "^1.0.24",
+    "@intlify/unplugin-vue-i18n": "^0.9.2"
   }
 }
