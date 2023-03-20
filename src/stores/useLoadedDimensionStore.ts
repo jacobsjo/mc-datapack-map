@@ -4,7 +4,6 @@ import { compile, computed, reactive, ref } from "vue";
 import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
 import { getSurfaceDensityFunction, hashCode } from "../util";
-import { StructureIcons } from "../util/StructureIcons";
 import { useDatapackStore } from "./useDatapackStore";
 import { useSettingsStore } from "./useSettingsStore";
 
@@ -139,7 +138,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
     function getIcon(id: Identifier){
         const item = loaded_dimension.structure_icons?.get(id.toString()) ?? Identifier.create(VANILLA_ITEMS[Math.abs(hashCode(id.toString())) % VANILLA_ITEMS.length]) 
-        return StructureIcons.getItemDataURL(item)
+        return `https://raw.githubusercontent.com/jacobsjo/mcicons/icons/item/${item.path}.png`
     }
 
     function getBiomeColor(id: string){

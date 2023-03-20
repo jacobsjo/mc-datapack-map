@@ -40,7 +40,7 @@ function randomizeSeed() {
             <div class="title short">{{ $t('settings.seed.label') }}</div>
             <font-awesome-icon icon="fa-dice" class="button" tabindex="0" @click="randomizeSeed"
                 @keypress.enter="randomizeSeed" :title="$t('settings.seed.randomize_button.title')" />
-            <input @aria-label="$t('settings.seed.aria-label')" :value="settingsStore.seed" @change="event => {
+            <input :aria-label="$t('settings.seed.aria-label')" :value="settingsStore.seed" @change="event => {
                 try {
                     settingsStore.seed = BigInt((event.target as HTMLInputElement).value)
                 } catch {

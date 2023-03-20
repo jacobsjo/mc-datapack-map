@@ -209,17 +209,16 @@ function getMarker(structureId: Identifier, chunk: ChunkPos) {
     const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0]}, ${chunk[1]}`)
     const marker = L.marker(crs.unproject(pos))
     marker.bindPopup(popup).addTo(markers)
-    loadedDimensionStore.getIcon(structureId).then((icon) => {
-        marker.setIcon(L.icon({
-            iconUrl: icon,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            shadowUrl: 'shadow.png',
-            shadowSize: [40, 40],
-            shadowAnchor: [20, 20],
-            popupAnchor: [0, -10]
-        }))
-    })
+    const iconUrl = loadedDimensionStore.getIcon(structureId)
+    marker.setIcon(L.icon({
+        iconUrl: iconUrl,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        shadowUrl: 'shadow.png',
+        shadowSize: [40, 40],
+        shadowAnchor: [20, 20],
+        popupAnchor: [0, -10]
+    }))
     return marker
 }
 
