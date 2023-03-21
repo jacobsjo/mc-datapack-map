@@ -9,13 +9,16 @@ import App from './App.vue'
 
 import messages from '@intlify/unplugin-vue-i18n/messages'
 
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({ immediate: true })
+
 library.add(faFileZipper, faFolderOpen, faXmark, faRotateRight, faPlus, faBars, faMagnifyingGlass, faLocationDot, faAngleRight, faAngleDown, faDice, faGlobe, faEarthEurope);
 
 
 const uri = window.location.search.substring(1)
 const params = new URLSearchParams(uri)
 var lang = params.get('lang') ?? 'en'
-console.log(messages)
 if (messages[lang] === undefined){
     lang = 'en'
     params.set('lang', 'en')

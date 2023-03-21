@@ -27,7 +27,7 @@ const color = await props.colors?.(props.entry)
         }"    
         tabindex="0"
     >
-        <img v-if="icon" :src="icon" />
+        <img v-if="icon" :src="icon" crossorigin="anonymous" />
         <div v-if="color" class="color_display" :style="{ 'background-color': color }"></div>
         <div class="text">{{ entry?.path }}</div>
     </div>
