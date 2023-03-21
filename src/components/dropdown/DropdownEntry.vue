@@ -1,7 +1,7 @@
 <script setup lang="ts">
     defineProps({
         icon: String,
-        image: String
+        image: String,
     })
 </script>
 
@@ -40,10 +40,16 @@
         margin-right: 0.25rem;
     }
 
+
     .image{
         width: 2rem;
         height: 2rem;
         border-radius: 0.5rem;
+    }
+    .name{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
 </style>

@@ -24,7 +24,16 @@
 
     "dropdown.add_datapack.zip": "Open Datapack.zip",
     "dropdown.add_datapack.folder": "Open Datapack Folder",
-    "dropdown.add_datapack.update_1_20": "Update 1.20",    
+
+    "dropdown.add_datapack.built_in.update_1_20": "Update 1.20",    
+    "dropdown.add_datapack.built_in.title": "Built-in Datapacks",
+
+    "dropdown.add_datapack.recents.title": "Recently used",
+    "datapack.add_datapack.recents.not_found": "Datapack not Found. Removing from recently used list.",
+    "dropdown.add_datapack.recents.enable": "Enable",
+    "dropdown.add_datapack.recents.enable.note": "(accept local storage)",
+    "dropdown.add_datapack.recents.empty": "Empty",
+    "dropdown.add_datapack.recents.unavailable": "Unsupported in this browser",
 
     "dropdown.search_biome.placeholder": "Search Biome",
     "dropdown.structure_positions.placeholder": "Search Structure",
