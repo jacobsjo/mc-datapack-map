@@ -1,7 +1,6 @@
-
-![](https://img.shields.io/github/actions/workflow/status/jacobsjo/mc-datapack-map/pages.yml)
+[![](https://img.shields.io/github/actions/workflow/status/jacobsjo/mc-datapack-map/pages.yml)](https://github.com/jacobsjo/mc-datapack-map/actions)
 [![map.jacobsjo.eu](https://img.shields.io/github/deployments/jacobsjo/mc-datapack-map/github-pages?label=map.jacobsjo.eu)](https://map.jacobsjo.eu)
-![](https://img.shields.io/github/issues-raw/jacobsjo/mc-datapack-map)
+[![](https://img.shields.io/github/issues-raw/jacobsjo/mc-datapack-map)](https://github.com/jacobsjo/mc-datapack-map/issues)
 [![](https://img.shields.io/badge/sponsor-jacobsjo-blue)](https://github.com/sponsors/jacobsjo)
 
 ## Use online at https://map.jacobsjo.eu 
@@ -12,7 +11,7 @@
 
 |   |   |
 |---|---|
-| ![](public/favicon.svg) | A Leaflet based map to display Minecraft biome layouts and structures of vanilla and using worldgen datapacks.  |
+| [![](public/favicon.svg)](https://map.jacobsjo.eu) | A Leaflet based map to display Minecraft biome layouts and structures of vanilla and using worldgen datapacks.  |
 |   |  |
 
 ![](docs/header.png)
