@@ -1,3 +1,7 @@
+/*
+    The content of this file is Copyright (c) Mojang. This file is not covered by the Licence in LICENSE.txt !
+*/
+
 
 export const PRESETS: {[key: string]: {biome: string, parameters: { "continentalness": number | [number, number], "depth": number | [number, number], erosion: number | [number, number], humidity: number | [number, number], offset: number, temperature: number | [number, number], weirdness: number | [number, number] }}[]}
  = {

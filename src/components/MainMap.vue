@@ -206,7 +206,7 @@ function updateMarkers() {
 function getMarker(structureId: Identifier, chunk: ChunkPos) {
     const crs = map.options.crs!
     const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-    const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0]}, ${chunk[1]}`)
+    const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0] << 4}, ${chunk[1] << 4}`)
     const marker = L.marker(crs.unproject(pos))
     marker.bindPopup(popup).addTo(markers)
     const iconUrl = loadedDimensionStore.getIcon(structureId)

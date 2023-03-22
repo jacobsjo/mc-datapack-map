@@ -1,6 +1,3 @@
-The below license applies to all parts of the project that Microsoft does not
-own the copyright of (the vanilla splines, the vanilla biome configuration). 
-
 MIT License
 
 Copyright 2021 Jochen Jacobs
