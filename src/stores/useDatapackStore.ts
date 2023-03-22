@@ -6,11 +6,23 @@ import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, Struct
 import { useSettingsStore } from "./useSettingsStore";
 
 export const useDatapackStore = defineStore('datapacks', () => {
-    const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl('./vanilla_datapacks/vanilla.zip'))
+    const settingsStore = useSettingsStore()
+
+    const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_${settingsStore.mc_version}.zip`))
 
     let last_key = 0
     const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
-    const settingsStore = useSettingsStore()
+
+    var last_version = settingsStore.mc_version
+    settingsStore.$subscribe(() => {
+        if (last_version === settingsStore.mc_version)
+            return
+
+        const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_${settingsStore.mc_version}.zip`))
+        datapacks[0].datapack = vanillaDatapack
+        last_version = settingsStore.mc_version
+    })
+
 
     const composite_datapack = computed(() => {
         return new CompositeDatapack(datapacks.map(d => d.datapack))

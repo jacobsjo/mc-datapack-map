@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { useDatapackStore } from "./useDatapackStore";
 
 export const useSettingsStore = defineStore('settings', () => {
+    const mc_version = ref('1_19')
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
@@ -22,5 +23,5 @@ export const useSettingsStore = defineStore('settings', () => {
     })
 
 
-    return {world_preset, dimension, seed, y}
+    return {mc_version, world_preset, dimension, seed, y}
 })

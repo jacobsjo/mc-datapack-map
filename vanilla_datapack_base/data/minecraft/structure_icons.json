@@ -26,6 +26,7 @@
     "shipwreck_beached": {"item": "minecraft:oak_chest_boat"},
     "stronghold": {"hidden": true},
     "swamp_hut": {"item": "minecraft:flower_pot"},
+    "trail_ruins": {"item": "minecraft:brush"},
     "village_desert": {"item": "minecraft:sandstone_stairs"},
     "village_plains": {"item": "minecraft:oak_stairs"},
     "village_savanna": {"item": "minecraft:acacia_stairs"},

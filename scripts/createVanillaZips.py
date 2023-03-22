@@ -31,7 +31,7 @@ for path in REQUIRED_TYPES:
     REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_20/data/minecraft/" + path)
 
 
-def main(version: str | None):
+def main(version: str, include_update_1_20: bool, suffix: str = ""):
     # empty temp folder
     print("Emptying temp folder")
     emptyTmp()
@@ -57,9 +57,11 @@ def main(version: str | None):
 
     # zip back up
     print("Creating fip files")
-    shutil.make_archive("public/vanilla_datapacks/update_1_20", 'zip', UPDATE_1_20_PATH)
-    shutil.rmtree(UPDATE_1_20_PATH)
-    shutil.make_archive("public/vanilla_datapacks/vanilla", 'zip', TMP_PATH)
+    if include_update_1_20:
+        shutil.make_archive("public/vanilla_datapacks/update_1_20", 'zip', UPDATE_1_20_PATH)
+        shutil.rmtree(UPDATE_1_20_PATH)
+
+    shutil.make_archive("public/vanilla_datapacks/vanilla" + suffix, 'zip', TMP_PATH)
 
     print("Done!")
 
@@ -70,4 +72,5 @@ def emptyTmp():
 
 
 if __name__ == "__main__":
-    main('1.19.4')
+    main('1.19.4', True, "_1_19")
+    main('23w12a', False, "_1_20")

@@ -3,12 +3,14 @@ import { useDatapackStore } from '../../stores/useDatapackStore';
 import { Datapack, FileListDatapack, FileSystemDirectoryDatapack, PromiseDatapack, UNKOWN_PACK, ZipDatapack } from 'mc-datapack-loader';
 import DropdownEntry from './DropdownEntry.vue';
 import Dropdown from './Dropdown.vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRecentStore } from '../../stores/useRecentStore';
 import { useI18n } from 'vue-i18n';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 
 const i18n = useI18n()
 
+const settingsStore = useSettingsStore()
 const datapackStore = useDatapackStore();
 const recentStore = useRecentStore();
 const emit = defineEmits(['close'])
@@ -120,9 +122,13 @@ async function loadFolder(event: MouseEvent) {
     emit('close')
 }
 
-const PRESET_DATAPACKS = [
-    { image: UNKOWN_PACK, message_key: "dropdown.add_datapack.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" }
-]
+const PRESET_DATAPACKS = computed(() => {
+    const presets = []
+    if (settingsStore.mc_version === "1_19"){
+        presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add_datapack.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
+    }
+    return presets
+})
 
 </script>
 
@@ -132,8 +138,8 @@ const PRESET_DATAPACKS = [
         }}</DropdownEntry>
         <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
             $t('dropdown.add_datapack.folder') }} </DropdownEntry>
-        <div class="spacer"></div>
-        <div class="title">{{ $t('dropdown.add_datapack.built_in.title') }} </div>
+        <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
+        <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add_datapack.built_in.title') }} </div>
         <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);"
             @keypress.enter="loadUrl(preset.url)">{{ $t(preset.message_key) }}</DropdownEntry>
         <div class="spacer"></div>

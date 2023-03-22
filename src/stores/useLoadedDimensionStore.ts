@@ -1,7 +1,7 @@
 import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, DensityFunction, Holder, WorldgenRegistries, NoiseParameters, HolderSet, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, NoiseSettings } from "deepslate";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref } from "vue";
-import { PRESETS } from "../BuildIn/MultiNoiseBiomeParameterList";
+import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
 import { getSurfaceDensityFunction, hashCode } from "../util";
 import { useDatapackStore } from "./useDatapackStore";
@@ -112,7 +112,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 const parameter_list = await datapackStore.composite_datapack.get("worldgen/multi_noise_biome_source_parameter_list", preset_id) as { preset: string }
                 preset = parameter_list.preset
             }
-            ld.biome_source_json.biomes = PRESETS[preset]
+            ld.biome_source_json.biomes = getPreset(preset, settingsStore.mc_version)
         }
 
 

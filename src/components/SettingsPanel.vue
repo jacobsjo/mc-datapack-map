@@ -25,6 +25,14 @@ function randomizeSeed() {
 <template>
     <div class="settings">
         <div class="setting">
+            <div class="title">{{ $t('settings.mc_version.label') }}</div>
+            <select :aria-label=" $t('settings.mc_version.aria-label')" v-model="settingsStore.mc_version">
+                <option :value="'1_19'">{{ $t('settings.mc_version.mc1_19') }}</option>
+                <option :value="'1_20'">{{ $t('settings.mc_version.mc1_20') }}</option>
+            </select>
+        </div>
+
+        <div class="setting">
             <div class="title">{{ $t('settings.world_preset.label') }}</div>
             <select :aria-label=" $t('settings.world_preset.aria-label')" v-model="settingsStore.world_preset">
                 <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ world_preset }}</option>
