@@ -2,7 +2,7 @@
     "ancient_city": {"item": "minecraft:sculk"},
     "bastion_remnant": {"item": "minecraft:gold_block"},
     "buried_treasure": {"item": "minecraft:barrel"},
-    "desert_pyramid": {"item": "minecraft:pottery_shard_skull"},
+    "desert_pyramid": {"item": "minecraft:skull_pottery_shard"},
     "end_city": {"item": "minecraft:purpur_pillar"},
     "fortress": {"item": "minecraft:nether_bricks"},
     "igloo": {"item": "minecraft:brewing_stand"},
