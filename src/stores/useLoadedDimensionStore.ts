@@ -15,7 +15,6 @@ export type LoadedDimension = {
     noise_settings_id?: Identifier,
     noise_settings_json?: {[x: string]: unknown},
     biome_source_json?: {[x: string]: unknown},
-    biome_source?: BiomeSource,
 }
 
 export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
@@ -24,6 +23,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     const settingsStore = useSettingsStore()
 
     const loaded_dimension = reactive<LoadedDimension>({})
+    var biome_source: BiomeSource | undefined = undefined
 
     datapackStore.$subscribe((mutation, state) => {
         reload()
@@ -116,9 +116,10 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         }
 
 
-        ld.biome_source = BiomeSource.fromJson(ld.biome_source_json)
 
         Object.assign(loaded_dimension, ld)
+        biome_source = BiomeSource.fromJson(ld.biome_source_json)
+
     }
 
     const noise_generator_settings = computed(() => NoiseGeneratorSettings.fromJson(loaded_dimension.noise_settings_json))
@@ -154,6 +155,10 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         return biomeColor
     }
 
-    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon, getBiomeColor }
+    function getBiomeSource(){
+        return biome_source
+    }
+
+    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon, getBiomeColor, getBiomeSource }
 })
 

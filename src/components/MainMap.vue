@@ -62,7 +62,7 @@ onMounted(() => {
 
         const pos = getPosition(map, evt.latlng)
 
-        const biome = loadedDimensionStore.loaded_dimension.biome_source?.getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, loadedDimensionStore.sampler) ?? Identifier.create("plains")
+        const biome = loadedDimensionStore.getBiomeSource()?.getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, loadedDimensionStore.sampler) ?? Identifier.create("plains")
 
         tooltip_biome.value = biome
         tooltip_position.value = pos
@@ -113,11 +113,12 @@ function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
 
 
 function updateMarkers() {
-    if (loadedDimensionStore.loaded_dimension.biome_source === undefined) {
+    const biomeSource = loadedDimensionStore.getBiomeSource()
+    if (biomeSource === undefined) {
         return
     }
 
-    const cachedBiomeSource = new CachedBiomeSource(loadedDimensionStore.loaded_dimension.biome_source)
+    const cachedBiomeSource = new CachedBiomeSource(biomeSource)
     const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings)
 
     const bounds = map.getBounds()
@@ -139,11 +140,12 @@ function updateMarkers() {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
 
-        if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement) continue
-        //set.placement.prepare(loadedDimensionStore.loaded_dimension.biome_source, loadedDimensionStore.sampler, settingsStore.seed)
+        var minZoom = 20
 
-        var minZoom = 15
-        if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
+        if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
+            set.placement.prepare(biomeSource, loadedDimensionStore.sampler, settingsStore.seed)
+            minZoom = 15
+        } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
             const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
             minZoom = 18 - Math.log2(0.01/chunkFrequency)
         }

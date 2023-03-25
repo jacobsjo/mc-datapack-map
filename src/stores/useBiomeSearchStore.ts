@@ -19,10 +19,6 @@ export const useSearchStore = defineStore('search', () => {
             var set_needed = false
             var set_invalid = false
 
-            if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
-                set_invalid = true
-            }
-
             for (const entry of set?.structures){
                 if (structures.has(entry.structure.key()?.toString() ?? "<>")){
                     set_needed = true

@@ -24,7 +24,7 @@
     "ruined_portal_swamp": {"hidden": true},
     "shipwreck": {"item": "minecraft:oak_boat"},
     "shipwreck_beached": {"item": "minecraft:oak_chest_boat"},
-    "stronghold": {"hidden": true},
+    "stronghold": {"item": "minecraft:ender_eye"},
     "swamp_hut": {"item": "minecraft:flower_pot"},
     "trail_ruins": {"item": "minecraft:brush"},
     "village_desert": {"item": "minecraft:sandstone_stairs"},
