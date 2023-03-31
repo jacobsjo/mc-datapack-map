@@ -17,7 +17,6 @@ datapackStore.$subscribe(async (mutation, state) => {
 })
 
 function randomizeSeed() {
-    console.log("randomizing seed") 
     settingsStore.seed = random.nextLong()
 }
 </script>

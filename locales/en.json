@@ -51,5 +51,9 @@
 
     "map.yslider.at_surface": "Surface",
     "map.yslider.aria-label": "Y Level",
-    "map.yslider.y-label": "Y: {y}"
+    "map.yslider.y-label": "Y: {y}",
+
+    "map.setting.project": "Move location down to surface",
+    "map.setting.sealevel": "Show sea level",
+    "map.setting.hillshade": "Enable hillshading"
 }

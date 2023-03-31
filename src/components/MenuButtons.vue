@@ -92,7 +92,7 @@ function clearStructureSearch(event: Event){
     </div>
 </template>
 
-<style>
+<style scoped>
 .buttons {
     display: flex;
     flex-direction: row;

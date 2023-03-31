@@ -13,13 +13,15 @@ class MultiNoiseCalculator {
 		surfaceDensityFunction?: DensityFunction,
 		noiseGeneratorSettings?: NoiseGeneratorSettings
 		randomState?: RandomState
-		y: number | "surface",
+		y: number,
 		seed: bigint,
+		projectDown: boolean
 		generationVersion: number
 	} = {
-		y: "surface",
+		y: 0,
 		seed: BigInt(0),
-		generationVersion: -1
+		generationVersion: -1,
+		projectDown: true
 	}
 
 	private taskQueue: any[] = []
@@ -33,10 +35,12 @@ class MultiNoiseCalculator {
 		generationVersion?: number
 
 		seed?: bigint,
-		y?: number | "surface",
+		y?: number,
+		project_down: boolean
 	}) {
 		this.state.seed = update.seed ?? this.state.seed
 		this.state.y = update.y ?? this.state.y
+		this.state.projectDown = update.project_down ?? this.state.projectDown
 		this.state.generationVersion = update.generationVersion ?? this.state.generationVersion
 
 		if (update.biomeSourceJson) {
@@ -67,11 +71,15 @@ class MultiNoiseCalculator {
 		}
 
 		if (update.surfaceDensityFunctionId && this.state.randomState && this.state.noiseGeneratorSettings) {
-			this.state.surfaceDensityFunction = new DensityFunction.HolderHolder(
-				Holder.reference(
-					WorldgenRegistries.DENSITY_FUNCTION,
-					Identifier.parse(update.surfaceDensityFunctionId)
-				)).mapAll(this.state.randomState.createVisitor(this.state.noiseGeneratorSettings.noise, this.state.noiseGeneratorSettings.legacyRandomSource))
+			if (update.surfaceDensityFunctionId === "<none>"){
+				this.state.surfaceDensityFunction = undefined
+			} else {
+				this.state.surfaceDensityFunction = new DensityFunction.HolderHolder(
+					Holder.reference(
+						WorldgenRegistries.DENSITY_FUNCTION,
+						Identifier.parse(update.surfaceDensityFunctionId)
+					)).mapAll(this.state.randomState.createVisitor(this.state.noiseGeneratorSettings.noise, this.state.noiseGeneratorSettings.legacyRandomSource))
+			}
 		}
 
 		this.taskQueue = []
@@ -108,8 +116,8 @@ class MultiNoiseCalculator {
 			for (let iz = -1; iz < tileSize + 2; iz++) {
 				const x = ix * step + min_x
 				const z = iz * step + min_z
-				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x << 2, 0, z << 2)) ?? 0
-				const y = (this.state.y === "surface") ? surface : this.state.y
+				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x << 2, 0, z << 2)) ?? Number.POSITIVE_INFINITY
+				const y = this.state.projectDown ? Math.min(surface, this.state.y) : this.state.y
 				const biome = this.state.biomeSource?.getBiome(x, y >> 2, z, this.state.sampler!).toString() ?? "minecraft:plains"
 				array[ix][iz] = { surface, biome }
 			}

@@ -49,7 +49,10 @@
     "map.info.teleport_command_copied": "Teleport-Befehl kopiert",
     "map.error.structures_unsupported": "Einige ausgewählte Strukturen werden nicht unterstützt! Sorry.",
 
-    "map.yslider.at_surface": "Oberfläche",
     "map.yslider.aria-label": "Y Wert",
-    "map.yslider.y-label": "Y: {y}"
+    "map.yslider.y-label": "Y: {y}",
+
+    "map.setting.project": "Verschiebe Position nach unten zur Oberfläche",
+    "map.setting.sealevel": "Zeige Meeresspiegel",
+    "map.setting.hillshade": "Schattierung aktivieren"
 }

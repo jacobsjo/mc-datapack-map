@@ -15,15 +15,21 @@ loadedDimensionStore.$subscribe(async (mutation, state) => {
     y_limits.value = await loadedDimensionStore.loaded_dimension.y_limits
 })
 
+const props = defineProps({
+    'y': Number
+})
+
+defineEmits(['update:y'])
+
 </script>
 
 <template>
     <div class="slider">
         <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="y_limits !== undefined" direction="btt" height="6rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
-            :modelValue="settingsStore.y === 'surface' ? y_limits[1] + 1 : settingsStore.y"
-            @update:model-value="(value) => settingsStore.y = (value === y_limits![1] + 1 ? 'surface' : value)"
-            :max="y_limits[1] + 1" :min="y_limits[0]"
-            :tooltip-formatter="v => v === y_limits![1] + 1 ? $t('map.yslider.at_surface') : $t('map.yslider.y-label', {y: v})" />
+            v-bind:model-value="y"
+            @change="y => $emit('update:y', y)"
+            :max="y_limits[1]" :min="y_limits[0]"
+            :tooltip-formatter="v => $t('map.yslider.y-label', {y: v})" />
     </div>
 </template>
 

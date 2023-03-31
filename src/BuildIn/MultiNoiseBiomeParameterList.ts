@@ -3,8 +3,6 @@
 */
 
 export function getPreset(key: string, mc_version: string){
-    console.log(key)
-    console.log(mc_version)
     if (key === "minecraft:nether"){
         return NETHER_PRESET
     } else if (key === "minecraft:overworld" && mc_version === "1_19") {

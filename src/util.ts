@@ -29,12 +29,11 @@ function getDimensionDensityFunction(noise_settings_id: Identifier, dimension_id
 	return new Identifier(noise_settings_id.namespace, noiseSettingsPath.join("/") + "/snowcapped_surface")
 }
 
-export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier{
+export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier | undefined{
 	return idIfExists(new Identifier(noise_settings_id.namespace, noise_settings_id.path + "/snowcapped_surface"))
 		?? idIfExists(getDimensionDensityFunction(noise_settings_id, dimension_id))
 		?? idIfExists(new Identifier(noise_settings_id.namespace, "snowcapped_surface"))
 		?? idIfExists(new Identifier("minecraft", "snowcapped_surface"))
-		?? Identifier.create("")
 }
 
 const zenith = 20.0 * Math.PI / 180.0;

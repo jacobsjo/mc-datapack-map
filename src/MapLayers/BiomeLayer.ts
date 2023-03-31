@@ -7,21 +7,15 @@ import { useSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useDatapackStore } from "../stores/useDatapackStore";
-import { toRaw, watch } from "vue";
+import { Ref, toRaw, watch } from "vue";
 
 const WORKER_COUNT = 4
 
-export type BiomeLayerSettings = {
-	enable_hillshading: boolean,
-	y: number | "surface",
-	seed: bigint
-}
-
 type Tile = {
 	coords: L.Coords,
-	canvas: HTMLCanvasElement, 
-	ctx: CanvasRenderingContext2D, 
-	done: L.DoneCallback, 
+	canvas: HTMLCanvasElement,
+	ctx: CanvasRenderingContext2D,
+	done: L.DoneCallback,
 	array?: {
 		climate: Climate.TargetPoint,
 		surface: number,
@@ -41,18 +35,17 @@ export class BiomeLayer extends L.GridLayer {
 
 	private workers: Worker[] = []
 
-	public enable_hillshading: boolean = true
-
 	private datapackStore = useDatapackStore()
 	private loadedDimensionStore = useLoadedDimensionStore()
 	private searchStore = useSearchStore()
 	private settingsStore = useSettingsStore()
 
-	private datapackLoader: Promise<void> | undefined
+	private datapackLoader: Promise<any> | undefined
 
 	private generationVersion = 0
+	private waveImage: Promise<HTMLImageElement>
 
-	constructor(options: L.GridLayerOptions) {
+	constructor(options: L.GridLayerOptions, private do_hillshade: Ref<boolean>, private show_sealevel: Ref<boolean>, private project_down: Ref<boolean>, private y: Ref<number>) {
 		super(options)
 		this.tileSize = options.tileSize as number
 		this.calcResolution = 1 / 4
@@ -62,27 +55,54 @@ export class BiomeLayer extends L.GridLayer {
 			dimension: true,
 			registires: true,
 			settings: true,
-		})
+		}),
+
+			this.waveImage = new Promise((resolve) => {
+				const waveImage = new Image()
+				waveImage.onload = () => resolve(waveImage)
+				waveImage.src = "images/wave.png"
+			})
 
 
 		watch(this.searchStore.biomes, () => {
 			this.rerender()
 		})
 
+		watch(do_hillshade, () => {
+			this.rerender()
+		})
+
+		watch(show_sealevel, () => {
+			this.rerender()
+		})
+
+		watch(this.project_down, () => {
+			this.updateWorkers({
+				settings: true
+			})
+			this.redraw()
+		})
+
+		watch(this.y, () => {
+			this.updateWorkers({
+				settings: true
+			})
+			this.redraw()
+		})
+
 		this.loadedDimensionStore.$subscribe(async (mutation, state) => {
 			await this.updateWorkers({
 				settings: true,
 				dimension: true,
-				registires: true				
+				registires: true
 			})
 			this.redraw()
 		})
 
 	}
 
-
 	// ===== Draw tiles that have generated biomes =====
-	renderTile(tile: Tile) {
+	async renderTile(tile: Tile) {
 		tile.isRendering = false
 		if (tile.array === undefined || tile.step === undefined) {
 			console.warn("trying to render empty tile")
@@ -90,6 +110,13 @@ export class BiomeLayer extends L.GridLayer {
 		}
 
 		tile.ctx.clearRect(0, 0, this.tileSize, this.tileSize)
+
+		const waveImage = await this.waveImage
+
+		const project_down = this.project_down.value
+		const do_hillshade = this.do_hillshade.value
+		const show_sealevel = this.show_sealevel.value
+		const getBiomeColor = this.loadedDimensionStore.getBiomeColor
 
 		for (let x = 0; x < this.tileSize * this.calcResolution; x++) {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
@@ -100,7 +127,9 @@ export class BiomeLayer extends L.GridLayer {
 				}
 
 				let hillshade = 1.0
-				if (this.enable_hillshading && (this.settingsStore.y === "surface" || tile.array[x + 1][z + 1].surface < this.settingsStore.y)) {
+				const y = project_down ? Math.min(tile.array[x + 1][z + 1].surface, this.y.value) : this.y.value
+				const belowSurface = y < tile.array[x + 1][z + 1].surface
+				if (do_hillshade && project_down && !belowSurface) {
 
 					hillshade = calculateHillshade(
 						tile.array[x + 2][z + 1].surface - tile.array[x][z + 1].surface,
@@ -109,10 +138,16 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}
 
-				let biomeColor = this.loadedDimensionStore.getBiomeColor(biome)
+				let biomeColor = getBiomeColor(biome)
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
 
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
+
+				if (show_sealevel && !belowSurface) {
+					if (y < this.loadedDimensionStore.noise_generator_settings.seaLevel - 2) {
+						tile.ctx.drawImage(waveImage, x / this.calcResolution % 16, z / this.calcResolution % 16, 4, 4, x / this.calcResolution, z / this.calcResolution, 4, 4)
+					}
+				}
 
 			}
 		}
@@ -120,6 +155,7 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async rerender() {
+		console.log("rerendering")
 		for (const key in this.Tiles) {
 			if (!this.Tiles[key].isRendering) {
 				this.Tiles[key].isRendering = true
@@ -135,7 +171,7 @@ export class BiomeLayer extends L.GridLayer {
 		for (let i = 0; i < WORKER_COUNT; i++) {
 			const worker = new MultiNoiseCalculator()
 			worker.onmessage = (ev) => {
-				if (ev.data.generationVersion < this.generationVersion){
+				if (ev.data.generationVersion < this.generationVersion) {
 					return
 				}
 				const tile = this.Tiles[ev.data.key]
@@ -161,33 +197,34 @@ export class BiomeLayer extends L.GridLayer {
 		dimension?: boolean,
 		settings?: boolean,
 	}) {
-		this.generationVersion++		
-		const update: any = {generationVersion: this.generationVersion}
+		this.generationVersion++
+		const update: any = { generationVersion: this.generationVersion }
 
-		if (do_update.registires){
+		if (do_update.registires) {
 			update.densityFunctions = {}
 			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/density_function")) {
 				update.densityFunctions[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/density_function", id)
 			}
-	
+
 			update.noises = {}
 			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/noise")) {
 				update.noises[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/noise", id)
 			}
 		}
 
-		if (do_update.dimension){
+		if (do_update.dimension) {
 			update.biomeSourceJson = toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json)
 			update.noiseGeneratorSettingsJson = toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json)
-			update.surfaceDensityFunctionId = getSurfaceDensityFunction(this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension).toString()
+			update.surfaceDensityFunctionId = getSurfaceDensityFunction(this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
 		}
 
-		if (do_update.settings){
+		if (do_update.settings) {
 			update.seed = this.settingsStore.seed
-			update.y = this.settingsStore.y
+			update.y = this.y.value
+			update.project_down = this.project_down.value
 		}
 
-		this.workers.forEach(w => w.postMessage({update}))
+		this.workers.forEach(w => w.postMessage({ update }))
 	}
 
 	generateTile(key: string, coords: L.Coords, worker_id: number) {
@@ -212,7 +249,7 @@ export class BiomeLayer extends L.GridLayer {
 			tileSize: this.tileSize * this.calcResolution
 		}
 
-		this.workers[worker_id].postMessage({task})
+		this.workers[worker_id].postMessage({ task })
 	}
 
 	createTile(coords: L.Coords, done: L.DoneCallback): HTMLElement {
@@ -239,7 +276,10 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	_removeTile(key: string) {
-		this.workers[this.Tiles[key].workerId].postMessage({cancel: key})
+		if (this.Tiles[key] === undefined)
+			return
+
+		this.workers[this.Tiles[key].workerId].postMessage({ cancel: key })
 
 		delete this.Tiles[key]
 

@@ -11,6 +11,7 @@ import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
 import { CachedBiomeSource } from '../util/CachedBiomeSource';
+import MapButton from './MapButton.vue';
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
@@ -24,6 +25,12 @@ const tooltip_biome = ref(Identifier.create("void"))
 const tooltip_position = ref(BlockPos.ZERO)
 const show_tooltip = ref(false)
 const show_info = ref(false)
+
+const do_hillshade = ref(true)
+const show_sealevel = ref(false)
+const project_down = ref(true)
+
+const y = ref(320)
 
 var map: L.Map
 var markers: L.LayerGroup
@@ -45,8 +52,12 @@ onMounted(() => {
     }).addTo(map)
 
     layer = new BiomeLayer({
-        tileSize: 256,
-    },
+            tileSize: 256,
+        },
+        do_hillshade,
+        show_sealevel,
+        project_down,
+        y
     )
 
     map.options.crs!.scale(1.5)
@@ -76,7 +87,7 @@ onMounted(() => {
 
     map.addEventListener("contextmenu", async (evt: L.LeafletMouseEvent) => {
         const pos = getPosition(map, evt.latlng)
-        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${pos[0].toFixed(0)} ${(pos[1] + (settingsStore.y === "surface" ? 10 : 0)).toFixed(0)} ${pos[2].toFixed()}`)
+        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${pos[0].toFixed(0)} ${(pos[1] + (project_down.value ? 10 : 0)).toFixed(0)} ${pos[2].toFixed()}`)
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
     })
@@ -103,8 +114,10 @@ function getPosition(map: L.Map, latlng: L.LatLng) {
     const pos = crs.project(latlng)
     pos.y *= -1
 
-    const y: number = settingsStore.y === "surface" ? (loadedDimensionStore.surface_density_function).compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) : settingsStore.y
-    return BlockPos.create(pos.x, y, pos.y)
+    const surface = (loadedDimensionStore.surface_density_function)?.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) ?? Number.POSITIVE_INFINITY
+
+    const pos_y: number = project_down.value ? Math.min(surface, y.value) : y.value
+    return BlockPos.create(pos.x, pos_y, pos.y)
 }
 
 function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
@@ -230,12 +243,20 @@ loadedDimensionStore.$subscribe((mutation, state) => {
     }
     marker_map.clear()
     updateMarkers()
+
+    const y_limits = loadedDimensionStore.loaded_dimension.y_limits
+    if (y_limits){
+        if (project_down.value && loadedDimensionStore.surface_density_function !== undefined){
+            y.value = y_limits[1] ?? y.value
+        } else {
+            y.value = Math.max(Math.min(y.value, y_limits[1]), y_limits[0])
+        }
+    } 
 })
 
 watch(searchStore.structures, () => {
     updateMarkers()
 })
-
 
 </script>
   
@@ -243,9 +264,14 @@ watch(searchStore.structures, () => {
     <div id="map_container">
         <div id="map">
         </div>
-        <Suspense>
-            <YSlider class="slider" />
-        </Suspense>
+        <div class="map_options">
+            <Suspense>
+                <YSlider class="slider" v-model:y="y" />
+            </Suspense>
+            <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="$t('map.setting.project')" />
+            <MapButton icon="fa-mountain-sun" :disabled="!project_down || loadedDimensionStore.surface_density_function === undefined" v-model="do_hillshade"  :title="$t('map.setting.hillshade')" />
+            <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="$t('map.setting.sealevel')" />
+        </div>
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{ left: tooltip_left + 'px', top: tooltip_top + 'px' }"
         :biome="tooltip_biome" :pos="tooltip_position" />
@@ -287,21 +313,21 @@ watch(searchStore.structures, () => {
     cursor: grab;
 }
 
-.slider {
+.map_options {
     position: absolute;
     z-index: 600;
     top: 5rem;
     right: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 0.5rem;
 }
 
 #tooltip {
     position: absolute;
     pointer-events: none;
     z-index: 500;
-}
-
-.button:hover {
-    background-color: rgb(177, 176, 176);
 }
 
 

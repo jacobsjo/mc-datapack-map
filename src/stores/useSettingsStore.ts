@@ -4,11 +4,11 @@ import { ref } from "vue";
 import { useDatapackStore } from "./useDatapackStore";
 
 export const useSettingsStore = defineStore('settings', () => {
+
     const mc_version = ref('1_19')
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
-    const y = ref<number|"surface">("surface")
 
     const datapackStore = useDatapackStore()
 
@@ -20,8 +20,10 @@ export const useSettingsStore = defineStore('settings', () => {
         if ((await datapackStore.world_presets)?.findIndex((id) => id.equals(world_preset.value)) === -1) {
             world_preset.value = (await datapackStore.world_presets)[0]
         }
+
     })
 
 
-    return {mc_version, world_preset, dimension, seed, y}
+
+    return {mc_version, world_preset, dimension, seed}
 })

@@ -1,6 +1,6 @@
 import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, DensityFunction, Holder, WorldgenRegistries, NoiseParameters, HolderSet, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, NoiseSettings } from "deepslate";
 import { defineStore } from "pinia";
-import { compile, computed, reactive, ref } from "vue";
+import { compile, computed, reactive, ref, watch } from "vue";
 import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
 import { getSurfaceDensityFunction, hashCode } from "../util";
@@ -8,7 +8,6 @@ import { useDatapackStore } from "./useDatapackStore";
 import { useSettingsStore } from "./useSettingsStore";
 
 export type LoadedDimension = {
-    biome_colors?: Map<string, { r: number, g: number, b: number } >,
     structure_icons?: Map<string, Identifier>,
     hidden_structures?: Set<string>
     y_limits?: [number, number],
@@ -24,21 +23,22 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
     const loaded_dimension = reactive<LoadedDimension>({})
     var biome_source: BiomeSource | undefined = undefined
+    var biome_colors: Map<string, { r: number, g: number, b: number } > = new Map<string, { r: number, g: number, b: number }>()
 
     datapackStore.$subscribe((mutation, state) => {
         reload()
     })
+
     settingsStore.$subscribe(() => {
         reload()
     })
-
     
     async function reload() {
         await datapackStore.registered
 
         const ld: LoadedDimension = {}
 
-        ld.biome_colors = new Map<string, { r: number, g: number, b: number }>()
+        biome_colors.clear()
         ld.structure_icons = new Map<string, Identifier>()
         ld.hidden_structures = new Set()
 
@@ -49,7 +49,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 for (const biome in json) {
                     const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
 
-                    ld.biome_colors.set(biome_id, json[biome])
+                    biome_colors.set(biome_id, json[biome])
                 }
             } else if (id.path === "structure_icons"){
                 const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: {item?: string, hidden?: boolean} | string}
@@ -134,7 +134,12 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     })
 
     const surface_density_function = computed(() => {
-        return new DensityFunction.HolderHolder(Holder.reference(WorldgenRegistries.DENSITY_FUNCTION, getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension))).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
+        const surface_density_function_id = getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension)
+        if (surface_density_function_id !== undefined){
+            return new DensityFunction.HolderHolder(Holder.reference(WorldgenRegistries.DENSITY_FUNCTION, surface_density_function_id)).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
+        } else {
+            return undefined
+        }
     })
 
     function getIcon(id: Identifier){
@@ -143,7 +148,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     }
 
     function getBiomeColor(id: string){
-        var biomeColor = loaded_dimension.biome_colors?.get(id)
+        var biomeColor = biome_colors.get(id)
         if (biomeColor === undefined) {
             const hash = hashCode(id)
             biomeColor = {
