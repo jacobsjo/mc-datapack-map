@@ -18,6 +18,8 @@
     "footer.about": "Info",
     "footer.view_source": "Quellcode",
     "footer.report_issue": "Problem Melden",
+    "footer.other": "Andere Werkzeuge",
+    "footer.licenses": "Lizensen",
     "footer.sponsor": "Sponsor",
 
     "datapack_list.remove_datapack.title": "Datenpaket entfernen",

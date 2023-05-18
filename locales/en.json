@@ -18,6 +18,8 @@
     "footer.about": "About",
     "footer.view_source": "View Source",
     "footer.report_issue": "Report Issue",
+    "footer.other": "Other Tools",
+    "footer.licenses": "Licenses",
     "footer.sponsor": "Sponsor",
 
     "datapack_list.remove_datapack.title": "Remove Datapack",

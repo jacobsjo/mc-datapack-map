@@ -44,6 +44,8 @@ jobs:
         run: npm install
       - name: Create vanilla datapack zip files
         run: npm run createZips
+      - name: Collect Dependencies
+        run: yarn licenses generate-disclaimer > public/OTHER_LICENSES.txt
       - name: Build
         run: npm run build
       - name: Setup Pages

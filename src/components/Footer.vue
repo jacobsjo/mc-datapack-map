@@ -9,9 +9,11 @@ import LocaleChanger from './LocaleChanger.vue';
         <LocaleChanger />
         <div class="smallprint">
             <p>Copyright © 2023 jacobsjo</p>
-            <a href="#" @click="$emit('open_popup')">{{ $t('footer.about') }}</a>
+            <a href="https://jacobsjo.eu/about.html" target="_blank">{{ $t('footer.about') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ $t('footer.view_source') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ $t('footer.report_issue') }}</a>
+            <a href="https://jacobsjo.eu" target="_blank">{{ $t('footer.other') }}</a>
+            <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
             <a href="https://github.com/sponsors/jacobsjo" class="highlight" target="_blank">{{ $t('footer.sponsor') }}</a>
         </div>
     </div>

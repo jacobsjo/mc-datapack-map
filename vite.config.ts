@@ -15,7 +15,7 @@ export default defineConfig({
       injectRegister: 'script',
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,zip}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,zip,txt}'],
         maximumFileSizeToCacheInBytes: 5000000,
         runtimeCaching: [
           {
