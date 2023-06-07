@@ -5,7 +5,7 @@ import { useDatapackStore } from "./useDatapackStore";
 
 export const useSettingsStore = defineStore('settings', () => {
 
-    const mc_version = ref('1_19')
+    const mc_version = ref('1_20')
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))

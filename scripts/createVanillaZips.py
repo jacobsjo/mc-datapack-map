@@ -89,4 +89,4 @@ def emptyTmp():
 
 if __name__ == "__main__":
     main('1.19.4', True, "_1_19")
-    main('23w12a', False, "_1_20")
+    main('1.20', False, "_1_20")
