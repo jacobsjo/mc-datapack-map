@@ -43,7 +43,7 @@ export class TextComponent{
             if (json.text !== undefined){
                 return new TextComponent(json.text, false, json.extra?.map((j: any) => TextComponent.parse(j)), formatting)
             } else if (json.translate) {
-                return new TextComponent(json.translate, true, json.with?.map((j: any) => TextComponent.parse(j)), json.extra?.map((j: any) => TextComponent.parse(j)), formatting)
+                return new TextComponent(json.translate, true, json.extra?.map((j: any) => TextComponent.parse(j)), formatting)
             } else {
                 return new TextComponent(json.score ?? json.selector ?? json.keybind ?? json.nbt, false, json.extra?.map((j: any) => TextComponent.parse(j)), formatting)
             }
