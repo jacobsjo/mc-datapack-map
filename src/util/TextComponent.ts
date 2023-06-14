@@ -15,6 +15,10 @@ export class TextComponent{
 
     }
 
+    public toString(): string{
+        return (this.text ?? "") + (this.extra?.map(e => e.toString()).join("") ?? "")
+    }
+
     public static parse(json: any): TextComponent{
         if (typeof(json) === "boolean" || typeof(json) === "number" || typeof(json) === "string"){
             return new TextComponent(json.toString())

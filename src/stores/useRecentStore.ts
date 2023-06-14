@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { get, set } from 'idb-keyval'
 import { Serializable } from "child_process";
+import { TextComponent } from "../util/TextComponent";
 
 
 type StoredDatapack = { img: string, text: string, fileHandle: FileSystemHandle }
@@ -53,7 +54,7 @@ export const useRecentStore = defineStore('recents', () => {
 
         recents.value.unshift({
             img: await datapack.getImage(true),
-            text: Json.readString(pack.description) ?? "",
+            text: TextComponent.parse(pack.description).toString().split('\n')[0],
             fileHandle: fileHandle
         })
 
