@@ -28,6 +28,8 @@
         display: flex;
         align-items: center;
         position: relative;
+        padding-right: 0.3rem;
+        gap: 0.3rem;
     }
 
     .image {
@@ -38,10 +40,14 @@
     }
 
     .description {
-        flex-grow: 1;
+        flex-grow: 0;
         text-align: center;
-        height: fit-content;
         overflow: hidden;
+        max-height: 100%;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 
     .close_button {
