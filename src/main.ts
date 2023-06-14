@@ -29,7 +29,8 @@ const i18n = createI18n({
     globalInjection: true,
     locale: lang,
     fallbackLocale: 'en',
-    messages: messages
+    messages: messages,
+    missingWarn: false
 })
 
 const pinia = createPinia()

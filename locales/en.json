@@ -15,6 +15,9 @@
     "settings.seed.aria-label": "Seed",
     "settings.seed.randomize_button.title": "Randomize Seed",
 
+    "minecraft.dataPack.vanilla.description": "The default data for Minecraft",
+    "minecraft.dataPack.update_1_20.description": "New features and content for Minecraft 1.20",
+
     "footer.about": "About",
     "footer.view_source": "View Source",
     "footer.report_issue": "Report Issue",
