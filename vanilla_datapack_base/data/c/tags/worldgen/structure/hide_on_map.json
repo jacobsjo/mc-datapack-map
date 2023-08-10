@@ -1,0 +1,9 @@
+{
+    "replace": false,
+    "values": [
+      "#minecraft:mineshaft",
+      "#minecraft:ruined_portal",
+      "minecraft:monument",
+      "minecraft:nether_fossil"
+    ]
+  }
