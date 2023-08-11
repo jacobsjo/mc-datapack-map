@@ -3,7 +3,7 @@ import zipfile
 import io
 from pathlib import Path
 import shutil
-from distutils.dir_util import copy_tree
+from shutil import copytree
 
 TMP_PATH = "/tmp/jacobsjo/createVanillaZips/"
 UPDATE_1_20_PATH = TMP_PATH + "data/minecraft/datapacks/update_1_20/"
@@ -38,6 +38,7 @@ REQUIRED_TYPES = [
     "structures/village/taiga/zombie/town_centers/",
     "tags/worldgen/world_preset",
     "tags/worldgen/biome",
+    "tags/worldgen/structure",
 ]
 
 REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_20/pack.mcmeta"]
@@ -69,7 +70,7 @@ def main(version: str, include_update_1_20: bool, suffix: str = ""):
 
     # add datapack base
     print("Copying base files")
-    copy_tree("vanilla_datapack_base/", TMP_PATH)
+    copytree("vanilla_datapack_base/", TMP_PATH, dirs_exist_ok=True)
 
     # zip back up
     print("Creating fip files")
