@@ -61,7 +61,6 @@ export const useDatapackStore = defineStore('datapacks', () => {
         WorldgenRegistries.NOISE.clear()
         for (const id of await composite_datapack.value.getIds("worldgen/noise")) {
             const noiseJson = await composite_datapack.value.get("worldgen/noise", id)
-
             const noise = NoiseParameters.fromJson(noiseJson)
             WorldgenRegistries.NOISE.register(id, noise)
         }
@@ -88,13 +87,11 @@ export const useDatapackStore = defineStore('datapacks', () => {
         }
 
         // register (worldgen) structure tags
-        /*
         for (const id of await composite_datapack.value.getIds("tags/worldgen/structure")) {
             const structureTagJson = await composite_datapack.value.get("tags/worldgen/structure", id)
             const structureTag = HolderSet.fromJson(WorldgenStructure.REGISTRY, structureTagJson, id)
             WorldgenStructure.REGISTRY.getTagRegistry().register(id, structureTag)
         }
-        */
 
         // register structure_sets
         StructureSet.REGISTRY.clear()
