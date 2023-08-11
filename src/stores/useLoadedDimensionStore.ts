@@ -33,6 +33,38 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         reload()
     })
     
+    function handle_biome_colors(namespace:string, json: {[key: string]: { r: number, g: number, b: number }}){
+        for (const biome in json) {
+            const biome_id = biome.indexOf(":") === -1 ? namespace + ":" + biome : biome
+
+            biome_colors.set(biome_id, json[biome])
+        }
+    }
+
+    function handle_structure_icons(namespace: string, json: {[key: string]: {item?: string, hidden?: boolean} | string}, ld: LoadedDimension ){
+        for (const structure in json) {
+            const structure_id = structure.indexOf(":") === -1 ? namespace + ":" + structure : structure
+
+            const structure_config = json[structure]
+
+            // legacy string handling
+            if (typeof structure_config === 'string'){
+                if (structure_config === 'hidden'){
+                    ld.hidden_structures?.add(structure_id)
+                } else {
+                    ld.structure_icons?.set(structure_id, Identifier.parse(structure_config))
+                }
+            // legacy hidden in structure file
+            } else if (structure_config.hidden){
+                ld.hidden_structures?.add(structure_id)
+            // TODO: use defined texture
+            // stable: set item as display
+            } else if (structure_config.item){
+                ld.structure_icons?.set(structure_id, Identifier.parse(structure_config.item))
+            }
+        }
+    }
+
     async function reload() {
         await datapackStore.registered
 
@@ -42,34 +74,29 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         ld.structure_icons = new Map<string, Identifier>()
         ld.hidden_structures = new Set()
 
+        // legacy biome_colors and structure_icons
         const ids = await (datapackStore.composite_datapack.getIds(""))
         for (const id of ids) {
             if (id.path === "biome_colors"){
                 const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: { r: number, g: number, b: number }}
-                for (const biome in json) {
-                    const biome_id = biome.indexOf(":") === -1 ? id.namespace + ":" + biome : biome
-
-                    biome_colors.set(biome_id, json[biome])
-                }
+                handle_biome_colors(id.namespace, json)
             } else if (id.path === "structure_icons"){
                 const json = await datapackStore.composite_datapack.get("", id) as {[key: string]: {item?: string, hidden?: boolean} | string}
-                for (const structure in json) {
-                    const structure_id = structure.indexOf(":") === -1 ? id.namespace + ":" + structure : structure
-
-                    const structure_config = json[structure]
-                    if (typeof structure_config === 'string'){
-                        if (structure_config === 'hidden'){
-                            ld.hidden_structures.add(structure_id)
-                        } else {
-                            ld.structure_icons.set(structure_id, Identifier.parse(structure_config))
-                        }
-                    } else if (structure_config.hidden){
-                        ld.hidden_structures.add(structure_id)
-                    } else if (structure_config.item){
-                        ld.structure_icons.set(structure_id, Identifier.parse(structure_config.item))
-                    }
-                }
+                handle_structure_icons(id.namespace, json, ld)
             }
+        }
+
+        // stable biome_colors
+        const biome_colors_json = await datapackStore.composite_datapack.get("", new Identifier("c", "worldgen/biome_colors")) as {[key: string]: { r: number, g: number, b: number }}
+        handle_biome_colors("c", biome_colors_json)
+
+        // stable structure_icons
+        const structure_icons_json = await datapackStore.composite_datapack.get("", new Identifier("c", "worldgen/structure_icons")) as {[key: string]: {item?: string, hidden?: boolean} | string}
+        handle_structure_icons("c", structure_icons_json, ld)
+
+        // stable c:hide_on_map structure tag
+        for (const holder of WorldgenStructure.REGISTRY.getTagRegistry().get(new Identifier("c", "hide_on_map"))?.getEntries() ?? []){
+            ld.hidden_structures.add(holder.key()?.toString() ?? "")
         }
 
         var dimension_json: any
