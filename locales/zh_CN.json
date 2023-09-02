@@ -15,8 +15,8 @@
     "settings.seed.aria-label": "世界种子",
     "settings.seed.randomize_button.title": "随机种子",
 
-    "minecraft.dataPack.vanilla.description": "Minecraft 原版数据包",
-    "minecraft.dataPack.update_1_20.description": "Minecraft 1.20 的新内容与新特性",
+    "minecraft.dataPack.vanilla.description": "Minecraft的默认数据包",
+    "minecraft.dataPack.update_1_20.description": "Minecraft 1.20的新功能与内容",
 
     "footer.about": "关于",
     "footer.view_source": "查看源代码",
