@@ -2,12 +2,17 @@
 import { Datapack } from 'mc-datapack-loader';
 import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
+import { useRecentStore } from '../stores/useRecentStore';
+import { useSettingsStore } from '../stores/useSettingsStore';
+import { versionDatapackFormat } from '../util';
 import DatapackSelection from './DatapackList.vue';
 import Footer from './Footer.vue';
 import MenuButtons from './MenuButtons.vue';
 import SettingsPanel from './SettingsPanel.vue';
 
-    const store = useDatapackStore()
+    const datapackStore = useDatapackStore()
+    const settingsStore = useSettingsStore()
+    const recentStore = useRecentStore();
 
     const file_dragging = ref(false)
 
@@ -19,20 +24,26 @@ import SettingsPanel from './SettingsPanel.vue';
         ev.preventDefault()
         file_dragging.value = false
 
+        const datapackVersion = versionDatapackFormat[settingsStore.mc_version]
+
         for (const item of ev.dataTransfer.items){
             if ("getAsFileSystemHandle" in item){
                 const handle = await item.getAsFileSystemHandle()
+                var datapack: Datapack
                 if (handle instanceof FileSystemDirectoryHandle){
-                    store.addDatapack(Datapack.fromFileSystemDirectoryHandle(handle) )
+                    datapack = Datapack.fromFileSystemDirectoryHandle(handle, datapackVersion)
                 } else if (handle instanceof FileSystemFileHandle) {
-                    console.log(handle)
-                    store.addDatapack(await ZipDatapack.fromFile(await handle.getFile()))
+                    datapack = Datapack.fromZipFile(await handle.getFile(), datapackVersion)
+                } else {
+                    continue
                 }
+                datapackStore.addDatapack(datapack)
+                recentStore.addRecent(handle, datapack)
             } else {
                 if ((item as DataTransferItem).type === "application/zip"){
                     const file = (item as DataTransferItem).getAsFile()
                     if (file){
-                        store.addDatapack(await ZipDatapack.fromFile(file))
+                        datapackStore.addDatapack(Datapack.fromZipFile(file, datapackVersion))
                     }
                 }
             }
