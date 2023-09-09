@@ -19,6 +19,7 @@
     "minecraft.dataPack.vanilla.description": "The default data for Minecraft",
     "minecraft.dataPack.update_1_20.description": "New features and content for Minecraft 1.20",
 
+    "footer.legel.note": "NOT AN OFFICIAL MINECRAFT TOOL. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.",
     "footer.about": "About",
     "footer.view_source": "View Source",
     "footer.report_issue": "Report Issue",
