@@ -66,7 +66,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     }
 
     async function reload() {
-        await datapackStore.registered
+        await datapackStore.reloadDatapack()
 
         const ld: LoadedDimension = {}
 

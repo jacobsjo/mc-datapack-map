@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useDatapackStore } from '../../stores/useDatapackStore';
-import { Datapack, FileListDatapack, FileSystemDirectoryDatapack, PromiseDatapack, UNKOWN_PACK, ZipDatapack } from 'mc-datapack-loader';
+import { Datapack, UNKOWN_PACK } from 'mc-datapack-loader';
 import DropdownEntry from './DropdownEntry.vue';
 import Dropdown from './Dropdown.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRecentStore } from '../../stores/useRecentStore';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/useSettingsStore';
+import { versionDatapackFormat } from '../../util';
 
 const i18n = useI18n()
 
@@ -24,10 +25,10 @@ async function loadHandle(handle: FileSystemHandle) {
         try {
             if (handle.kind === 'file') {
                 const file = await (handle as FileSystemFileHandle).getFile()
-                datapack = await ZipDatapack.fromFile(file)
+                datapack = Datapack.fromZipFile(file, versionDatapackFormat[settingsStore.mc_version])
                 recentStore.addRecent(handle, datapack)
             } else {
-                datapack = new FileSystemDirectoryDatapack(handle as FileSystemDirectoryHandle)
+                datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionDatapackFormat[settingsStore.mc_version])
                 recentStore.addRecent(handle, datapack)
             }
             datapackStore.addDatapack(datapack)
@@ -44,7 +45,7 @@ async function loadHandle(handle: FileSystemHandle) {
 }
 
 async function loadUrl(url: string) {
-    const datapack = new PromiseDatapack(ZipDatapack.fromUrl(url))
+    const datapack = Datapack.fromZipUrl(url, versionDatapackFormat[settingsStore.mc_version])
     datapackStore.addDatapack(datapack)
     emit('close')
 }
@@ -52,7 +53,7 @@ async function loadUrl(url: string) {
 
 async function loadZip(event: MouseEvent) {
     async function addZipDatapack(file: File) {
-        const datapack = await ZipDatapack.fromFile(file)
+        const datapack = Datapack.fromZipFile(file, versionDatapackFormat[settingsStore.mc_version])
         datapackStore.addDatapack(datapack)
         return datapack
     }
@@ -99,7 +100,7 @@ async function loadFolder(event: MouseEvent) {
     if ("showDirectoryPicker" in window) {
         try {
             const handle = await window.showDirectoryPicker()
-            datapack = new FileSystemDirectoryDatapack(handle)
+            datapack = Datapack.fromFileSystemDirectoryHandle(handle, versionDatapackFormat[settingsStore.mc_version])
             recentStore.addRecent(handle, datapack)
         } catch (e) {
         }
@@ -110,7 +111,7 @@ async function loadFolder(event: MouseEvent) {
             input.webkitdirectory = true
 
             input.onchange = async () => {
-                resolve(new FileListDatapack(Array.from(input.files)))
+                resolve(Datapack.fromFileList(Array.from(input.files), versionDatapackFormat[settingsStore.mc_version]))
             }
             input.click()
         })

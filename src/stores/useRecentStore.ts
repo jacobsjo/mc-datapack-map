@@ -3,7 +3,6 @@ import { Datapack } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { get, set } from 'idb-keyval'
-import { Serializable } from "child_process";
 import { TextComponent } from "../util/TextComponent";
 
 
@@ -53,7 +52,7 @@ export const useRecentStore = defineStore('recents', () => {
         }
 
         recents.value.unshift({
-            img: await datapack.getImage(true),
+            img: await datapack.getImage(),
             text: TextComponent.parse(pack.description).toString().split('\n')[0],
             fileHandle: fileHandle
         })

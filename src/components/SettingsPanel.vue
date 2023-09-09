@@ -28,6 +28,7 @@ function randomizeSeed() {
             <select :aria-label=" $t('settings.mc_version.aria-label')" v-model="settingsStore.mc_version">
                 <option :value="'1_19'">{{ $t('settings.mc_version.mc1_19') }}</option>
                 <option :value="'1_20'">{{ $t('settings.mc_version.mc1_20') }}</option>
+                <option :value="'1_20_2'">{{ $t('settings.mc_version.mc1_20_2') }}</option>
             </select>
         </div>
 

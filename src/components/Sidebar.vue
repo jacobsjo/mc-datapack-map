@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FileSystemDirectoryDatapack, PromiseDatapack, ZipDatapack } from 'mc-datapack-loader';
+import { Datapack } from 'mc-datapack-loader';
 import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import DatapackSelection from './DatapackList.vue';
@@ -23,7 +23,7 @@ import SettingsPanel from './SettingsPanel.vue';
             if ("getAsFileSystemHandle" in item){
                 const handle = await item.getAsFileSystemHandle()
                 if (handle instanceof FileSystemDirectoryHandle){
-                    store.addDatapack(new FileSystemDirectoryDatapack(handle))
+                    store.addDatapack(Datapack.fromFileSystemDirectoryHandle(handle) )
                 } else if (handle instanceof FileSystemFileHandle) {
                     console.log(handle)
                     store.addDatapack(await ZipDatapack.fromFile(await handle.getFile()))

@@ -5,7 +5,8 @@
     "settings.mc_version.label": "Version:",
     "settings.mc_version.aria-label": "Minecraft-Version",
     "settings.mc_version.mc1_19": "Minecraft 1.19.x",
-    "settings.mc_version.mc1_20": "Minecraft 1.20",
+    "settings.mc_version.mc1_20": "Minecraft 1.20 / 1.20.1",
+    "settings.mc_version.mc1_20_2": "Minecraft 1.20.2",
 
     "settings.world_preset.label": "Weltvorlage:",
     "settings.world_preset.aria-label": "Weltvorlage",

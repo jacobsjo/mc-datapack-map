@@ -1,14 +1,17 @@
 import { defineStore } from "pinia";
 
-import { CompositeDatapack, Datapack, PromiseDatapack, ZipDatapack } from "mc-datapack-loader"
+import { AnonymousDatapack, Datapack, DatapackList, DataType } from "mc-datapack-loader"
 import { computed, reactive, ref, watch } from "vue";
-import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile } from "deepslate";
+import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
+import { versionDatapackFormat, versionVanillaDatapack } from "../util";
+
+const VANILLA_DATAVERSION = 15 // used independent of version
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const settingsStore = useSettingsStore()
 
-    const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_${settingsStore.mc_version}.zip`))
+    const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, VANILLA_DATAVERSION)
 
     let last_key = 0
     const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
@@ -18,19 +21,29 @@ export const useDatapackStore = defineStore('datapacks', () => {
         if (last_version === settingsStore.mc_version)
             return
 
-        const vanillaDatapack = new PromiseDatapack(ZipDatapack.fromUrl(`./vanilla_datapacks/vanilla_${settingsStore.mc_version}.zip`))
+        const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, VANILLA_DATAVERSION)
         datapacks[0].datapack = vanillaDatapack
+
+        const packVersion = versionDatapackFormat[settingsStore.mc_version]
+        for (var i = 1; i < datapacks.length ; i++){
+            datapacks[i].datapack.setPackVersion(packVersion)
+        }
+
+        console.log("updating mc version")
+
         last_version = settingsStore.mc_version
     })
 
 
-    const composite_datapack = computed(() => {
-        return new CompositeDatapack(datapacks.map(d => d.datapack))
+    const composite_datapack = Datapack.compose(new class implements DatapackList{
+        async getDatapacks(): Promise<AnonymousDatapack[]> {
+            return datapacks.map(d => d.datapack)
+        }
     })
 
     const dimensions = computed(async () => {
-        const world_preset_json = await composite_datapack.value.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
-        return (await composite_datapack.value.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
+        const world_preset_json = await composite_datapack.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
+        return (await composite_datapack.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
                 t.equals(value)
             ))
@@ -39,92 +52,45 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     const world_presets = computed(async () => {
         // TODO use deepslate HolderSet 
-        const normal_world_preset_tag = await composite_datapack.value.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
+        const normal_world_preset_tag = await composite_datapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
         return normal_world_preset_tag.values.map(id => Identifier.parse(id))
     })
 
     const registered = computed(reloadDatapack)
 
-    async function reloadDatapack() {
-        composite_datapack.value
-
-        // register density functions
-        WorldgenRegistries.DENSITY_FUNCTION.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/density_function")) {
-            const dfJson = await composite_datapack.value.get("worldgen/density_function", id)
-
-            const df = new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(dfJson))
-            WorldgenRegistries.DENSITY_FUNCTION.register(id, df)
-        }
-
-        // register noises
-        WorldgenRegistries.NOISE.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/noise")) {
-            const noiseJson = await composite_datapack.value.get("worldgen/noise", id)
-            const noise = NoiseParameters.fromJson(noiseJson)
-            WorldgenRegistries.NOISE.register(id, noise)
-        }
-
-        // register biome ids
-        WorldgenRegistries.BIOME.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/biome")) {
-            WorldgenRegistries.BIOME.register(id, {})
-        }
-
-        // register biome tags
-        for (const id of await composite_datapack.value.getIds("tags/worldgen/biome")) {
-            const biomeTagJson = await composite_datapack.value.get("tags/worldgen/biome", id)
-            const biomeTag = HolderSet.fromJson<{}>(WorldgenRegistries.BIOME, biomeTagJson, id)
-            WorldgenRegistries.BIOME.getTagRegistry().register(id, biomeTag)
-        }
-
-        // register (worldgen) structures
-        WorldgenStructure.REGISTRY.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/structure")) {
-            const structureJson = await composite_datapack.value.get("worldgen/structure", id)
-            const structure = WorldgenStructure.fromJson(structureJson)
-            WorldgenStructure.REGISTRY.register(id, structure)
-        }
-
-        // register (worldgen) structure tags
-        for (const id of await composite_datapack.value.getIds("tags/worldgen/structure")) {
-            const structureTagJson = await composite_datapack.value.get("tags/worldgen/structure", id)
-            const structureTag = HolderSet.fromJson(WorldgenStructure.REGISTRY, structureTagJson, id)
-            WorldgenStructure.REGISTRY.getTagRegistry().register(id, structureTag)
-        }
-
-        // register structure_sets
-        StructureSet.REGISTRY.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/structure_set")) {
-            const structureSetJson = await composite_datapack.value.get("worldgen/structure_set", id)
-            const structureSet = StructureSet.fromJson(structureSetJson)
-            StructureSet.REGISTRY.register(id, structureSet)
-        }
-        
-        // register template pools
-        StructureTemplatePool.REGISTRY.clear()
-        for (const id of await composite_datapack.value.getIds("worldgen/template_pool")) {
-            const templatePoolJson = await composite_datapack.value.get("worldgen/template_pool", id)
-            const templatePool = StructureTemplatePool.fromJson(templatePoolJson)
-            StructureTemplatePool.REGISTRY.register(id, templatePool)
-        }
-
-        // register structure nbt
-        Structure.REGISTRY.clear()
-        for (const id of await composite_datapack.value.getIds("structures")) {
+    async function registerType<T>(path: DataType.Path, registry: Registry<T>, loader: (json: any, id: Identifier) => (T | (() => T))): Promise<void>{
+        registry.clear()
+        await Promise.all((await composite_datapack.getIds(path)).map(id => new Promise<void>(async (resolve) => {
             try {
-                const arrayBuffer = await composite_datapack.value.get("structures", id) as ArrayBuffer
-                Structure.REGISTRY.register(id, () => {
-                    const nbt = NbtFile.read(new Uint8Array(arrayBuffer));
-                    return Structure.fromNbt(nbt.root)
-                })
+                const data = await composite_datapack.get(path, id)
+                registry.register(id, loader(data, id))
             } catch (e) {
-                console.warn(`Failed to load structure ${id.toString()}: ${e}`)
+                console.warn(`Failed to load ${path}: ${id.toString()}: ${e}`)
             }
-        }
+            resolve()
+        })))
     }
 
-    //reloadDatapack()
+    async function registerTag<T>(path: DataType.Path, registry: Registry<T>){
+        await registerType(path, registry.getTagRegistry(), (json, id) => HolderSet.fromJson<T>(registry, json, id))
+    }
+
+    async function reloadDatapack() {
+        const promises: Promise<void>[] = []
+        promises.push(registerType("worldgen/density_function", WorldgenRegistries.DENSITY_FUNCTION, (json) => new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))))
+        promises.push(registerType("worldgen/noise", WorldgenRegistries.NOISE, NoiseParameters.fromJson))
+        promises.push(registerType("worldgen/structure_set", StructureSet.REGISTRY, StructureSet.fromJson))
+        promises.push(registerType("worldgen/template_pool", StructureTemplatePool.REGISTRY, StructureTemplatePool.fromJson))
+        promises.push(registerType("structures", Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
+        promises.push(registerTag("tags/worldgen/structure", WorldgenStructure.REGISTRY))
+        promises.push(registerType("worldgen/biome", WorldgenRegistries.BIOME, () => {return {}}))
+        promises.push(new Promise(async (resolve) => {
+            await registerTag("tags/worldgen/biome", WorldgenRegistries.BIOME)
+            registerType("worldgen/structure", WorldgenStructure.REGISTRY, WorldgenStructure.fromJson)
+            resolve()
+        }))
+        await Promise.all(promises)
+    }
 
     function addDatapack(datapack: Datapack) {
         datapacks.push({ datapack: datapack, key: ++last_key })
@@ -135,5 +101,5 @@ export const useDatapackStore = defineStore('datapacks', () => {
     }
 
 
-    return { datapacks, composite_datapack, registered, addDatapack, removeDatapack, dimensions, world_presets }
+    return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets }
 })

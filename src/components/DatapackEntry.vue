@@ -8,7 +8,9 @@ import MinecraftText from './MinecraftText.vue';
     })
     
     const image = await (props.datapack as Datapack)?.getImage()
-    const desciption = TextComponent.parse(((await (props.datapack as Datapack)?.getMcmeta()) as any).pack.description)
+    const datapack = (props.datapack as Datapack)!
+    const rawDescription = (await datapack.getMcmeta())?.pack.description
+    const desciption = TextComponent.parse(rawDescription ?? "")
 
 </script>
 
