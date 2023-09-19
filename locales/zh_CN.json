@@ -1,13 +1,11 @@
 {
     "locale.local_name": "中文",
     "locale.change_locale.title": "修改语言",
-    
     "settings.mc_version.label": "版本:",
     "settings.mc_version.aria-label": "Minecraft 版本",
     "settings.mc_version.mc1_19": "Minecraft 1.19.x",
     "settings.mc_version.mc1_20": "Minecraft 1.20 / 1.20.1",
     "settings.mc_version.mc1_20_2": "Minecraft 1.20.2",
-
     "settings.world_preset.label": "世界类型:",
     "settings.world_preset.aria-label": "世界类型",
     "settings.dimension.label": "维度:",
@@ -15,50 +13,37 @@
     "settings.seed.label": "世界种子:",
     "settings.seed.aria-label": "世界种子",
     "settings.seed.randomize_button.title": "随机种子",
-
     "minecraft.dataPack.vanilla.description": "Minecraft的默认数据包",
     "minecraft.dataPack.update_1_20.description": "Minecraft 1.20的新功能与内容",
-
     "footer.about": "关于",
     "footer.view_source": "查看源代码",
     "footer.report_issue": "反馈问题",
     "footer.other": "其他工具",
     "footer.licenses": "许可信息",
     "footer.sponsor": "赞助",
-
     "datapack_list.remove_datapack.title": "移除数据包",
-
     "menu.add_datapack.title": "添加数据包",
     "menu.search_biome.title": "查找群系",
     "menu.structure_positions.title": "结构位置",
     "menu.reload_datapacks.title": "重载数据包",
-
     "dropdown.add_datapack.zip": "载入数据包",
     "dropdown.add_datapack.folder": "载入数据包文件夹",
-
-    "dropdown.add_datapack.built_in.update_1_20": "更新至 1.20",    
+    "dropdown.add_datapack.built_in.update_1_20": "更新至 1.20",
     "dropdown.add_datapack.built_in.title": "内置数据包",
-
     "dropdown.add_datapack.recents.title": "最近使用",
     "datapack.add_datapack.recents.not_found": "找不到该数据包。 从列表中移除。.",
     "dropdown.add_datapack.recents.enable": "启用",
     "dropdown.add_datapack.recents.enable.note": "(允许本地存储)",
     "dropdown.add_datapack.recents.empty": "空",
     "dropdown.add_datapack.recents.unavailable": "此浏览器不受支持",
-
     "dropdown.search_biome.placeholder": "查找群系",
     "dropdown.structure_positions.placeholder": "查找结构",
-
     "toggle_sidebar.title": "侧边栏开关",
-
     "map.info.structures_hidden": "部分结构被隐藏，请放大查看。",
     "map.info.teleport_command_copied": "传送命令已复制。",
     "map.error.structures_unsupported": "抱歉，部分选中的结构无法显示。",
-
-    "map.yslider.at_surface": "地表",
     "map.yslider.aria-label": "Y 轴",
     "map.yslider.y-label": "Y: {y}",
-
     "map.setting.project": "将坐标下移至地表",
     "map.setting.sealevel": "显示海平面",
     "map.setting.hillshade": "显示山体阴影"
