@@ -2,6 +2,8 @@
 [![map.jacobsjo.eu](https://img.shields.io/github/deployments/jacobsjo/mc-datapack-map/github-pages?label=map.jacobsjo.eu)](https://map.jacobsjo.eu)
 [![](https://img.shields.io/github/issues-raw/jacobsjo/mc-datapack-map)](https://github.com/jacobsjo/mc-datapack-map/issues)
 [![](https://img.shields.io/badge/sponsor-jacobsjo-blue)](https://github.com/sponsors/jacobsjo)
+[![](https://weblate.catter.dev/widget/jacobsjo/mc-datapack-map/svg-badge.svg)](https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/)
+</a>
 
 ## Use online at https://map.jacobsjo.eu 
 
@@ -15,6 +17,9 @@
 |   |  |
 
 ![](docs/header.png)
+
+# Translations
+Translate at https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/
 
 # Contributing
 Contributions are welcome! For significant feature additions please ask beforehand by opening an issue or on discord.
