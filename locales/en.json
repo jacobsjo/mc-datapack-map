@@ -56,7 +56,6 @@
     "map.info.teleport_command_copied": "Teleport Command Copied",
     "map.error.structures_unsupported": "Some selected structures are unsupported! Sorry.",
 
-    "map.yslider.at_surface": "Surface",
     "map.yslider.aria-label": "Y Level",
     "map.yslider.y-label": "Y: {y}",
 
