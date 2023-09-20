@@ -1,13 +1,11 @@
 {
     "locale.local_name": "English",
     "locale.change_locale.title": "Change Language",
-    
     "settings.mc_version.label": "Version:",
     "settings.mc_version.aria-label": "Minecraft Version",
     "settings.mc_version.mc1_19": "Minecraft 1.19.x",
     "settings.mc_version.mc1_20": "Minecraft 1.20 / 1.20.1",
     "settings.mc_version.mc1_20_2": "Minecraft 1.20.2",
-
     "settings.world_preset.label": "World Preset:",
     "settings.world_preset.aria-label": "World Preset",
     "settings.dimension.label": "Dimension:",
@@ -15,10 +13,8 @@
     "settings.seed.label": "Seed:",
     "settings.seed.aria-label": "Seed",
     "settings.seed.randomize_button.title": "Randomize Seed",
-
     "minecraft.dataPack.vanilla.description": "The default data for Minecraft",
     "minecraft.dataPack.update_1_20.description": "New features and content for Minecraft 1.20",
-
     "footer.legel.note": "NOT AN OFFICIAL MINECRAFT TOOL. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.",
     "footer.about": "About",
     "footer.view_source": "View Source",
@@ -27,41 +23,30 @@
     "footer.licenses": "Licenses",
     "footer.translate": "Translate",
     "footer.sponsor": "Sponsor",
-
     "datapack_list.remove_datapack.title": "Remove Datapack",
-
     "menu.add_datapack.title": "Add Datapack",
     "menu.search_biome.title": "Search Biome",
     "menu.structure_positions.title": "Structure Positions",
     "menu.reload_datapacks.title": "Reload Datapacks",
-
     "dropdown.add_datapack.zip": "Open Datapack.zip",
     "dropdown.add_datapack.folder": "Open Datapack Folder",
-
-    "dropdown.add_datapack.built_in.update_1_20": "Update 1.20",    
+    "dropdown.add_datapack.built_in.update_1_20": "Update 1.20",
     "dropdown.add_datapack.built_in.title": "Built-in Datapacks",
-
     "dropdown.add_datapack.recents.title": "Recently used",
     "datapack.add_datapack.recents.not_found": "Datapack not Found. Removing from recently used list.",
     "dropdown.add_datapack.recents.enable": "Enable",
     "dropdown.add_datapack.recents.enable.note": "(accept local storage)",
     "dropdown.add_datapack.recents.empty": "Empty",
     "dropdown.add_datapack.recents.unavailable": "Unsupported in this browser",
-
     "dropdown.search_biome.placeholder": "Search Biome",
     "dropdown.structure_positions.placeholder": "Search Structure",
-
     "toggle_sidebar.title": "Toggle Sidebar",
-
     "map.info.structures_hidden": "Some structures are hidden. Zoom in to see more.",
     "map.info.teleport_command_copied": "Teleport Command Copied",
     "map.error.structures_unsupported": "Some selected structures are unsupported! Sorry.",
-
-    "map.tooltip.spawn": "Spawnpoint",
-
+    "map.tooltip.spawn": "Spawn Point",
     "map.yslider.aria-label": "Y Level",
     "map.yslider.y-label": "Y: {y}",
-
     "map.setting.project": "Move location down to surface",
     "map.setting.sealevel": "Show sea level",
     "map.setting.hillshade": "Enable hillshading"
