@@ -12,10 +12,13 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
 import { CachedBiomeSource } from '../util/CachedBiomeSource';
 import MapButton from './MapButton.vue';
+import { SpawnTarget } from '../util/SpawnTarget';
+import { useI18n } from 'vue-i18n';
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
 const loadedDimensionStore = useLoadedDimensionStore()
+const i18n = useI18n()
 
 let layer: BiomeLayer
 
@@ -34,6 +37,7 @@ const y = ref(320)
 
 var map: L.Map
 var markers: L.LayerGroup
+var spawnMarker: L.Marker
 
 var marker_map = new Map<string, { marker?: L.Marker, structure?: Identifier }>()
 var needs_zoom = ref(false)
@@ -63,6 +67,16 @@ onMounted(() => {
     map.options.crs!.scale(1.5)
 
     map.addLayer(layer)
+
+    spawnMarker = L.marker({lat: 0, lng: 0}, {
+        icon: L.icon({
+            iconUrl: "images/spawn_icon.png",
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -10]
+        }),
+    }).bindPopup(L.popup())
+
+    updateSpawnMarker()
 
     markers = L.layerGroup().addTo(map)
 
@@ -237,12 +251,28 @@ function getMarker(structureId: Identifier, chunk: ChunkPos) {
     return marker
 }
 
+function updateSpawnMarker(){
+    if (settingsStore.dimension.equals(Identifier.create("overworld"))){
+        const crs = map.options.crs!
+        const spawnTarget = SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target)
+        const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
+        const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
+        spawnMarker.setLatLng(crs.unproject(pos))
+        spawnMarker.setPopupContent(`${i18n.t("map.tooltip.spawn")}<br>${spawn[0] + 7}, ${spawn[1] + 7}`)
+        spawnMarker.addTo(map)
+    } else {
+        spawnMarker.removeFrom(map)
+    }
+
+}
+
 loadedDimensionStore.$subscribe((mutation, state) => {
     for (const marker of marker_map.values()){
         marker.marker?.remove()
     }
     marker_map.clear()
     updateMarkers()
+    updateSpawnMarker()
 
     const y_limits = loadedDimensionStore.loaded_dimension.y_limits
     if (y_limits){
@@ -256,6 +286,10 @@ loadedDimensionStore.$subscribe((mutation, state) => {
 
 watch(searchStore.structures, () => {
     updateMarkers()
+})
+
+watch(i18n.locale, () => {
+    updateSpawnMarker()
 })
 
 </script>
