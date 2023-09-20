@@ -48,5 +48,6 @@
     "map.setting.project": "Verschiebe Position nach unten zur Oberfläche",
     "map.setting.sealevel": "Zeige Meeresspiegel",
     "map.setting.hillshade": "Schattierung aktivieren",
-    "footer.translate": "Übersetzen"
+    "footer.translate": "Übersetzen",
+    "map.tooltip.spawn": "Einstiegspunkt"
 }
