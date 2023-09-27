@@ -2,11 +2,14 @@ import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, Densi
 import { ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
 import { getSurfaceDensityFunction, hashCode } from "../util";
 import { useDatapackStore } from "./useDatapackStore";
 import { useSettingsStore } from "./useSettingsStore";
+
+import messages from '@intlify/unplugin-vue-i18n/messages'
 
 export type LoadedDimension = {
     structure_icons?: Map<string, Identifier>,
@@ -21,10 +24,13 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
     const datapackStore = useDatapackStore()
     const settingsStore = useSettingsStore()
+    const i18n = useI18n()
 
     const loaded_dimension = reactive<LoadedDimension>({})
     var biome_source: BiomeSource | undefined = undefined
-    var biome_colors: Map<string, { r: number, g: number, b: number } > = new Map<string, { r: number, g: number, b: number }>()
+    var biome_colors: Map<string, { r: number, g: number, b: number } > = new Map<string, { r: number, g: number, b: number}>()
+
+    var default_messages: {[key: string]: string} = {}
 
     datapackStore.$subscribe((mutation, state) => {
         reload()
@@ -35,15 +41,20 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     watch(() => settingsStore.dimension, reload)
     watch(() => settingsStore.seed, reload)
     
-    function handle_biome_colors(namespace:string, json: {[key: string]: { r: number, g: number, b: number }}){
+    function handle_biome_colors(namespace:string, json: {[key: string]: { r: number, g: number, b: number, name?: string }}){
         for (const biome in json) {
             const biome_id = biome.indexOf(":") === -1 ? namespace + ":" + biome : biome
 
-            biome_colors.set(biome_id, json[biome])
+            const entry = json[biome]
+            biome_colors.set(biome_id, {r: entry.r, g: entry.g, b: entry.b})
+            if (entry.name){
+                const [ns, path] = biome_id.split(':')
+                default_messages[`minecraft.biome.${ns}.${path.replace('/','.')}`] = entry.name
+            }
         }
     }
 
-    function handle_structure_icons(namespace: string, json: {[key: string]: {item?: string, hidden?: boolean} | string}, ld: LoadedDimension ){
+    function handle_structure_icons(namespace: string, json: {[key: string]: {item?: string, hidden?: boolean, name?: string} | string}, ld: LoadedDimension ){
         for (const structure in json) {
             const structure_id = structure.indexOf(":") === -1 ? namespace + ":" + structure : structure
 
@@ -56,13 +67,20 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 } else {
                     ld.structure_icons?.set(structure_id, Identifier.parse(structure_config))
                 }
+                return 
+            }
             // legacy hidden in structure file
-            } else if (structure_config.hidden){
+            if (structure_config.hidden){
                 ld.hidden_structures?.add(structure_id)
             // TODO: use defined texture
             // stable: set item as display
             } else if (structure_config.item){
                 ld.structure_icons?.set(structure_id, Identifier.parse(structure_config.item))
+            }
+
+            if (structure_config.name){
+                const [ns, path] = structure_id.split(':')
+                default_messages[`minecraft.structure.${ns}.${path.replace('/','.')}`] = structure_config.name
             }
         }
     }
@@ -75,15 +93,16 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         biome_colors.clear()
         ld.structure_icons = new Map<string, Identifier>()
         ld.hidden_structures = new Set()
+        default_messages = {}
 
         // legacy biome_colors and structure_icons
         const ids = await (datapackStore.composite_datapack.getIds(ResourceLocation.DATA_FILE))
         for (const id of ids) {
             if (id.path === "biome_colors"){
-                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: { r: number, g: number, b: number }}
+                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: { r: number, g: number, b: number, name?: string }}
                 handle_biome_colors(id.namespace, json)
             } else if (id.path === "structure_icons"){
-                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: {item?: string, hidden?: boolean} | string}
+                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: {item?: string, hidden?: boolean, name?: string} | string}
                 handle_structure_icons(id.namespace, json, ld)
             }
         }
@@ -99,6 +118,25 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         // stable c:hide_on_map structure tag
         for (const holder of WorldgenStructure.REGISTRY.getTagRegistry().get(new Identifier("c", "hide_on_map"))?.getEntries() ?? []){
             ld.hidden_structures.add(holder.key()?.toString() ?? "")
+        }
+
+        const langs = await datapackStore.composite_datapack.getIds(ResourceLocation.LANGUAGE)
+
+        for (const locale of i18n.availableLocales){
+            const minecraft_messages: {[key: string]: string} = {}
+            const minecraft_locale = i18n.t('locale.minecraft_locale', 1, {locale: locale})
+            for (const lang of langs.filter(l => l.path === minecraft_locale)){
+                const json = await datapackStore.composite_datapack.get(ResourceLocation.LANGUAGE, lang) as any
+                for (const key in json){
+                    minecraft_messages[`minecraft.${key}`] = json[key]
+                }
+            }
+
+            i18n.setLocaleMessage(locale, messages[locale]) 
+            if (locale === "en"){
+                i18n.mergeLocaleMessage(locale, default_messages)
+            }
+            i18n.mergeLocaleMessage(locale, minecraft_messages)
         }
 
         var dimension_json: any

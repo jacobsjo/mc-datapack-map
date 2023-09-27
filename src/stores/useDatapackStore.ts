@@ -7,7 +7,6 @@ import { useSettingsStore } from "./useSettingsStore";
 import { versionDatapackFormat, versionVanillaDatapack } from "../util";
 import { I18nInjectionKey, useI18n } from "vue-i18n";
 
-import messages from '@intlify/unplugin-vue-i18n/messages'
 
 const VANILLA_DATAVERSION = 15 // used independent of version
 
@@ -96,22 +95,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
         }))
         await Promise.all(promises)
 
-        const langs = await composite_datapack.getIds(ResourceLocation.LANGUAGE)
 
-
-        for (const locale of i18n.availableLocales){
-            const minecraft_messages: {[key: string]: string} = {}
-            const minecraft_locale = i18n.t('locale.minecraft_locale', 1, {locale: locale})
-            for (const lang of langs.filter(l => l.path === minecraft_locale)){
-                const json = await composite_datapack.get(ResourceLocation.LANGUAGE, lang) as any
-                for (const key in json){
-                    minecraft_messages[`minecraft.${key}`] = json[key]
-                }
-            }
-
-            i18n.setLocaleMessage(locale, messages[locale]) 
-            i18n.mergeLocaleMessage(locale, minecraft_messages)
-        }
     }
 
     function addDatapack(datapack: Datapack) {

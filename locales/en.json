@@ -62,7 +62,7 @@
     "dropdown.add.built_in.update_1_20": "Update 1.20",
     "dropdown.add.built_in.title": "Built-in Datapacks",
     "dropdown.add.recents.title": "Recently used",
-    "datapack.add.recents.not_found": "Pack not Found. Removing from recently used list.",
+    "dropdown.add.recents.not_found": "Pack not Found. Removing from recently used list.",
     "dropdown.add.recents.enable": "Enable",
     "dropdown.add.recents.enable.note": "(accept local storage)",
     "dropdown.add.recents.empty": "Empty",

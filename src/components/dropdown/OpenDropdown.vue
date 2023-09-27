@@ -35,7 +35,7 @@ async function loadHandle(handle: FileSystemHandle) {
         } catch (e){
             if (e instanceof DOMException){
                 recentStore.removeRecent(handle.name)
-                alert(i18n.t('datapack.add_datapack.recents.not_found'))
+                alert(i18n.t('dropdown.add.recents.not_found'))
                 return
             }
         }

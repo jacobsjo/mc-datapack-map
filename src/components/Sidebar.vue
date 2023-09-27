@@ -40,7 +40,7 @@ import SettingsPanel from './SettingsPanel.vue';
                 datapackStore.addDatapack(datapack)
                 recentStore.addRecent(handle, datapack)
             } else {
-                if ((item as DataTransferItem).type === "application/zip"){
+                if (["application/zip", 'application/java-archive', 'application/x-java-archive'].includes((item as DataTransferItem).type)){
                     const file = (item as DataTransferItem).getAsFile()
                     if (file){
                         datapackStore.addDatapack(Datapack.fromZipFile(file, datapackVersion))
