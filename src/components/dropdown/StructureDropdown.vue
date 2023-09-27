@@ -28,7 +28,7 @@ function disableGroup(group: string){
 </script>
 
 <template>
-    <ListDropdown :placeholder="$t('dropdown.structure_positions.placeholder')" :entries="WorldgenStructure.REGISTRY.keys().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
+    <ListDropdown :type="'structure'" :placeholder="$t('dropdown.structure_positions.placeholder')" :entries="WorldgenStructure.REGISTRY.keys().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

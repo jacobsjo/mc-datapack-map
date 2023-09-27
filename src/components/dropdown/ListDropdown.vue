@@ -3,10 +3,12 @@
 import { computed, ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import { Identifier } from 'deepslate';
-import ListDropdownEntry from './ListDropdownEntry.vue';
 import ListDropdownGroup from './ListDropdownGroup.vue';
+import { useSettingsStore } from '../../stores/useSettingsStore';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
+        type: String,
         placeholder: String,
         tags: Object,
         entries: Object,
@@ -15,27 +17,24 @@ const props = defineProps({
         colors: Function
 })
 
+const i18n = useI18n()
+const settingsStore = useSettingsStore()
+
 defineEmits(['toggle', 'disableGroup'])
 
 const search = ref("")
 
-function group(entries: Identifier[]){
-    return entries.filter((b: Identifier) => b.toString().includes(search.value)).sort().reduce((groups, entry) => {
-        groups[entry.namespace] = groups[entry.namespace] ?? []
-        groups[entry.namespace].push(entry)
+const localized_entries = computed(() => (props.entries as Identifier[]).map(e => {
+    return {id: e, localized: settingsStore.getLocalizedName(props.type!, e, true)}
+}))
+
+const grouped_entries = computed<{[key: string]: {id: Identifier, localized: string}[]}>(() => {
+    return localized_entries.value.filter(b => b.localized.toLocaleLowerCase(i18n.locale.value.replace("_", "-")).includes(search.value.toLocaleLowerCase(i18n.locale.value.replace("_", "-"))) || b.id.toString().includes(search.value)).sort().reduce((groups, entry) => {
+        groups[entry.id.namespace] = groups[entry.id.namespace] ?? []
+        groups[entry.id.namespace].push(entry)
         return groups
-    }, {} as {[key: string]: Identifier[]})
-}
-
-const grouped_tags = computed<{[key: string]: Identifier[]}>(() => {
-    return props.tags ? group(props.tags as Identifier[]) : {}
+    }, {} as {[key: string]: {id: Identifier, localized: string}[]})
 })
-
-const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
-    return props.entries ? group(props.entries as Identifier[]) : {}
-})
-
-
 
 </script>
 
@@ -45,15 +44,8 @@ const grouped_entries = computed<{[key: string]: Identifier[]}>(() => {
         <input id="search" :placeholder="props.placeholder" spellcheck="false" v-model="search" /> 
         <div class="entry_list">
             <ListDropdownGroup
-                v-for="group in Object.entries(grouped_tags)"
-                :entries="group[1]"
-                :group_name="`#${group[0]}`"
-                :selected="selected"
-                @toggle="(entry: Identifier) => $emit('toggle', entry)" 
-                @disableGroup="() => $emit('disableGroup', group[0])"
-                />            
-            <ListDropdownGroup
                 v-for="group in Object.entries(grouped_entries)"
+                :type="type"
                 :entries="group[1]"
                 :group_name="group[0]"
                 :selected="selected"

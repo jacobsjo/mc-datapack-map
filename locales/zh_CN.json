@@ -1,5 +1,6 @@
 {
     "locale.local_name": "中文",
+    "locale.minecraft_locale": "zh_cn",
     "locale.change_locale.title": "修改语言",
     "settings.mc_version.label": "版本:",
     "settings.mc_version.aria-label": "Minecraft 版本",

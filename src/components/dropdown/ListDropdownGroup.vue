@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed } from '@vue/reactivity';
+import { Identifier } from 'deepslate';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 import ListDropdownEntry from './ListDropdownEntry.vue';
 
+const i18n = useI18n()
 
 const props = defineProps({
+        type: String,
         entries: Object,
         selected: Object,
         icons: Function,
@@ -13,9 +18,12 @@ const props = defineProps({
 })
 
 defineEmits(['toggle', 'disableGroup'])
+const settingsStore = useSettingsStore()
 
 
 const shown = ref(true)
+
+const sorted_entries = computed(() => props.entries?.sort((a: any, b: any) => settingsStore.collator.compare(a.localized,b.localized)))
 
 function isGroupSelected (selected: any, group_name: any) {
     if (!selected) return false
@@ -44,7 +52,7 @@ function isGroupSelected (selected: any, group_name: any) {
         {{ group_name }}
     </div>
     <div class="group" v-if="shown">
-        <ListDropdownEntry v-for="entry in entries" :key="entry.toString()" :entry="entry" :selected="selected?.has(entry.toString())" :icons="icons" :colors="colors" @toggle="$emit('toggle', entry)" />
+        <ListDropdownEntry v-for="entry in sorted_entries" :type="type" :entry="entry" :selected="selected?.has(entry.id.toString())" :icons="icons" :colors="colors" @toggle="$emit('toggle', entry.id)" />
     </div>
 </template>
 

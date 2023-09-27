@@ -1,21 +1,29 @@
 <script setup lang="ts">
-    function updateUrlSearch(locale: string){
-        const uri = window.location.search.substring(1)
-        const params = new URLSearchParams(uri)
-        params.set('lang', locale)
-        history.replaceState({}, "", "?" + params.toString())
-    }
+import { useSettingsStore } from '../stores/useSettingsStore';
+
+const settingsStore = useSettingsStore()
+
+function updateUrlSearch(locale: string) {
+    const uri = window.location.search.substring(1)
+    const params = new URLSearchParams(uri)
+    params.set('lang', locale)
+    history.replaceState({}, "", "?" + params.toString())
+}
 
 </script>
 
 <template>
     <div class="locale-changer">
-        <font-awesome-icon icon="fa-earth-europe" class="icon" :title="$t('locale.change_locale.title')"/>
+        <font-awesome-icon icon="fa-earth-europe" class="icon" :title="$t('locale.change_locale.title')" />
         <select v-model="$i18n.locale" @change="() => updateUrlSearch($i18n.locale)">
             <option v-for="lang in $i18n.availableLocales" :key="lang" :value="lang">
-                {{ $t("locale.local_name", [] , {locale: lang}) }}
+                {{ $t("locale.local_name", [], { locale: lang }) }}
             </option>
         </select>
+    </div>
+    <div class="setting">
+        <div class="title">{{ $t('settings.dev_mode.label') }}</div>
+        <input type="checkbox" :aria-label="$t('settings.dev_mode.aria-label')" v-model="settingsStore.dev_mode">
     </div>
 </template>
 
@@ -43,4 +51,14 @@
         border-radius: 0.3rem;
         border: 2px solid rgb(55, 120, 173);
     }
+
+    .setting {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        box-sizing: border-box;
+        justify-content: center;
+        padding-bottom: 0.7rem;
+    }
+
 </style>

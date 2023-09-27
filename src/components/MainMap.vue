@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDatapackStore } from '../stores/useDatapackStore';
 import "leaflet/dist/leaflet.css";
 import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
@@ -235,7 +234,7 @@ function updateMarkers() {
 function getMarker(structureId: Identifier, chunk: ChunkPos) {
     const crs = map.options.crs!
     const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-    const popup = L.popup().setContent(`${structureId.toString()}<br />${chunk[0] << 4}, ${chunk[1] << 4}`)
+    const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${chunk[0] << 4}, ${chunk[1] << 4}`)
     const marker = L.marker(crs.unproject(pos))
     marker.bindPopup(popup).addTo(markers)
     const iconUrl = loadedDimensionStore.getIcon(structureId)
@@ -258,7 +257,7 @@ function updateSpawnMarker(){
         const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
         const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
         spawnMarker.setLatLng(crs.unproject(pos))
-        spawnMarker.setPopupContent(`${i18n.t("map.tooltip.spawn")}<br>${spawn[0] + 7}, ${spawn[1] + 7}`)
+        spawnMarker.bindPopup(L.popup().setContent(() => `${i18n.t("map.tooltip.spawn")}<br>${spawn[0] + 7}, ${spawn[1] + 7}`))
         spawnMarker.addTo(map)
     } else {
         spawnMarker.removeFrom(map)
@@ -286,10 +285,6 @@ loadedDimensionStore.$subscribe((mutation, state) => {
 
 watch(searchStore.structures, () => {
     updateMarkers()
-})
-
-watch(i18n.locale, () => {
-    updateSpawnMarker()
 })
 
 </script>

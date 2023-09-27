@@ -30,7 +30,8 @@ const i18n = createI18n({
     locale: lang,
     fallbackLocale: 'en',
     messages: messages,
-    missingWarn: false
+    missingWarn: false,
+    fallbackWarn: false,    
 })
 
 const pinia = createPinia()

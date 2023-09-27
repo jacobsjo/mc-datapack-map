@@ -1,5 +1,6 @@
 {
     "locale.local_name": "Deutsch",
+    "locale.minecraft_locale": "de_de",
     "locale.change_locale.title": "Sprache ändern",
     "settings.mc_version.label": "Version:",
     "settings.mc_version.aria-label": "Minecraft-Version",

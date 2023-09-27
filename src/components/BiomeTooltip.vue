@@ -1,20 +1,25 @@
 <script setup lang="ts">
-    const props = defineProps({
-        biome: Object,
-        pos: Object
-    })
+import { Identifier } from 'deepslate';
+import { useSettingsStore } from '../stores/useSettingsStore';
+
+const settingsStore = useSettingsStore()
+
+const props = defineProps({
+    biome: Object,
+    pos: Object
+})
 
 </script>
 
 <template>
     <div class="tooltip">
         <div class="biome">
-            {{ biome }}
+            {{ settingsStore.getLocalizedName('biome', biome as Identifier, false) }}
         </div>
         <div class="position">
-            <div class="coordinate">{{  pos?.[0].toFixed(0) }}</div>,
-            <div class="coordinate">{{  pos?.[1].toFixed(0) }}</div>,
-            <div class="coordinate">{{  pos?.[2].toFixed(0) }}</div>
+            <div class="coordinate">{{ pos?.[0].toFixed(0) }}</div>,
+            <div class="coordinate">{{ pos?.[1].toFixed(0) }}</div>,
+            <div class="coordinate">{{ pos?.[2].toFixed(0) }}</div>
         </div>
     </div>
 </template>

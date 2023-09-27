@@ -6,9 +6,11 @@ import OpenDropdown from './dropdown/OpenDropdown.vue';
 import { vOnClickOutside }from '@vueuse/components';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import StructureDropdown from './dropdown/StructureDropdown.vue';
+import { useSettingsStore } from '../stores/useSettingsStore';
 
-const datapackStore = useDatapackStore();
-const searchStore = useSearchStore();
+const datapackStore = useDatapackStore()
+const searchStore = useSearchStore()
+const settingsStore = useSettingsStore()
 
 const openDropdownOpen = ref(false)
 const searchBiomeDropdownOpen = ref(false)
@@ -36,74 +38,81 @@ function clearStructureSearch(event: Event){
 </script>
 
 <template>
-    <div class="buttons">
-        <font-awesome-icon
-            icon="fa-plus"
-            class="button"
-            tabindex="0"
-            :class="{open: openDropdownOpen }"
-            :title="$t('menu.add_datapack.title')"
-            @click="openDropdownOpen = true"
-            @keypress.enter="openDropdownOpen = true"
-        />
-        <Transition>
-            <OpenDropdown v-if="openDropdownOpen" v-on-click-outside="() => {openDropdownOpen=false}" @close="openDropdownOpen=false" tabindex="-1"/>
-        </Transition>
-        <font-awesome-icon
-            icon="fa-magnifying-glass"
-            class="button"
-            tabindex="0"
-            :class="{
-                open: searchBiomeDropdownOpen,
-                active: searchStore.biomes.size > 0
-            }"
-            :title="$t('menu.search_biome.title')"
-            @click="searchBiomeDropdownOpen = true"
-            @keypress.enter="searchBiomeDropdownOpen = true"
-            @contextmenu="clearBiomeSearch"    
-            @dblclick="clearBiomeSearch"
-        />
-        <Transition>
-            <Suspense>
-                <FindBiomeDropdown v-if="searchBiomeDropdownOpen" v-on-click-outside="() => {searchBiomeDropdownOpen=false}" tabindex="-1"/>
-            </Suspense>
-        </Transition>
-        <font-awesome-icon
-            icon="fa-location-dot"
-            class="button"
-            tabindex="0"
-            :class="{
-                open: structureDropdownOpen,
-               active: searchStore.structures.size > 0
-            }"
-            :title="$t('menu.structure_positions.title')"
-            @click="structureDropdownOpen = true"
-            @keypress.enter="structureDropdownOpen = true"
-            @contextmenu="clearStructureSearch"    
-            @dblclick="clearStructureSearch"
-        />
-        <Transition>
-            <Suspense>
-                <StructureDropdown v-if="structureDropdownOpen" v-on-click-outside="() => {structureDropdownOpen=false}" tabindex="-1"/>
-            </Suspense>
-        </Transition>
+    <div>
+        <div class="buttons">
+            <font-awesome-icon
+                icon="fa-plus"
+                class="button"
+                tabindex="0"
+                :class="{open: openDropdownOpen }"
+                :title="$t('menu.add.title')"
+                @click="openDropdownOpen = true"
+                @keypress.enter="openDropdownOpen = true"
+            />
+            <font-awesome-icon
+                icon="fa-magnifying-glass"
+                class="button"
+                tabindex="0"
+                :class="{
+                    open: searchBiomeDropdownOpen,
+                    active: searchStore.biomes.size > 0
+                }"
+                :title="$t('menu.search_biome.title')"
+                @click="searchBiomeDropdownOpen = true"
+                @keypress.enter="searchBiomeDropdownOpen = true"
+                @contextmenu="clearBiomeSearch"    
+                @dblclick="clearBiomeSearch"
+            />
+            <font-awesome-icon
+                icon="fa-location-dot"
+                class="button"
+                tabindex="0"
+                :class="{
+                    open: structureDropdownOpen,
+                active: searchStore.structures.size > 0
+                }"
+                :title="$t('menu.structure_positions.title')"
+                @click="structureDropdownOpen = true"
+                @keypress.enter="structureDropdownOpen = true"
+                @contextmenu="clearStructureSearch"    
+                @dblclick="clearStructureSearch"
+            />
 
-        <font-awesome-icon icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
+            <font-awesome-icon v-if="settingsStore.dev_mode" icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
+        </div>
+        <div class="dropdowns">
+            <Transition>
+                <OpenDropdown v-if="openDropdownOpen" v-on-click-outside="() => {openDropdownOpen=false}" @close="openDropdownOpen=false" tabindex="-1"/>
+            </Transition>
+            <Transition>
+                <Suspense>
+                    <FindBiomeDropdown v-if="searchBiomeDropdownOpen" v-on-click-outside="() => {searchBiomeDropdownOpen=false}" tabindex="-1"/>
+                </Suspense>
+            </Transition>
+            <Transition>
+                <Suspense>
+                    <StructureDropdown v-if="structureDropdownOpen" v-on-click-outside="() => {structureDropdownOpen=false}" tabindex="-1"/>
+                </Suspense>
+            </Transition>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.buttons {
+.buttons
+{
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
-    width: 100%;
-    justify-content: left;
+    width: calc(100% - 2rem);
+    justify-content: center;
     position: relative;
 }
 
-.button:first-child{
-    margin-left: 1.7rem;
+.dropdowns{
+    height: 0;
+    width: 100%;
+    position: relative;
 }
 
 .button {

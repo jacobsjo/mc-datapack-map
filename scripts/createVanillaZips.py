@@ -8,7 +8,7 @@ from shutil import copytree
 TMP_PATH = "/tmp/jacobsjo/createVanillaZips/"
 UPDATE_1_20_PATH = TMP_PATH + "data/minecraft/datapacks/update_1_20/"
 
-REQUIRED_TYPES = [
+REQUIRED_DATA_TYPES = [
     "worldgen/world_preset",
     "worldgen/density_function",
     "worldgen/noise",
@@ -41,11 +41,26 @@ REQUIRED_TYPES = [
     "tags/worldgen/structure",
 ]
 
+REQUIRED_ASSETS_TYPES = [
+    "lang"
+]
+
 REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_20/pack.mcmeta"]
 
-for path in REQUIRED_TYPES:
+for path in REQUIRED_DATA_TYPES:
     REQUIRED_PATHS.append("data/minecraft/" + path)
     REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_20/data/minecraft/" + path)
+
+for path in REQUIRED_ASSETS_TYPES:
+    REQUIRED_PATHS.append("assets/minecraft/" + path)
+
+def download_and_extract(url: str):
+    with zipfile.ZipFile(io.BytesIO(requests.get(url).content)) as jar:
+        for file in jar.infolist():
+            file.filename = file.filename.split('/', 1)[1]
+            for path in REQUIRED_PATHS:
+                if (file.filename.startswith(path)):
+                    jar.extract(file, TMP_PATH)
 
 
 def main(version: str, include_update_1_20: bool, suffix: str = ""):
@@ -54,19 +69,9 @@ def main(version: str, include_update_1_20: bool, suffix: str = ""):
     emptyTmp()
 
     # get client jar
-    print("Getting client jar")
-    manifest = requests.get('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json').json()
-    version_entry = next((e for e in manifest['versions'] if e['id'] == version))
-    version_json = requests.get(version_entry['url']).json()
-    client_link = version_json['downloads']['client']['url']
-
-    # extract required parts of client jar
-    print("Extracting client jar")
-    with zipfile.ZipFile(io.BytesIO(requests.get(client_link).content)) as jar:
-        for file in jar.namelist():
-            for path in REQUIRED_PATHS:
-                if (file.startswith(path)):
-                    jar.extract(file, TMP_PATH)
+    print("Getting client data")
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}-data.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}-assets-json.zip')
 
     # add datapack base
     print("Copying base files")

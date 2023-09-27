@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     entry: Object,
@@ -10,8 +10,8 @@ const props = defineProps({
 
 defineEmits(['toggle'])
 
-const icon = await props.icons?.(props.entry)
-const color = await props.colors?.(props.entry)
+const icon = computed(() => props.icons?.(props.entry?.id))
+const color = computed(() => props.colors?.(props.entry?.id))
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const color = await props.colors?.(props.entry)
     >
         <img v-if="icon" :src="icon" crossorigin="anonymous" />
         <div v-if="color" class="color_display" :style="{ 'background-color': color }"></div>
-        <div class="text">{{ entry?.path }}</div>
+        <div class="text">{{ entry?.localized }}</div>
     </div>
 </template>
 

@@ -64,9 +64,22 @@ async function loadZip(event: MouseEvent) {
             [fileHandle] = await window.showOpenFilePicker({
                 types: [
                     {
-                        description: "Zip files",
+                        description: i18n.t('dropdown.add.picker.pack_and_mod'),
                         accept: {
-                            "application/zip": [".zip"]
+                            "application/zip": [".zip"],
+                            "application/java-archive": [".jar"]
+                        }
+                    },
+                    {
+                        description: i18n.t('dropdown.add.picker.pack'),
+                        accept: {
+                            "application/zip": [".zip"],
+                        }
+                    },
+                    {
+                        description: i18n.t('dropdown.add.picker.mod'),
+                        accept: {
+                            "application/java-archive": [".jar"]
                         }
                     }
                 ]
@@ -82,7 +95,7 @@ async function loadZip(event: MouseEvent) {
     } else {
         const input = document.createElement('input') as HTMLInputElement
         input.type = 'file'
-        input.accept = '.zip'
+        input.accept = '.zip,.jar'
 
         input.onchange = async (evt) => {
             const file = (evt.target as HTMLInputElement).files![0]
@@ -126,7 +139,7 @@ async function loadFolder(event: MouseEvent) {
 const PRESET_DATAPACKS = computed(() => {
     const presets = []
     if (settingsStore.mc_version === "1_19"){
-        presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add_datapack.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
+        presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
     }
     return presets
 })
@@ -135,23 +148,24 @@ const PRESET_DATAPACKS = computed(() => {
 
 <template>
     <Dropdown>
-        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add_datapack.zip')
+        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add.zip')
         }}</DropdownEntry>
         <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
-            $t('dropdown.add_datapack.folder') }} </DropdownEntry>
+            $t('dropdown.add.folder') }} </DropdownEntry>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
-        <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add_datapack.built_in.title') }} </div>
+        <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
         <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);"
             @keypress.enter="loadUrl(preset.url)">{{ $t(preset.message_key) }}</DropdownEntry>
         <div class="spacer"></div>
-        <div class="title">{{ $t('dropdown.add_datapack.recents.title') }}</div>
+        <div class="title">{{ $t('dropdown.add.recents.title') }}</div>
         <div class="enable" v-if="recentStore.avalible && !recentStore.enabled" @click="recentStore.enable()"
             @keypress.enter="recentStore.enable()" tabindex="0">
-            {{ $t('dropdown.add_datapack.recents.enable') }}
-            <div class="note">{{ $t('dropdown.add_datapack.recents.enable.note') }}</div>
+            {{ $t('dropdown.add.recents.enable') }}
+            <div class="note">{{ $t('dropdown.add.recents.enable.note') }}</div>
         </div>
-        <div class="empty" v-if="recentStore.avalible && recentStore.enabled && recentStore.recents.length === 0">--- {{ $t('dropdown.add_datapack.recents.empty')}} ---</div>
-        <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add_datapack.recents.unavailable')}}</div>
+        <div class="empty" v-if="recentStore.avalible && recentStore.enabled && recentStore.recents.length === 0">--- {{
+            $t('dropdown.add.recents.empty') }} ---</div>
+        <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
         <DropdownEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle.name"
             @click="loadHandle(recent.fileHandle)"> {{ recent.text }} </DropdownEntry>
     </Dropdown>
@@ -167,7 +181,7 @@ const PRESET_DATAPACKS = computed(() => {
     margin-bottom: 0rem;
 }
 
-.title{
+.title {
     color: rgb(53, 53, 53);
     text-align: left;
     width: 100%;
@@ -177,7 +191,7 @@ const PRESET_DATAPACKS = computed(() => {
     margin-bottom: 0.2rem;
 }
 
-.enable{
+.enable {
     background-color: rgb(132, 171, 216);
     padding: 0.5rem;
     border-radius: 0.5rem;
@@ -186,11 +200,11 @@ const PRESET_DATAPACKS = computed(() => {
     text-align: center;
 }
 
-.enable .note{
+.enable .note {
     font-size: smaller;
 }
 
-.enable:hover{
+.enable:hover {
     background-color: rgb(178, 200, 226);
 }
 

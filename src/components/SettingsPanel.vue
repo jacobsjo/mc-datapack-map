@@ -35,13 +35,13 @@ function randomizeSeed() {
         <div class="setting">
             <div class="title">{{ $t('settings.world_preset.label') }}</div>
             <select :aria-label=" $t('settings.world_preset.aria-label')" v-model="settingsStore.world_preset">
-                <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ world_preset }}</option>
+                <option v-for="(world_preset, index) in world_presets" :value="world_preset">{{ settingsStore.getLocalizedName('generator', world_preset, false) }}</option>
             </select>
         </div>
         <div class="setting">
             <div class="title">{{ $t('settings.dimension.label') }}</div>
             <select :aria-label="$t('settings.dimension.aria-label')" v-model="settingsStore.dimension">
-                <option v-for="(dimension, index) in dimensions" :value="dimension">{{ dimension }}</option>
+                <option v-for="(dimension, index) in dimensions" :value="dimension">{{ settingsStore.getLocalizedName('dimension', dimension, false) }}</option>
             </select>
         </div>
         <div class="setting">

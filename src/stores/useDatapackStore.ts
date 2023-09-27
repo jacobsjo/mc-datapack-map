@@ -1,14 +1,19 @@
 import { defineStore } from "pinia";
 
-import { AnonymousDatapack, Datapack, DatapackList, DataType } from "mc-datapack-loader"
+import { AnonymousDatapack, Datapack, DatapackList, ResourceLocation } from "mc-datapack-loader"
 import { computed, reactive, ref, watch } from "vue";
 import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
 import { versionDatapackFormat, versionVanillaDatapack } from "../util";
+import { I18nInjectionKey, useI18n } from "vue-i18n";
+
+import messages from '@intlify/unplugin-vue-i18n/messages'
 
 const VANILLA_DATAVERSION = 15 // used independent of version
 
+
 export const useDatapackStore = defineStore('datapacks', () => {
+    const i18n = useI18n()
     const settingsStore = useSettingsStore()
 
     const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, VANILLA_DATAVERSION)
@@ -42,8 +47,8 @@ export const useDatapackStore = defineStore('datapacks', () => {
     })
 
     const dimensions = computed(async () => {
-        const world_preset_json = await composite_datapack.get("worldgen/world_preset", settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
-        return (await composite_datapack.getIds("dimension")).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
+        const world_preset_json = await composite_datapack.get(ResourceLocation.WORLDGEN_WORLD_PRESET, settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
+        return (await composite_datapack.getIds(ResourceLocation.DIMENSION)).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
                 t.equals(value)
             ))
@@ -52,44 +57,61 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     const world_presets = computed(async () => {
         // TODO use deepslate HolderSet 
-        const normal_world_preset_tag = await composite_datapack.get("tags/worldgen/world_preset", Identifier.create("normal")) as { values: string[] }
+        const normal_world_preset_tag = await composite_datapack.get(ResourceLocation.WORLDGEN_WORLD_PRESET_TAG, Identifier.create("normal")) as { values: string[] }
         return normal_world_preset_tag.values.map(id => Identifier.parse(id))
     })
 
     const registered = computed(reloadDatapack)
 
-    async function registerType<T>(path: DataType.Path, registry: Registry<T>, loader: (json: any, id: Identifier) => (T | (() => T))): Promise<void>{
+    async function registerType<T>(location: ResourceLocation, registry: Registry<T>, loader: (json: any, id: Identifier) => (T | (() => T))): Promise<void>{
         registry.clear()
-        await Promise.all((await composite_datapack.getIds(path)).map(id => new Promise<void>(async (resolve) => {
+        await Promise.all((await composite_datapack.getIds(location)).map(id => new Promise<void>(async (resolve) => {
             try {
-                const data = await composite_datapack.get(path, id)
+                const data = await composite_datapack.get(location, id)
                 registry.register(id, loader(data, id))
             } catch (e) {
-                console.warn(`Failed to load ${path}: ${id.toString()}: ${e}`)
+                console.warn(`Failed to load ${location}: ${id.toString()}: ${e}`)
             }
             resolve()
         })))
     }
 
-    async function registerTag<T>(path: DataType.Path, registry: Registry<T>){
-        await registerType(path, registry.getTagRegistry(), (json, id) => HolderSet.fromJson<T>(registry, json, id))
+    async function registerTag<T>(location: ResourceLocation, registry: Registry<T>){
+        await registerType(location, registry.getTagRegistry(), (json, id) => HolderSet.fromJson<T>(registry, json, id))
     }
 
     async function reloadDatapack() {
         const promises: Promise<void>[] = []
-        promises.push(registerType("worldgen/density_function", WorldgenRegistries.DENSITY_FUNCTION, (json) => new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))))
-        promises.push(registerType("worldgen/noise", WorldgenRegistries.NOISE, NoiseParameters.fromJson))
-        promises.push(registerType("worldgen/structure_set", StructureSet.REGISTRY, StructureSet.fromJson))
-        promises.push(registerType("worldgen/template_pool", StructureTemplatePool.REGISTRY, StructureTemplatePool.fromJson))
-        promises.push(registerType("structures", Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
+        promises.push(registerType(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, WorldgenRegistries.DENSITY_FUNCTION, (json) => new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))))
+        promises.push(registerType(ResourceLocation.WORLDGEN_NOISE, WorldgenRegistries.NOISE, NoiseParameters.fromJson))
+        promises.push(registerType(ResourceLocation.WORLDGEN_STRUCTURE_SET, StructureSet.REGISTRY, StructureSet.fromJson))
+        promises.push(registerType(ResourceLocation.WORLDGEN_TEMPLATE_POOL, StructureTemplatePool.REGISTRY, StructureTemplatePool.fromJson))
+        promises.push(registerType(ResourceLocation.STRUCTURE, Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
         promises.push(new Promise(async (resolve) => {
-            await registerType("worldgen/biome", WorldgenRegistries.BIOME, () => {return {}})
-            await registerTag("tags/worldgen/biome", WorldgenRegistries.BIOME)
-            await registerType("worldgen/structure", WorldgenStructure.REGISTRY, WorldgenStructure.fromJson)
-            await registerTag("tags/worldgen/structure", WorldgenStructure.REGISTRY)
+            await registerType(ResourceLocation.WORLDGEN_BIOME, WorldgenRegistries.BIOME, () => {return {}})
+            await registerTag(ResourceLocation.WORLDGEN_BIOME_TAG, WorldgenRegistries.BIOME)
+            await registerType(ResourceLocation.WORLDGEN_STRUCTURE, WorldgenStructure.REGISTRY, WorldgenStructure.fromJson)
+            await registerTag(ResourceLocation.WORLDGEN_STRUCTURE_TAG, WorldgenStructure.REGISTRY)
             resolve()
         }))
         await Promise.all(promises)
+
+        const langs = await composite_datapack.getIds(ResourceLocation.LANGUAGE)
+
+
+        for (const locale of i18n.availableLocales){
+            const minecraft_messages: {[key: string]: string} = {}
+            const minecraft_locale = i18n.t('locale.minecraft_locale', 1, {locale: locale})
+            for (const lang of langs.filter(l => l.path === minecraft_locale)){
+                const json = await composite_datapack.get(ResourceLocation.LANGUAGE, lang) as any
+                for (const key in json){
+                    minecraft_messages[`minecraft.${key}`] = json[key]
+                }
+            }
+
+            i18n.setLocaleMessage(locale, messages[locale]) 
+            i18n.mergeLocaleMessage(locale, minecraft_messages)
+        }
     }
 
     function addDatapack(datapack: Datapack) {

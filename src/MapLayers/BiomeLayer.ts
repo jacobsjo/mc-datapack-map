@@ -8,6 +8,7 @@ import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useDatapackStore } from "../stores/useDatapackStore";
 import { Ref, toRaw, watch } from "vue";
+import { ResourceLocation } from "mc-datapack-loader";
 
 const WORKER_COUNT = 4
 
@@ -202,13 +203,13 @@ export class BiomeLayer extends L.GridLayer {
 
 		if (do_update.registires) {
 			update.densityFunctions = {}
-			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/density_function")) {
-				update.densityFunctions[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/density_function", id)
+			for (const id of await this.datapackStore.composite_datapack.getIds(ResourceLocation.WORLDGEN_DENSITY_FUNCTION)) {
+				update.densityFunctions[id.toString()] = await this.datapackStore.composite_datapack.get(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, id)
 			}
 
 			update.noises = {}
-			for (const id of await this.datapackStore.composite_datapack.getIds("worldgen/noise")) {
-				update.noises[id.toString()] = await this.datapackStore.composite_datapack.get("worldgen/noise", id)
+			for (const id of await this.datapackStore.composite_datapack.getIds(ResourceLocation.WORLDGEN_NOISE)) {
+				update.noises[id.toString()] = await this.datapackStore.composite_datapack.get(ResourceLocation.WORLDGEN_NOISE, id)
 			}
 		}
 

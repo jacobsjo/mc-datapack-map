@@ -1,10 +1,15 @@
 import { Identifier } from "deepslate";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDatapackStore } from "./useDatapackStore";
 
 export const useSettingsStore = defineStore('settings', () => {
+    const i18n = useI18n()
 
+    const collator = computed(() => new Intl.Collator(i18n.locale.value.replace('_','-')))
+    
+    const dev_mode = ref(false)
     const mc_version = ref('1_20_2')
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
@@ -23,7 +28,14 @@ export const useSettingsStore = defineStore('settings', () => {
 
     })
 
+    function getLocalizedName(type: string, id: Identifier, path_only: boolean){
+        const fallbackString = path_only ? id.path : id.toString()
+        if (dev_mode.value){
+            return fallbackString
+        }
+        return i18n.t(`minecraft.${type}.${id.namespace}.${id.path.replace('/','.')}`, fallbackString)
+    }
 
 
-    return {mc_version, world_preset, dimension, seed}
+    return {mc_version, world_preset, dimension, seed, collator, dev_mode, getLocalizedName}
 })
