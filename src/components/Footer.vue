@@ -16,6 +16,7 @@ import LocaleChanger from './LocaleChanger.vue';
             <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ $t('footer.translate') }}</a>
             <a href="https://jacobsjo.eu" target="_blank">{{ $t('footer.other') }}</a>
             <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
+            <a href="https://github.com/jacobsjo/mc-datapack-map/wiki" target="_blank">{{ $t('footer.wiki') }}</a>
             <a href="https://github.com/sponsors/jacobsjo" class="highlight" target="_blank">{{ $t('footer.sponsor') }}</a>
         </div>
     </div>
