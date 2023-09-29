@@ -1,0 +1,32 @@
+name: Create Pull Request for Weblate Translations
+
+on:
+  schedule:
+    - cron: '0 16 * * 5'
+
+  workflow_dispatch:
+
+# Allow one concurrent deployment
+concurrency:
+  group: "weblate"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Create Pull Request
+        uses: devops-infra/action-pull-request@v0.5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: weblate
+          target_branch: main
+          title: Updated Translations from Weblate
+          template: .github/weblate_pull_request_template.md
+          label: weblate
+          get_diff: true
+          allow_no_diff: false
