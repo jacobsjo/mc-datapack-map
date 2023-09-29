@@ -2,4 +2,5 @@
 Updated translations from `weblate`
 
 ## Updated Files
-<!-- Diff files -->
+<!-- Diff files - START -->
+<!-- Diff files - END -->

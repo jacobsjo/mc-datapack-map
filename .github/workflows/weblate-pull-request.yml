@@ -1,8 +1,8 @@
 name: Create Pull Request for Weblate Translations
 
 on:
-  schedule:
-    - cron: '0 16 * * 5'
+  push:
+    branches: ["weblate"]
 
   workflow_dispatch:
 
