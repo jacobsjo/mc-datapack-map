@@ -23,7 +23,7 @@
     "datapack_list.remove_datapack.title": "移除包",
     "menu.search_biome.title": "查找群系",
     "menu.structure_positions.title": "结构位置",
-    "menu.reload_datapacks.title": "重载数据包",
+    "menu.reload_datapacks.title": "重载包",
     "dropdown.add.zip": "载入数据包或模组",
     "dropdown.add.folder": "打开文件夹",
     "dropdown.add.built_in.update_1_20": "更新至 1.20",
