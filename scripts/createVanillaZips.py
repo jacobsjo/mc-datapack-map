@@ -6,7 +6,7 @@ import shutil
 from shutil import copytree
 
 TMP_PATH = "/tmp/jacobsjo/createVanillaZips/"
-UPDATE_1_20_PATH = TMP_PATH + "data/minecraft/datapacks/update_1_20/"
+DATAPACK_PATH = TMP_PATH + "data/minecraft/datapacks/"
 
 REQUIRED_DATA_TYPES = [
     "worldgen/world_preset",
@@ -36,6 +36,7 @@ REQUIRED_DATA_TYPES = [
     "structures/village/savanna/zombie/town_centers/",
     "structures/village/snowy/zombie/town_centers/",
     "structures/village/taiga/zombie/town_centers/",
+    "structures/trial_chambers/corridor/end",
     "tags/worldgen/world_preset",
     "tags/worldgen/biome",
     "tags/worldgen/structure",
@@ -46,10 +47,12 @@ REQUIRED_ASSETS_TYPES = [
 ]
 
 REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_20/pack.mcmeta"]
+REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_21/pack.mcmeta"]
 
 for path in REQUIRED_DATA_TYPES:
     REQUIRED_PATHS.append("data/minecraft/" + path)
     REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_20/data/minecraft/" + path)
+    REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_21/data/minecraft/" + path)
 
 for path in REQUIRED_ASSETS_TYPES:
     REQUIRED_PATHS.append("assets/minecraft/" + path)
@@ -63,7 +66,7 @@ def download_and_extract(url: str):
                     jar.extract(file, TMP_PATH)
 
 
-def main(version: str, include_update_1_20: bool, suffix: str = ""):
+def main(version: str, include_datapack: str = "", suffix: str = ""):
     # empty temp folder
     print("Emptying temp folder")
     emptyTmp()
@@ -78,10 +81,10 @@ def main(version: str, include_update_1_20: bool, suffix: str = ""):
     copytree("vanilla_datapack_base/", TMP_PATH, dirs_exist_ok=True)
 
     # zip back up
-    print("Creating fip files")
-    if include_update_1_20:
-        shutil.make_archive("public/vanilla_datapacks/update_1_20", 'zip', UPDATE_1_20_PATH)
-        shutil.rmtree(UPDATE_1_20_PATH)
+    print("Creating zip files")
+    if include_datapack != "":
+        shutil.make_archive("public/vanilla_datapacks/" + include_datapack, 'zip', DATAPACK_PATH + include_datapack + "/")
+        shutil.rmtree(DATAPACK_PATH + include_datapack + "/")
 
     shutil.make_archive("public/vanilla_datapacks/vanilla" + suffix, 'zip', TMP_PATH)
 
@@ -94,5 +97,5 @@ def emptyTmp():
 
 
 if __name__ == "__main__":
-    main('1.19.4', True, "_1_19")
-    main('1.20', False, "_1_20")
+    main('1.19.4', "update_1_20", "_1_19")
+    main('23w45a', "update_1_21", "_1_20")

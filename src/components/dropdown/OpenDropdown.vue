@@ -138,8 +138,13 @@ async function loadFolder(event: MouseEvent) {
 
 const PRESET_DATAPACKS = computed(() => {
     const presets = []
-    if (settingsStore.mc_version === "1_19"){
-        presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
+    switch (settingsStore.mc_version){
+        case "1_19":
+            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
+            break
+        case "1_20_2":
+            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/update_1_21.zip" })
+            break
     }
     return presets
 })
