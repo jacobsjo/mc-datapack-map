@@ -13,6 +13,11 @@ function updateUrlSearch(locale: string) {
 </script>
 
 <template>
+    <div class="locale-info">
+        <a v-bind:href="`https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/${$i18n.locale}`" target="_blank">
+            <img v-bind:src="`https://weblate.catter.dev/widget/jacobsjo/mc-datapack-map/${$i18n.locale}/svg-badge.svg`" alt="Translation status" />
+        </a>
+    </div>
     <div class="locale-changer">
         <font-awesome-icon icon="fa-earth-europe" class="icon" :title="$t('locale.change_locale.title')" />
         <select v-model="$i18n.locale" @change="() => updateUrlSearch($i18n.locale)">
@@ -28,6 +33,11 @@ function updateUrlSearch(locale: string) {
 </template>
 
 <style scoped>
+    .locale-info {
+        width: 100%;
+        text-align: right;
+    }
+
     .locale-changer {
         width: 100%;
         padding-bottom: 0.5rem;
