@@ -142,7 +142,7 @@ const PRESET_DATAPACKS = computed(() => {
         case "1_19":
             presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
             break
-        case "1_20_2":
+        case "1_20_3":
             presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/update_1_21.zip" })
             break
     }

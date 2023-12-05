@@ -7,6 +7,7 @@
     "settings.mc_version.mc1_19": "Minecraft 1.19.x",
     "settings.mc_version.mc1_20": "Minecraft 1.20 / 1.20.1",
     "settings.mc_version.mc1_20_2": "Minecraft 1.20.2",
+    "settings.mc_version.mc1_20_3": "Minecraft 1.20.3",
     "settings.dev_mode.label": "Developer Mode:",
     "settings.dev_mode.aria-label": "Developer Mode",
     "settings.world_preset.label": "World Preset:",

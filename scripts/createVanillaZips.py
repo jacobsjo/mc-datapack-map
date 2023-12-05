@@ -73,8 +73,8 @@ def main(version: str, include_datapack: str = "", suffix: str = ""):
 
     # get client jar
     print("Getting client data")
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}-data.zip')
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}-assets-json.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}data.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}assets-json.zip')
 
     # add datapack base
     print("Copying base files")
@@ -97,5 +97,7 @@ def emptyTmp():
 
 
 if __name__ == "__main__":
-    main('1.19.4', "update_1_20", "_1_19")
-    main('23w45a', "update_1_21", "_1_20")
+    main('1.19.4-', "update_1_20", "_1_19")
+    main('1.20.1-', "", "_1_20")
+    main('1.20.2-', "", "_1_20_2")
+    main('1.20.3-', "update_1_21", "_1_20_3")

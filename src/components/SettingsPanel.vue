@@ -29,6 +29,7 @@ function randomizeSeed() {
                 <option :value="'1_19'">{{ $t('settings.mc_version.mc1_19') }}</option>
                 <option :value="'1_20'">{{ $t('settings.mc_version.mc1_20') }}</option>
                 <option :value="'1_20_2'">{{ $t('settings.mc_version.mc1_20_2') }}</option>
+                <option :value="'1_20_3'">{{ $t('settings.mc_version.mc1_20_3') }}</option>
             </select>
         </div>
 
