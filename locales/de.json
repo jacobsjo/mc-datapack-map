@@ -79,5 +79,8 @@
     "minecraft.structure.minecraft.village_taiga": "Taigadorf",
     "menu.add.title": "Paket hinzufügen",
     "dropdown.add.picker.pack": "Pakete (*.zip)",
-    "dropdown.add.picker.mod": "Mods (*.jar)"
+    "dropdown.add.picker.mod": "Mods (*.jar)",
+    "settings.mc_version.mc1_20_3": "Minecraft 1.20.3",
+    "minecraft.structure.minecraft.trial_chambers": "Prüfungskammern",
+    "dropdown.add.built_in.update_1_21": "Update 1.21"
 }
