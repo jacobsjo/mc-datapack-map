@@ -34,13 +34,11 @@ function updateUrlSearch(locale: string) {
 
 <style scoped>
     .locale-info {
-        width: 100%;
         text-align: right;
     }
 
     .locale-changer {
         width: 100%;
-        padding-bottom: 0.5rem;
         display: flex;
         gap: 0.2rem;
     }
@@ -68,7 +66,11 @@ function updateUrlSearch(locale: string) {
         gap: 0.5rem;
         box-sizing: border-box;
         justify-content: center;
-        padding-bottom: 0.7rem;
+        flex-grow: 1;
+    }
+
+    .setting .title {
+        white-space: nowrap;
     }
 
 </style>

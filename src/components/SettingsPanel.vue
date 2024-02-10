@@ -77,6 +77,7 @@ function randomizeSeed() {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    height: 2rem;
 }
 
 .title {

@@ -1,24 +1,29 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import LocaleChanger from './LocaleChanger.vue';
 
+const show_more = ref(false)
 
 </script>
 
 <template>
     <div class="footer">
-        <LocaleChanger />
         <div class="smallprint">
             <p>Copyright © 2023 jacobsjo</p>
             <p id="note">{{  $t('footer.legel.note') }}</p>
             <a href="https://jacobsjo.eu/about.html" target="_blank">{{ $t('footer.about') }}</a>
+            <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
+            <a href="https://github.com/sponsors/jacobsjo" target="_blank">{{ $t('footer.sponsor') }}</a>
+            <a @click="show_more = !show_more" :class="{'highlight': show_more}">{{  $t('footer.more') }} </a>
+            <div v-if="show_more" class="more">
             <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ $t('footer.view_source') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ $t('footer.report_issue') }}</a>
             <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ $t('footer.translate') }}</a>
             <a href="https://jacobsjo.eu" target="_blank">{{ $t('footer.other') }}</a>
-            <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map/wiki" target="_blank">{{ $t('footer.wiki') }}</a>
-            <a href="https://github.com/sponsors/jacobsjo" class="highlight" target="_blank">{{ $t('footer.sponsor') }}</a>
+            </div>
         </div>
+        <LocaleChanger />
     </div>
 </template>
 
@@ -27,13 +32,12 @@ import LocaleChanger from './LocaleChanger.vue';
         margin-top: auto;
     }
 
-    .smallprint {
+    .smallprint, .smallprint .more {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 0.5rem;
         row-gap: 0rem;
-        height: 8rem;
     }
 
     a, p{
@@ -48,11 +52,11 @@ import LocaleChanger from './LocaleChanger.vue';
 
     #note {
         font-size: 8pt;
-        height: 2.8rem;
     }
 
     a {
         text-decoration: underline;
+        cursor: pointer;
     }
 
 
