@@ -74,12 +74,12 @@ export const versionVanillaDatapack: {[version: string]: string} = {
 	"1_19": "1_19",
 	"1_20": "1_20",
 	"1_20_2": "1_20_2",
-	"1_20_3": "1_20_3"
+	"1_20_4": "1_20_4"
 }
 
 export const versionDatapackFormat: {[version: string]: number} = {
 	"1_19": 12,
 	"1_20": 15,
 	"1_20_2": 18,
-	"1_20_3": 26
+	"1_20_4": 26
 }
