@@ -46,8 +46,11 @@ REQUIRED_ASSETS_TYPES = [
     "lang"
 ]
 
-REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_20/pack.mcmeta"]
-REQUIRED_PATHS = ["data/minecraft/datapacks/update_1_21/pack.mcmeta"]
+REQUIRED_PATHS = [
+    "pack.mcmeta",
+    "data/minecraft/datapacks/update_1_20/pack.mcmeta",
+    "data/minecraft/datapacks/update_1_21/pack.mcmeta"
+]
 
 for path in REQUIRED_DATA_TYPES:
     REQUIRED_PATHS.append("data/minecraft/" + path)
@@ -73,8 +76,8 @@ def main(version: str, include_datapack: str = "", suffix: str = ""):
 
     # get client jar
     print("Getting client data")
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}data.zip')
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/tags/{version}assets-json.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}assets-json.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}data.zip')
 
     # add datapack base
     print("Copying base files")
@@ -83,7 +86,7 @@ def main(version: str, include_datapack: str = "", suffix: str = ""):
     # zip back up
     print("Creating zip files")
     if include_datapack != "":
-        shutil.make_archive("public/vanilla_datapacks/" + include_datapack, 'zip', DATAPACK_PATH + include_datapack + "/")
+        shutil.make_archive("public/vanilla_datapacks/vanilla" + suffix + "_" + include_datapack, 'zip', DATAPACK_PATH + include_datapack + "/")
         shutil.rmtree(DATAPACK_PATH + include_datapack + "/")
 
     shutil.make_archive("public/vanilla_datapacks/vanilla" + suffix, 'zip', TMP_PATH)
@@ -97,7 +100,8 @@ def emptyTmp():
 
 
 if __name__ == "__main__":
-    main('1.19.4-', "update_1_20", "_1_19")
-    main('1.20.1-', "", "_1_20")
-    main('1.20.2-', "", "_1_20_2")
-    main('1.20.4-', "update_1_21", "_1_20_4")
+    main('tags/1.19.4-', "update_1_20", "_1_19")
+    main('tags/1.20.1-', "", "_1_20")
+    main('tags/1.20.2-', "", "_1_20_2")
+    main('tags/1.20.4-', "update_1_21", "_1_20_4")
+    main('heads/', "update_1_21", "_1_20_5")

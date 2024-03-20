@@ -15,7 +15,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const i18n = useI18n()
     const settingsStore = useSettingsStore()
 
-    const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, VANILLA_DATAVERSION)
+    const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, versionDatapackFormat[settingsStore.mc_version])
 
     let last_key = 0
     const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
@@ -25,8 +25,9 @@ export const useDatapackStore = defineStore('datapacks', () => {
         if (last_version === settingsStore.mc_version)
             return
 
-        const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, VANILLA_DATAVERSION)
+        const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, versionDatapackFormat[settingsStore.mc_version])
         datapacks[0].datapack = vanillaDatapack
+        datapacks[0].key = ++last_key
 
         const packVersion = versionDatapackFormat[settingsStore.mc_version]
         for (var i = 1; i < datapacks.length ; i++){

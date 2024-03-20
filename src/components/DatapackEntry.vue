@@ -1,21 +1,30 @@
 <script setup lang="ts">
-    import { Datapack } from 'mc-datapack-loader';
+import { Datapack, PackMcmeta } from 'mc-datapack-loader';
 import { TextComponent } from '../util/TextComponent';
 import MinecraftText from './MinecraftText.vue';
+import { useSettingsStore } from '../stores/useSettingsStore';
+import { versionDatapackFormat } from '../util';
+import { computed } from 'vue';
 
     const props = defineProps({
         datapack: Object
     })
-    
-    const image = await (props.datapack as Datapack)?.getImage()
+
+    const settings = useSettingsStore()
+
+
     const datapack = (props.datapack as Datapack)!
-    const rawDescription = (await datapack.getMcmeta())?.pack.description
+    const image = await datapack.getImage()
+    const mcMeta = await datapack.getMcmeta()
+    const rawDescription = mcMeta?.pack.description
+    const formatRange = mcMeta?.pack.supported_formats ?? mcMeta?.pack.pack_format ?? 0
+    const supported = computed(() => PackMcmeta.MatchFormatRange(formatRange, versionDatapackFormat[settings.mc_version]))
     const desciption = TextComponent.parse(rawDescription ?? "")
 
 </script>
 
 <template>
-    <div class="datapack">
+    <div class="datapack" :class="{ unsupported: !supported}">
         <img class="image" :src="image" alt="pack.png" />
         <div class="description">
             <MinecraftText :component="desciption" />
@@ -36,6 +45,10 @@ import MinecraftText from './MinecraftText.vue';
         position: relative;
         padding-right: 0.3rem;
         gap: 0.3rem;
+    }
+
+    .datapack.unsupported {
+        background-color: rgb(75, 41, 41);
     }
 
     .image {

@@ -140,10 +140,13 @@ const PRESET_DATAPACKS = computed(() => {
     const presets = []
     switch (settingsStore.mc_version){
         case "1_19":
-            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/update_1_20.zip" })
+            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/vanilla_1_19_update_1_20.zip" })
             break
-        case "1_20_3":
-            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/update_1_21.zip" })
+        case "1_20_4":
+            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/vanilla_1_20_4_update_1_21.zip" })
+            break
+        case "1_20_5":
+            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/vanilla_1_20_5_update_1_21.zip" })
             break
     }
     return presets
