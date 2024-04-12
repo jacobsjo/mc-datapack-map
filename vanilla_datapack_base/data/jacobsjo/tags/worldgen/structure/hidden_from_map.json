@@ -1,0 +1,17 @@
+{
+    "replace": false,
+    "values": [
+        "#minecraft:mineshaft",
+        "#minecraft:ruined_portal",
+        "minecraft:monument",
+        "minecraft:nether_fossil",
+        {
+            "id": "#c:hidden_from_displayers",
+            "required": false
+        },
+        {
+            "id": "#c:hide_on_map",
+            "required": false
+        }
+    ]
+}

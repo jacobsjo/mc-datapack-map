@@ -116,7 +116,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         handle_structure_icons("c", structure_icons_json, ld)
 
         // stable c:hide_on_map structure tag
-        for (const holder of WorldgenStructure.REGISTRY.getTagRegistry().get(new Identifier("c", "hide_on_map"))?.getEntries() ?? []){
+        for (const holder of WorldgenStructure.REGISTRY.getTagRegistry().get(new Identifier("jacobsjo", "hidden_from_map"))?.getEntries() ?? []){
             ld.hidden_structures.add(holder.key()?.toString() ?? "")
         }
 
