@@ -1,7 +1,7 @@
 {
     "minecraft:ancient_city": {"item": "minecraft:sculk"},
     "minecraft:bastion_remnant": {"item": "minecraft:gold_block"},
-    "minecraft:buried_treasure": {"item": "minecraft:barrel"},
+    "minecraft:buried_treasure": {"item": "minecraft:chest"},
     "minecraft:desert_pyramid": {"item": "minecraft:skull_pottery_sherd"},
     "minecraft:end_city": {"item": "minecraft:purpur_pillar"},
     "minecraft:fortress": {"item": "minecraft:nether_bricks"},
