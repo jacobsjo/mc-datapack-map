@@ -104,4 +104,6 @@ if __name__ == "__main__":
     main('tags/1.20.1-', "", "_1_20")
     main('tags/1.20.2-', "", "_1_20_2")
     main('tags/1.20.4-', "update_1_21", "_1_20_4")
-    main('heads/', "update_1_21", "_1_20_5")
+    main('tags/1.20.5-', "update_1_21", "_1_20_5")
+
+#    main('heads/', "update_1_21", "_1_20_5")

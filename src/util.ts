@@ -83,5 +83,5 @@ export const versionDatapackFormat: {[version: string]: number} = {
 	"1_20": 15,
 	"1_20_2": 18,
 	"1_20_4": 26,
-	"1_20_5": 36
+	"1_20_5": 41
 }
