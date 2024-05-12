@@ -26,10 +26,11 @@ const color = computed(() => props.colors?.(props.entry?.id))
             }
         }"    
         tabindex="0"
+        :title=" entry?.localized"
     >
         <img v-if="icon" :src="icon" crossorigin="anonymous" />
         <div v-if="color" class="color_display" :style="{ 'background-color': color }"></div>
-        <div class="text">{{ entry?.localized }}</div>
+        <div class="text"><div class="text_part" v-for="part in entry?.localized.split(/(?=\/)/g)">{{ part }}</div></div>
     </div>
 </template>
 
@@ -77,8 +78,22 @@ img {
 .text {
     height: fit-content;
     overflow: hidden;
-    text-overflow: ellipsis;
     flex-grow: 1;
     width: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 0rem;
+}
+
+.text_part {
+    white-space: nowrap;
+    flex-shrink: 10000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 2rem;
+}
+
+.text :last-child.text_part {
+    flex-shrink: 1;
 }
 </style>
