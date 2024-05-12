@@ -43,11 +43,12 @@ var needs_zoom = ref(false)
 
 onMounted(() => {
     map = L.map("map", {
-        zoom: 15,
-        minZoom: 13,
-        maxZoom: 20,
+        zoom: -2,
+        minZoom: -6,
+        maxZoom: 1,
         center: [0, 0],
-        zoomControl: false
+        zoomControl: false,
+        crs: L.CRS.Simple
     })
 
     L.control.zoom({
@@ -56,14 +57,13 @@ onMounted(() => {
 
     layer = new BiomeLayer({
             tileSize: 256,
+            minZoom: -100
         },
         do_hillshade,
         show_sealevel,
         project_down,
         y
     )
-
-    map.options.crs!.scale(1.5)
 
     map.addLayer(layer)
 
@@ -110,9 +110,6 @@ onMounted(() => {
         setTimeout(updateMarkers, 5)
     })
 
-    map.on("zoomend", () => {
-        console.log(map.getZoom())
-    })
     /*
     layer.on("tileunload", (evt) => {
         // @ts-expect-error: _tileCoordsToBounds does not exist
@@ -166,14 +163,15 @@ function updateMarkers() {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
 
-        var minZoom = 20
+        var minZoom = 2
 
         if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
             set.placement.prepare(biomeSource, loadedDimensionStore.sampler, settingsStore.seed)
-            minZoom = 15
+            minZoom = -2
         } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
             const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
-            minZoom = 18 - Math.log2(0.01/chunkFrequency)
+            minZoom = -Math.log2(1/(chunkFrequency * 256))
+            console.log(minZoom)
         }
 
         if (map.getZoom() >= minZoom){
