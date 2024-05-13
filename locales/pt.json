@@ -76,7 +76,7 @@
     "settings.dimension.aria-label": "Dimensão",
     "settings.seed.label": "Semente:",
     "settings.seed.aria-label": "Semente",
-    "map.tooltip.spawn": "Ponto de ressurgimento",
+    "map.tooltip.spawn": "Ponto de nascimento",
     "map.yslider.aria-label": "Camada Y",
     "map.yslider.y-label": "Y: {y}",
     "map.setting.project": "Mover a localização para a superfície",
