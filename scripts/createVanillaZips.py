@@ -43,7 +43,12 @@ REQUIRED_DATA_TYPES = [
 ]
 
 REQUIRED_ASSETS_TYPES = [
-    "lang"
+    "lang/de_de",
+    "lang/en_us",
+    "lang/fr_fr",
+    "lang/pt_br",
+    "lang/ru_ru",
+    "lang/zh_cn"
 ]
 
 REQUIRED_PATHS = [
