@@ -1,21 +1,19 @@
 import { defineStore } from "pinia";
 
 import { AnonymousDatapack, Datapack, DatapackList, ResourceLocation } from "mc-datapack-loader"
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive } from "vue";
 import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
-import { versionDatapackFormat, versionVanillaDatapack } from "../util";
-import { I18nInjectionKey, useI18n } from "vue-i18n";
-
-
-const VANILLA_DATAVERSION = 15 // used independent of version
+import { versionMetadata } from "../util";
+import { useI18n } from "vue-i18n";
 
 
 export const useDatapackStore = defineStore('datapacks', () => {
     const i18n = useI18n()
     const settingsStore = useSettingsStore()
 
-    const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, versionDatapackFormat[settingsStore.mc_version])
+    const metadata = versionMetadata[settingsStore.mc_version];
+    const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${metadata.vanillaDatapack}.zip`, metadata.datapackFormat)
 
     let last_key = 0
     const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
@@ -25,13 +23,13 @@ export const useDatapackStore = defineStore('datapacks', () => {
         if (last_version === settingsStore.mc_version)
             return
 
-        const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${versionVanillaDatapack[settingsStore.mc_version]}.zip`, versionDatapackFormat[settingsStore.mc_version])
+        const metadata = versionMetadata[settingsStore.mc_version];
+        const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${metadata.vanillaDatapack}.zip`, metadata.datapackFormat)
         datapacks[0].datapack = vanillaDatapack
         datapacks[0].key = ++last_key
 
-        const packVersion = versionDatapackFormat[settingsStore.mc_version]
         for (var i = 1; i < datapacks.length ; i++){
-            datapacks[i].datapack.setPackVersion(packVersion)
+            datapacks[i].datapack.setPackVersion(metadata.datapackFormat)
         }
 
         console.log("updating mc version")
@@ -86,7 +84,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
         promises.push(registerType(ResourceLocation.WORLDGEN_NOISE, WorldgenRegistries.NOISE, NoiseParameters.fromJson))
         promises.push(registerType(ResourceLocation.WORLDGEN_STRUCTURE_SET, StructureSet.REGISTRY, StructureSet.fromJson))
         promises.push(registerType(ResourceLocation.WORLDGEN_TEMPLATE_POOL, StructureTemplatePool.REGISTRY, StructureTemplatePool.fromJson))
-        promises.push(registerType(ResourceLocation.STRUCTURE, Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
+        promises.push(registerType(versionMetadata[settingsStore.mc_version].resourceLocations.structure, Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
         promises.push(new Promise(async (resolve) => {
             await registerType(ResourceLocation.WORLDGEN_BIOME, WorldgenRegistries.BIOME, () => {return {}})
             await registerTag(ResourceLocation.WORLDGEN_BIOME_TAG, WorldgenRegistries.BIOME)

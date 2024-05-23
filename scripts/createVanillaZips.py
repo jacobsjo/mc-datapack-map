@@ -8,6 +8,27 @@ from shutil import copytree
 TMP_PATH = "/tmp/jacobsjo/createVanillaZips/"
 DATAPACK_PATH = TMP_PATH + "data/minecraft/datapacks/"
 
+REQUIRED_STRUCTURE_TEMPLATES = [
+    "ancient_city/city_center/city_center_",
+    "bastion/units/air_base",
+    "bastion/hoglin_stable/air_base",
+    "bastion/treasure/big_air_full",
+    "bastion/bridge/starting_pieces/entrance_base",
+    "pillager_outpost/base_plate",
+    "trail_ruins/tower/tower_",
+    "village/plains/town_centers/",
+    "village/desert/town_centers/",
+    "village/savanna/town_centers/",
+    "village/snowy/town_centers/",
+    "village/taiga/town_centers/",
+    "village/plains/zombie/town_centers/",
+    "village/desert/zombie/town_centers/",
+    "village/savanna/zombie/town_centers/",
+    "village/snowy/zombie/town_centers/",
+    "village/taiga/zombie/town_centers/",
+    "trial_chambers/corridor/end",
+]
+
 REQUIRED_DATA_TYPES = [
     "worldgen/world_preset",
     "worldgen/density_function",
@@ -19,28 +40,14 @@ REQUIRED_DATA_TYPES = [
     "worldgen/template_pool",
     "worldgen/multi_noise_biome_source_parameter_list",
     "dimension_type",
-    "structures/ancient_city/city_center/city_center_",
-    "structures/bastion/units/air_base",
-    "structures/bastion/hoglin_stable/air_base",
-    "structures/bastion/treasure/big_air_full",
-    "structures/bastion/bridge/starting_pieces/entrance_base",
-    "structures/pillager_outpost/base_plate",
-    "structures/trail_ruins/tower/tower_",
-    "structures/village/plains/town_centers/",
-    "structures/village/desert/town_centers/",
-    "structures/village/savanna/town_centers/",
-    "structures/village/snowy/town_centers/",
-    "structures/village/taiga/town_centers/",
-    "structures/village/plains/zombie/town_centers/",
-    "structures/village/desert/zombie/town_centers/",
-    "structures/village/savanna/zombie/town_centers/",
-    "structures/village/snowy/zombie/town_centers/",
-    "structures/village/taiga/zombie/town_centers/",
-    "structures/trial_chambers/corridor/end",
     "tags/worldgen/world_preset",
     "tags/worldgen/biome",
     "tags/worldgen/structure",
 ]
+
+for path in REQUIRED_STRUCTURE_TEMPLATES:
+    REQUIRED_DATA_TYPES.append(f'structures/{path}')
+    REQUIRED_DATA_TYPES.append(f'structure/{path}')
 
 REQUIRED_ASSETS_TYPES = [
     "lang/de_de",
@@ -58,9 +65,9 @@ REQUIRED_PATHS = [
 ]
 
 for path in REQUIRED_DATA_TYPES:
-    REQUIRED_PATHS.append("data/minecraft/" + path)
-    REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_20/data/minecraft/" + path)
-    REQUIRED_PATHS.append("data/minecraft/datapacks/update_1_21/data/minecraft/" + path)
+    REQUIRED_PATHS.append(f'data/minecraft/{path}')
+    REQUIRED_PATHS.append(f'data/minecraft/datapacks/update_1_20/data/minecraft/{path}')
+    REQUIRED_PATHS.append(f'data/minecraft/datapacks/update_1_21/data/minecraft/{path}')
 
 for path in REQUIRED_ASSETS_TYPES:
     REQUIRED_PATHS.append("assets/minecraft/" + path)
@@ -68,7 +75,7 @@ for path in REQUIRED_ASSETS_TYPES:
 def download_and_extract(url: str):
     with zipfile.ZipFile(io.BytesIO(requests.get(url).content)) as jar:
         for file in jar.infolist():
-            file.filename = file.filename.split('/', 1)[1]
+            file.filename = file.filename.split('/', 1)[1].replace("structures")
             for path in REQUIRED_PATHS:
                 if (file.filename.startswith(path)):
                     jar.extract(file, TMP_PATH)
@@ -109,6 +116,5 @@ if __name__ == "__main__":
     main('tags/1.20.1-', "", "_1_20")
     main('tags/1.20.2-', "", "_1_20_2")
     main('tags/1.20.4-', "update_1_21", "_1_20_4")
-    main('tags/1.20.5-', "update_1_21", "_1_20_5")
-
-#    main('heads/', "update_1_21", "_1_20_5")
+    main('tags/1.20.6-', "update_1_21", "_1_20_6")
+    main('heads/', "", "_1_21")

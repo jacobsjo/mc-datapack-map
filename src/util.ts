@@ -1,4 +1,5 @@
 import { Climate, DensityFunction, Identifier, lerp, NoiseRouter, NoiseSettings, WorldgenRegistries } from "deepslate"
+import { ResourceLocation } from "mc-datapack-loader"
 
 export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
 	return new Climate.TargetPoint(
@@ -16,7 +17,7 @@ export function lerp2Climate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: 
 }
 
 
-function idIfExists(id: Identifier){
+function idIfExists(id: Identifier) {
 	if (WorldgenRegistries.DENSITY_FUNCTION.has(id))
 		return id
 	return undefined
@@ -29,7 +30,7 @@ function getDimensionDensityFunction(noise_settings_id: Identifier, dimension_id
 	return new Identifier(noise_settings_id.namespace, noiseSettingsPath.join("/") + "/snowcapped_surface")
 }
 
-export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier | undefined{
+export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier | undefined {
 	return idIfExists(new Identifier(noise_settings_id.namespace, noise_settings_id.path + "/snowcapped_surface"))
 		?? idIfExists(getDimensionDensityFunction(noise_settings_id, dimension_id))
 		?? idIfExists(new Identifier(noise_settings_id.namespace, "snowcapped_surface"))
@@ -70,18 +71,80 @@ export function hashCode(str: string) {
 	return hash;
 }
 
-export const versionVanillaDatapack: {[version: string]: string} = {
-	"1_19": "1_19",
-	"1_20": "1_20",
-	"1_20_2": "1_20_2",
-	"1_20_4": "1_20_4",
-	"1_20_5": "1_20_5"
+type Metadata = {
+	vanillaDatapack: string,
+	datapackFormat: number,
+	resourceLocations: {
+		structure: ResourceLocation
+	},
+	experimentalDatapacks: {
+		url: string,
+		translation_key: string
+	}[]
 }
 
-export const versionDatapackFormat: {[version: string]: number} = {
-	"1_19": 12,
-	"1_20": 15,
-	"1_20_2": 18,
-	"1_20_4": 26,
-	"1_20_5": 41
+export const versionMetadata: { [version: string]: Metadata } = {
+	"1_19": {
+		vanillaDatapack: "1_19",
+		experimentalDatapacks: [
+			{
+				url: "1_19_update_1_20",
+				translation_key: "dropdown.add.built_in.update_1_20"
+			}
+		],
+		datapackFormat: 12,
+		resourceLocations: {
+			structure: ResourceLocation.LEGACY_STRUCTURE
+		}
+	},
+	"1_20": {
+		vanillaDatapack: "1_20",
+		experimentalDatapacks: [],
+		datapackFormat: 15,
+		resourceLocations: {
+			structure: ResourceLocation.LEGACY_STRUCTURE
+		}
+	},
+	"1_20_2": {
+		vanillaDatapack: "1_20_2",
+		experimentalDatapacks: [],
+		datapackFormat: 18,
+		resourceLocations: {
+			structure: ResourceLocation.LEGACY_STRUCTURE
+		}
+	},
+	"1_20_4": {
+		vanillaDatapack: "1_20_4",
+		experimentalDatapacks: [
+			{
+				url: "1_20_4_update_1_21",
+				translation_key: "dropdown.add.built_in.update_1_21"
+			}
+		],
+		datapackFormat: 26,
+		resourceLocations: {
+			structure: ResourceLocation.LEGACY_STRUCTURE
+		}
+	},
+	"1_20_6": {
+		vanillaDatapack: "1_20_6",
+		experimentalDatapacks: [
+			{
+				url: "1_20_6_update_1_21",
+				translation_key: "dropdown.add.built_in.update_1_21"
+			}
+		],
+		datapackFormat: 41,
+		resourceLocations: {
+			structure: ResourceLocation.LEGACY_STRUCTURE
+		}
+	},
+	"1_21": {
+		vanillaDatapack: "1_21",
+		experimentalDatapacks: [],
+		datapackFormat: 45,
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		}
+	},
 }

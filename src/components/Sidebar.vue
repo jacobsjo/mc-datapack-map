@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import { useRecentStore } from '../stores/useRecentStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
-import { versionDatapackFormat } from '../util';
+import { versionMetadata } from '../util';
 import DatapackSelection from './DatapackList.vue';
 import Footer from './Footer.vue';
 import MenuButtons from './MenuButtons.vue';
@@ -24,7 +24,7 @@ import SettingsPanel from './SettingsPanel.vue';
         ev.preventDefault()
         file_dragging.value = false
 
-        const datapackVersion = versionDatapackFormat[settingsStore.mc_version]
+        const datapackVersion = versionMetadata[settingsStore.mc_version].datapackFormat
 
         for (const item of ev.dataTransfer.items){
             if ("getAsFileSystemHandle" in item){

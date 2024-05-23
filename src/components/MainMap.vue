@@ -163,6 +163,8 @@ function updateMarkers() {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
 
+        console.log(set)
+
         var minZoom = 2
 
         if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
@@ -171,7 +173,6 @@ function updateMarkers() {
         } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
             const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
             minZoom = -Math.log2(1/(chunkFrequency * 256))
-            console.log(minZoom)
         }
 
         if (map.getZoom() >= minZoom){

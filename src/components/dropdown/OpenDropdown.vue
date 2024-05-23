@@ -7,7 +7,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRecentStore } from '../../stores/useRecentStore';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/useSettingsStore';
-import { versionDatapackFormat } from '../../util';
+import { versionMetadata } from '../../util';
 
 const i18n = useI18n()
 
@@ -25,10 +25,10 @@ async function loadHandle(handle: FileSystemHandle) {
         try {
             if (handle.kind === 'file') {
                 const file = await (handle as FileSystemFileHandle).getFile()
-                datapack = Datapack.fromZipFile(file, versionDatapackFormat[settingsStore.mc_version])
+                datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
                 recentStore.addRecent(handle, datapack)
             } else {
-                datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionDatapackFormat[settingsStore.mc_version])
+                datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
                 recentStore.addRecent(handle, datapack)
             }
             datapackStore.addDatapack(datapack)
@@ -45,7 +45,7 @@ async function loadHandle(handle: FileSystemHandle) {
 }
 
 async function loadUrl(url: string) {
-    const datapack = Datapack.fromZipUrl(url, versionDatapackFormat[settingsStore.mc_version])
+    const datapack = Datapack.fromZipUrl(url, versionMetadata[settingsStore.mc_version].datapackFormat)
     datapackStore.addDatapack(datapack)
     emit('close')
 }
@@ -53,7 +53,7 @@ async function loadUrl(url: string) {
 
 async function loadZip(event: MouseEvent) {
     async function addZipDatapack(file: File) {
-        const datapack = Datapack.fromZipFile(file, versionDatapackFormat[settingsStore.mc_version])
+        const datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
         datapackStore.addDatapack(datapack)
         return datapack
     }
@@ -113,7 +113,7 @@ async function loadFolder(event: MouseEvent) {
     if ("showDirectoryPicker" in window) {
         try {
             const handle = await window.showDirectoryPicker()
-            datapack = Datapack.fromFileSystemDirectoryHandle(handle, versionDatapackFormat[settingsStore.mc_version])
+            datapack = Datapack.fromFileSystemDirectoryHandle(handle, versionMetadata[settingsStore.mc_version].datapackFormat)
             recentStore.addRecent(handle, datapack)
         } catch (e) {
         }
@@ -124,7 +124,7 @@ async function loadFolder(event: MouseEvent) {
             input.webkitdirectory = true
 
             input.onchange = async () => {
-                resolve(Datapack.fromFileList(Array.from(input.files), versionDatapackFormat[settingsStore.mc_version]))
+                resolve(Datapack.fromFileList(Array.from(input.files), versionMetadata[settingsStore.mc_version].datapackFormat))
             }
             input.click()
         })
@@ -137,18 +137,11 @@ async function loadFolder(event: MouseEvent) {
 }
 
 const PRESET_DATAPACKS = computed(() => {
-    const presets = []
-    switch (settingsStore.mc_version){
-        case "1_19":
-            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_20", url: "vanilla_datapacks/vanilla_1_19_update_1_20.zip" })
-            break
-        case "1_20_4":
-            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/vanilla_1_20_4_update_1_21.zip" })
-            break
-        case "1_20_5":
-            presets.push({ image: UNKOWN_PACK, message_key: "dropdown.add.built_in.update_1_21", url: "vanilla_datapacks/vanilla_1_20_5_update_1_21.zip" })
-            break
-    }
+    const presets: {image: string, message_key: string, url: string }[] = []
+    versionMetadata[settingsStore.mc_version].experimentalDatapacks.forEach(ed => {
+        presets.push({ image: UNKOWN_PACK, message_key: ed.translation_key, url: `vanilla_datapacks/vanilla_${ed.url}`})
+    })
+
     return presets
 })
 

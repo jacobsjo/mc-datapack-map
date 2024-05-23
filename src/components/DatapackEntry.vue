@@ -3,7 +3,7 @@ import { Datapack, PackMcmeta } from 'mc-datapack-loader';
 import { TextComponent } from '../util/TextComponent';
 import MinecraftText from './MinecraftText.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
-import { versionDatapackFormat } from '../util';
+import { versionMetadata } from '../util';
 import { computed } from 'vue';
 
     const props = defineProps({
@@ -18,7 +18,7 @@ import { computed } from 'vue';
     const mcMeta = await datapack.getMcmeta()
     const rawDescription = mcMeta?.pack.description
     const formatRange = mcMeta?.pack.supported_formats ?? mcMeta?.pack.pack_format ?? 0
-    const supported = computed(() => PackMcmeta.MatchFormatRange(formatRange, versionDatapackFormat[settings.mc_version]))
+    const supported = computed(() => PackMcmeta.MatchFormatRange(formatRange, versionMetadata[settings.mc_version].datapackFormat))
     const desciption = TextComponent.parse(rawDescription ?? "")
 
 </script>

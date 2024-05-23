@@ -16,6 +16,7 @@
     "minecraft:stronghold": {"item": "minecraft:ender_eye"},
     "minecraft:swamp_hut": {"item": "minecraft:flower_pot"},
     "minecraft:trail_ruins": {"item": "minecraft:brush"},
+    "minecraft:trial_chambers": {"item": "minecraft:trial_spawner"},
     "minecraft:village_desert": {"item": "minecraft:sandstone_stairs"},
     "minecraft:village_plains": {"item": "minecraft:oak_stairs"},
     "minecraft:village_savanna": {"item": "minecraft:acacia_stairs"},
