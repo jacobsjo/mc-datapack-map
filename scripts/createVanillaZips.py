@@ -75,7 +75,7 @@ for path in REQUIRED_ASSETS_TYPES:
 def download_and_extract(url: str):
     with zipfile.ZipFile(io.BytesIO(requests.get(url).content)) as jar:
         for file in jar.infolist():
-            file.filename = file.filename.split('/', 1)[1].replace("structures")
+            file.filename = file.filename.split('/', 1)[1]
             for path in REQUIRED_PATHS:
                 if (file.filename.startswith(path)):
                     jar.extract(file, TMP_PATH)
