@@ -82,5 +82,8 @@
     "dropdown.add.picker.pack_and_mod": "Датапаки и моды",
     "dropdown.add.built_in.title": "Встроенные датапаки",
     "dropdown.add.recents.not_found": "Датапаки не найдены. Удаление из списка недавно использованных.",
-    "map.info.structures_hidden": "Некоторые структуры скрыты. Приблизьте, чтобы увидеть больше."
+    "map.info.structures_hidden": "Некоторые структуры скрыты. Приблизьте, чтобы увидеть больше.",
+    "footer.more": "больше…",
+    "settings.mc_version.mc1_21": "Майнкрафт 1.21",
+    "settings.mc_version.mc1_20_6": "Майнкрафт 1.20.6"
 }
