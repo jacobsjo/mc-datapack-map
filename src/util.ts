@@ -142,7 +142,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_21": {
 		vanillaDatapack: "1_21",
 		experimentalDatapacks: [],
-		datapackFormat: 45,
+		datapackFormat: 48,
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		}
