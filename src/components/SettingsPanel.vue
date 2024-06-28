@@ -4,6 +4,8 @@ import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 
+const MAX_LONG = BigInt("0x8000000000000000") // 2^63
+
 const datapackStore = useDatapackStore();
 const settingsStore = useSettingsStore()
 const dimensions = ref(await datapackStore.dimensions)
@@ -22,7 +24,10 @@ function randomizeSeed() {
 
 function parseSeed(input: string): bigint {
     if (/^[+-]?\d+$/.test(input)) {
-        return BigInt(input)
+        const value = BigInt(input)
+        if (value >= -MAX_LONG && value < MAX_LONG) {
+            return value
+        }
     }   
     //String hashCode() function from Java
     //https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
