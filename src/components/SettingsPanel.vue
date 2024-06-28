@@ -21,20 +21,19 @@ function randomizeSeed() {
 }
 
 function parseSeed(input: string): bigint {
-    try {
+    if (/^\d+$/.test(input)) {
         return BigInt(input)
-    } catch {
-        //String hashCode() function from Java
-        //https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
-        var hash = 0, i, chr;
-        if (input.length === 0) return BigInt(0);
-        for (i = 0; i < input.length; i++) {
-            chr = input.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return BigInt(hash);
+    }   
+    //String hashCode() function from Java
+    //https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+    var hash = 0, i, chr;
+    if (input.length === 0) return BigInt(0);
+    for (i = 0; i < input.length; i++) {
+        chr = input.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
     }
+    return BigInt(hash);
 }
 </script>
 
