@@ -21,7 +21,7 @@ function randomizeSeed() {
 }
 
 function parseSeed(input: string): bigint {
-    if (/^\d+$/.test(input)) {
+    if (/^[+-]?\d+$/.test(input)) {
         return BigInt(input)
     }   
     //String hashCode() function from Java
