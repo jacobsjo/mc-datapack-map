@@ -9,12 +9,14 @@ import DatapackSelection from './DatapackList.vue';
 import Footer from './Footer.vue';
 import MenuButtons from './MenuButtons.vue';
 import SettingsPanel from './SettingsPanel.vue';
+import TipMessage from './TipMessage.vue';
 
     const datapackStore = useDatapackStore()
     const settingsStore = useSettingsStore()
     const recentStore = useRecentStore();
 
     const file_dragging = ref(false)
+    const show_tipmessage = ref(true)
 
     async function dropHandler(ev: DragEvent){
 
@@ -70,6 +72,7 @@ import SettingsPanel from './SettingsPanel.vue';
         <Suspense>
             <SettingsPanel />
         </Suspense>
+        <TipMessage v-if="show_tipmessage" @close="show_tipmessage=false" />
         <DatapackSelection />
         <Footer @open_popup="$emit('open_popup')" />
     </div>

@@ -13,12 +13,11 @@ const show_more = ref(false)
             <p id="note">{{  $t('footer.legel.note') }}</p>
             <a href="https://jacobsjo.eu/about.html" target="_blank">{{ $t('footer.about') }}</a>
             <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
-            <a href="https://github.com/sponsors/jacobsjo" target="_blank">{{ $t('footer.sponsor') }}</a>
+            <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ $t('footer.translate') }}</a>
             <a @click="show_more = !show_more" :class="{'highlight': show_more}">{{  $t('footer.more') }} </a>
             <div v-if="show_more" class="more">
             <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ $t('footer.view_source') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ $t('footer.report_issue') }}</a>
-            <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ $t('footer.translate') }}</a>
             <a href="https://jacobsjo.eu" target="_blank">{{ $t('footer.other') }}</a>
             <a href="https://github.com/jacobsjo/mc-datapack-map/wiki" target="_blank">{{ $t('footer.wiki') }}</a>
             </div>
