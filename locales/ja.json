@@ -1,6 +1,6 @@
 {
     "locale.local_name": "日本語",
-    "locale.minecraft_locale": "ja_JP",
+    "locale.minecraft_locale": "ja_jp",
     "locale.change_locale.title": "言語選択",
     "settings.mc_version.label": "バージョン:",
     "settings.mc_version.mc1_19": "Minecraft 1.19.x",
