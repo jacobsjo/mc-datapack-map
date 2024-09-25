@@ -5,7 +5,7 @@ import { compile, computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
-import { getSurfaceDensityFunction, hashCode } from "../util";
+import { getCustomDensityFunction, hashCode } from "../util";
 import { useDatapackStore } from "./useDatapackStore";
 import { useSettingsStore } from "./useSettingsStore";
 
@@ -201,7 +201,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     })
 
     const surface_density_function = computed(() => {
-        const surface_density_function_id = getSurfaceDensityFunction(loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension)
+        const surface_density_function_id = getCustomDensityFunction("snowcapped_surface", loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension)
         if (surface_density_function_id !== undefined){
             return new DensityFunction.HolderHolder(Holder.reference(WorldgenRegistries.DENSITY_FUNCTION, surface_density_function_id)).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
         } else {

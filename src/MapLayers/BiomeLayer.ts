@@ -1,7 +1,7 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
 import { Climate } from "deepslate";
-import { calculateHillshade, getSurfaceDensityFunction, hashCode } from "../util";
+import { calculateHillshade, getCustomDensityFunction, hashCode } from "../util";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { useSearchStore } from "../stores/useBiomeSearchStore";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
@@ -18,9 +18,9 @@ type Tile = {
 	ctx: CanvasRenderingContext2D,
 	done: L.DoneCallback,
 	array?: {
-		climate: Climate.TargetPoint,
 		surface: number,
-		biome: string
+		biome: string,
+		terrain: number
 	}[][],
 	step?: number,
 	isRendering?: boolean,
@@ -130,7 +130,9 @@ export class BiomeLayer extends L.GridLayer {
 				let hillshade = 1.0
 				const y = project_down ? Math.min(tile.array[x + 1][z + 1].surface, this.y.value) : this.y.value
 				const belowSurface = y < tile.array[x + 1][z + 1].surface
-				if (do_hillshade && project_down && !belowSurface) {
+				if (tile.array[x + 1][z + 1].terrain < 0){
+					hillshade = 0.15
+				} else if (do_hillshade && project_down && !belowSurface) {
 
 					hillshade = calculateHillshade(
 						tile.array[x + 2][z + 1].surface - tile.array[x][z + 1].surface,
@@ -216,7 +218,8 @@ export class BiomeLayer extends L.GridLayer {
 		if (do_update.dimension) {
 			update.biomeSourceJson = toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json)
 			update.noiseGeneratorSettingsJson = toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json)
-			update.surfaceDensityFunctionId = getSurfaceDensityFunction(this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
+			update.surfaceDensityFunctionId = getCustomDensityFunction("snowcapped_surface", this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
+			update.terrainDensityFunctionId = getCustomDensityFunction("map_simple_terrain", this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
 		}
 
 		if (do_update.settings) {

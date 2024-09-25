@@ -11,6 +11,7 @@ class MultiNoiseCalculator {
 		sampler?: Climate.Sampler,
 		biomeSource?: BiomeSource,
 		surfaceDensityFunction?: DensityFunction,
+		terrainDensityFunction?: DensityFunction,
 		noiseGeneratorSettings?: NoiseGeneratorSettings
 		randomState?: RandomState
 		y: number,
@@ -32,6 +33,7 @@ class MultiNoiseCalculator {
 		densityFunctions?: { [key: string]: unknown },
 		noises?: { [key: string]: unknown },
 		surfaceDensityFunctionId?: string,
+		terrainDensityFunctionId?: string,
 		generationVersion?: number
 
 		seed?: bigint,
@@ -70,16 +72,27 @@ class MultiNoiseCalculator {
 			this.state.sampler = Climate.Sampler.fromRouter(this.state.randomState.router)
 		}
 
-		if (update.surfaceDensityFunctionId && this.state.randomState && this.state.noiseGeneratorSettings) {
+		if (this.state.randomState && this.state.noiseGeneratorSettings) {
 			if (update.surfaceDensityFunctionId === "<none>"){
 				this.state.surfaceDensityFunction = undefined
-			} else {
+			} else if (update.surfaceDensityFunctionId) {
 				this.state.surfaceDensityFunction = new DensityFunction.HolderHolder(
 					Holder.reference(
 						WorldgenRegistries.DENSITY_FUNCTION,
 						Identifier.parse(update.surfaceDensityFunctionId)
 					)).mapAll(this.state.randomState.createVisitor(this.state.noiseGeneratorSettings.noise, this.state.noiseGeneratorSettings.legacyRandomSource))
 			}
+
+			if (update.terrainDensityFunctionId === "<none>"){
+				this.state.terrainDensityFunction = undefined
+			} else if (update.terrainDensityFunctionId) {
+				this.state.terrainDensityFunction = new DensityFunction.HolderHolder(
+					Holder.reference(
+						WorldgenRegistries.DENSITY_FUNCTION,
+						Identifier.parse(update.terrainDensityFunctionId)
+					)).mapAll(this.state.randomState.createVisitor(this.state.noiseGeneratorSettings.noise, this.state.noiseGeneratorSettings.legacyRandomSource))
+			}
+			
 		}
 
 		this.taskQueue = []
@@ -109,7 +122,7 @@ class MultiNoiseCalculator {
 	}
 
 	private calculateMultiNoiseValues(key: string, min_x: number, min_z: number, max_x: number, max_z: number, tileSize: number): void {
-		const array: { surface: number, biome: string }[][] = Array(tileSize + 2)
+		const array: { surface: number, biome: string, terrain: number }[][] = Array(tileSize + 2)
 		const step = (max_x - min_x) / tileSize
 		for (let ix = -1; ix < tileSize + 2; ix++) {
 			array[ix] = Array(tileSize + 2)
@@ -119,7 +132,8 @@ class MultiNoiseCalculator {
 				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x * 4, 0, z * 4)) ?? Number.POSITIVE_INFINITY
 				const y = this.state.projectDown ? Math.min(surface, this.state.y) : this.state.y
 				const biome = this.state.biomeSource?.getBiome(x, y >> 2, z, this.state.sampler!).toString() ?? "minecraft:plains"
-				array[ix][iz] = { surface, biome }
+				const terrain = this.state.terrainDensityFunction?.compute(DensityFunction.context(x * 4, y , z * 4)) ?? Number.POSITIVE_INFINITY
+				array[ix][iz] = { surface, biome, terrain }
 			}
 		}
 

@@ -23,18 +23,18 @@ function idIfExists(id: Identifier) {
 	return undefined
 }
 
-function getDimensionDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier {
+function getDimensionDensityFunction(name: string, noise_settings_id: Identifier, dimension_id: Identifier): Identifier {
 	const dimensionName = dimension_id.path.split("/").reverse()[0]
 	const noiseSettingsPath = noise_settings_id.path.split("/")
 	noiseSettingsPath[noiseSettingsPath.length - 1] = `${dimensionName}_${noiseSettingsPath[noiseSettingsPath.length - 1]}`
-	return new Identifier(noise_settings_id.namespace, noiseSettingsPath.join("/") + "/snowcapped_surface")
+	return new Identifier(noise_settings_id.namespace, noiseSettingsPath.join("/") + "/" + name)
 }
 
-export function getSurfaceDensityFunction(noise_settings_id: Identifier, dimension_id: Identifier): Identifier | undefined {
-	return idIfExists(new Identifier(noise_settings_id.namespace, noise_settings_id.path + "/snowcapped_surface"))
-		?? idIfExists(getDimensionDensityFunction(noise_settings_id, dimension_id))
-		?? idIfExists(new Identifier(noise_settings_id.namespace, "snowcapped_surface"))
-		?? idIfExists(new Identifier("minecraft", "snowcapped_surface"))
+export function getCustomDensityFunction(name: string, noise_settings_id: Identifier, dimension_id: Identifier): Identifier | undefined {
+	return idIfExists(new Identifier(noise_settings_id.namespace, noise_settings_id.path + "/" + name))
+		?? idIfExists(getDimensionDensityFunction(name, noise_settings_id, dimension_id))
+		?? idIfExists(new Identifier(noise_settings_id.namespace, name))
+		?? idIfExists(new Identifier("minecraft", name))
 }
 
 const zenith = 20.0 * Math.PI / 180.0;
