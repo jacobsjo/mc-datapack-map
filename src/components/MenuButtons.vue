@@ -7,6 +7,7 @@ import { vOnClickOutside }from '@vueuse/components';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import StructureDropdown from './dropdown/StructureDropdown.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
+import { EventTracker } from '../util/EventTracker';
 
 const datapackStore = useDatapackStore()
 const searchStore = useSearchStore()
@@ -17,6 +18,7 @@ const searchBiomeDropdownOpen = ref(false)
 const structureDropdownOpen = ref(false)
 
 function reload(event: MouseEvent){
+    EventTracker.track("reload")
     datapackStore.$patch({})
 }
 

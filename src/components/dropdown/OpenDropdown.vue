@@ -8,6 +8,7 @@ import { useRecentStore } from '../../stores/useRecentStore';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { versionMetadata } from '../../util';
+import { EventTracker } from '../../util/EventTracker';
 
 const i18n = useI18n()
 
@@ -27,9 +28,11 @@ async function loadHandle(handle: FileSystemHandle) {
                 const file = await (handle as FileSystemFileHandle).getFile()
                 datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
                 recentStore.addRecent(handle, datapack)
+                EventTracker.track(`add_datapack/recent/zip`)
             } else {
                 datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
                 recentStore.addRecent(handle, datapack)
+                EventTracker.track(`add_datapack/recent/folder`)
             }
             datapackStore.addDatapack(datapack)
         } catch (e){
@@ -53,6 +56,7 @@ async function loadUrl(url: string) {
 
 async function loadZip(event: MouseEvent) {
     async function addZipDatapack(file: File) {
+        EventTracker.track(`add_datapack/zip`)
         const datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
         datapackStore.addDatapack(datapack)
         return datapack
@@ -131,6 +135,7 @@ async function loadFolder(event: MouseEvent) {
     }
 
     if (datapack !== undefined) {
+        EventTracker.track(`add_datapack/folder`)
         datapackStore.addDatapack(datapack)
     }
     emit('close')

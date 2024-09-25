@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDatapackStore } from "./useDatapackStore";
+import { EventTracker } from "../util/EventTracker";
 
 export const useSettingsStore = defineStore('settings', () => {
     const i18n = useI18n()
@@ -16,6 +17,26 @@ export const useSettingsStore = defineStore('settings', () => {
     const seed = ref(BigInt(0))
 
     const datapackStore = useDatapackStore()
+
+    watch(mc_version, (new_version) => {
+        EventTracker.track(`change_version/${new_version}`)
+    })
+
+    watch(world_preset, () => {
+        EventTracker.track(`change_world_preset`)
+    })
+
+    watch(dimension, () => {
+        EventTracker.track(`change_dimension`)
+    })
+
+    watch(seed, () => {
+        EventTracker.track(`change_seed`)
+    })
+
+    watch(dev_mode, (new_dev_mode) => {
+        EventTracker.track(`change_dev_mode/${new_dev_mode}`)
+    })
 
     datapackStore.$subscribe(async () => {
         if ((await datapackStore.dimensions)?.findIndex((id) => id.equals(dimension.value)) === -1) {

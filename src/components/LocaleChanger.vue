@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSettingsStore } from '../stores/useSettingsStore';
+import { EventTracker } from '../util/EventTracker';
 
 const settingsStore = useSettingsStore()
 
@@ -8,6 +9,7 @@ function updateUrlSearch(locale: string) {
     const params = new URLSearchParams(uri)
     params.set('lang', locale)
     history.replaceState({}, "", "?" + params.toString())
+    EventTracker.track(`change_locale/${locale}`)
 }
 
 </script>
