@@ -30,10 +30,6 @@ export const useSettingsStore = defineStore('settings', () => {
         EventTracker.track(`change_dimension`)
     })
 
-    watch(seed, () => {
-        EventTracker.track(`change_seed`)
-    })
-
     watch(dev_mode, (new_dev_mode) => {
         EventTracker.track(`change_dev_mode/${new_dev_mode}`)
     })
