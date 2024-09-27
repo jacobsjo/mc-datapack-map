@@ -86,6 +86,7 @@
     "map.setting.project": "Move location down to surface",
     "map.setting.sealevel": "Show sea level",
     "map.setting.hillshade": "Enable hillshading",
+    "map.setting.graticule": "Show region grid",
     "tip_message.message": "If you find this map useful, I would appreciate a Tip!",
     "tip_message.kofi": "Buy Me a Coffee",
     "tip_message.github": "Sponsor",

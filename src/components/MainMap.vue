@@ -2,6 +2,7 @@
 import "leaflet/dist/leaflet.css";
 import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
+import { Graticule } from "../MapLayers/Graticule";
 import { onMounted, ref, watch } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, Structure, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
@@ -19,7 +20,8 @@ const settingsStore = useSettingsStore()
 const loadedDimensionStore = useLoadedDimensionStore()
 const i18n = useI18n()
 
-let layer: BiomeLayer
+let biomeLayer: BiomeLayer
+let graticule: Graticule
 
 const tooltip_left = ref(0)
 const tooltip_top = ref(0)
@@ -34,12 +36,24 @@ const project_down = ref(true)
 
 const y = ref(320)
 
+const show_graticule = ref(false)
+
+watch(show_graticule, (value) => {
+    if (value) {
+        map.addLayer(graticule)
+    } else {
+        map.removeLayer(graticule)
+    }
+})
+
 var map: L.Map
 var markers: L.LayerGroup
 var spawnMarker: L.Marker
 
 var marker_map = new Map<string, { marker?: L.Marker, structure?: Identifier }>()
 var needs_zoom = ref(false)
+
+
 
 onMounted(() => {
     map = L.map("map", {
@@ -55,7 +69,7 @@ onMounted(() => {
         position: "topright"
     }).addTo(map)
 
-    layer = new BiomeLayer({
+    biomeLayer = new BiomeLayer({
             tileSize: 256,
             minZoom: -100
         },
@@ -65,7 +79,7 @@ onMounted(() => {
         y
     )
 
-    map.addLayer(layer)
+    map.addLayer(biomeLayer)
 
     spawnMarker = L.marker({lat: 0, lng: 0}, {
         icon: L.icon({
@@ -109,6 +123,8 @@ onMounted(() => {
     map.on("moveend", (evt) => {
         setTimeout(updateMarkers, 5)
     })
+
+    graticule = new Graticule()
 
     /*
     layer.on("tileunload", (evt) => {
@@ -299,6 +315,7 @@ watch(searchStore.structures, () => {
             <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="$t('map.setting.project')" />
             <MapButton icon="fa-mountain-sun" :disabled="!project_down || loadedDimensionStore.surface_density_function === undefined" v-model="do_hillshade"  :title="$t('map.setting.hillshade')" />
             <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="$t('map.setting.sealevel')" />
+            <MapButton icon="fa-table-cells" v-model="show_graticule" :title="$t('map.setting.graticule')" />
         </div>
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{ left: tooltip_left + 'px', top: tooltip_top + 'px' }"
