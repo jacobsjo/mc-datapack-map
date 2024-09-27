@@ -130,7 +130,7 @@ export class BiomeLayer extends L.GridLayer {
 				let hillshade = 1.0
 				const y = project_down ? Math.min(tile.array[x + 1][z + 1].surface, this.y.value) : this.y.value
 				const belowSurface = y < tile.array[x + 1][z + 1].surface
-				if (tile.array[x + 1][z + 1].terrain < 0){
+				if (do_hillshade && tile.array[x + 1][z + 1].terrain < 0){
 					hillshade = 0.15
 				} else if (do_hillshade && project_down && !belowSurface) {
 

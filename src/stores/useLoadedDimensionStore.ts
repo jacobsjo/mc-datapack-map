@@ -209,6 +209,15 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         }
     })
 
+    const terrain_density_function = computed(() => {
+        const surface_density_function_id = getCustomDensityFunction("map_simple_terrain", loaded_dimension.noise_settings_id ?? Identifier.create("empty"), settingsStore.dimension)
+        if (surface_density_function_id !== undefined){
+            return new DensityFunction.HolderHolder(Holder.reference(WorldgenRegistries.DENSITY_FUNCTION, surface_density_function_id)).mapAll((random_state.value).createVisitor((noise_generator_settings.value).noise, (noise_generator_settings.value).legacyRandomSource))
+        } else {
+            return undefined
+        }
+    })    
+
     function getIcon(id: Identifier){
         const item = loaded_dimension.structure_icons?.get(id.toString()) ?? Identifier.create(VANILLA_ITEMS[Math.abs(hashCode(id.toString())) % VANILLA_ITEMS.length]) 
         return `https://raw.githubusercontent.com/jacobsjo/mcicons/icons/item/${item.path}.png`
@@ -231,6 +240,6 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         return biome_source
     }
 
-    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, reload, getIcon, getBiomeColor, getBiomeSource }
+    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, terrain_density_function, reload, getIcon, getBiomeColor, getBiomeSource }
 })
 

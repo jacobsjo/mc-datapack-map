@@ -25,7 +25,7 @@ defineEmits(['update:y'])
 
 <template>
     <div class="slider">
-        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="y_limits !== undefined" direction="btt" height="6rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
+        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="y_limits !== undefined" direction="btt" height="18rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
             v-bind:model-value="y"
             @change="y => $emit('update:y', y)"
             :max="y_limits[1]" :min="y_limits[0]"

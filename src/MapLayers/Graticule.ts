@@ -74,7 +74,6 @@ export class Graticule extends LayerGroup {
         var x_line_min = Math.floor(nw.x / distance) * distance
         var z_line_min = Math.floor(se.y / distance) * distance
 
-        console.log(x_line_count + ", " + z_line_count)
         var lines = new Array(x_line_count + z_line_count)
 
         for (var i = 0 ; i <= x_line_count ; i++){

@@ -140,7 +140,7 @@ function getPosition(map: L.Map, latlng: L.LatLng) {
     const pos = crs.project(latlng)
     pos.y *= -1
 
-    const surface = (loadedDimensionStore.surface_density_function)?.compute(DensityFunction.context((pos.x >> 2) << 2, 0, (pos.y >> 2) << 2)) ?? Number.POSITIVE_INFINITY
+    const surface = (loadedDimensionStore.surface_density_function)?.compute(DensityFunction.context((pos.x >> 2) << 2, y.value, (pos.y >> 2) << 2)) ?? Number.POSITIVE_INFINITY
 
     const pos_y: number = project_down.value ? Math.min(surface, y.value) : y.value
     return BlockPos.create(pos.x, pos_y, pos.y)
@@ -313,7 +313,7 @@ watch(searchStore.structures, () => {
                 <YSlider class="slider" v-model:y="y" />
             </Suspense>
             <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="$t('map.setting.project')" />
-            <MapButton icon="fa-mountain-sun" :disabled="!project_down || loadedDimensionStore.surface_density_function === undefined" v-model="do_hillshade"  :title="$t('map.setting.hillshade')" />
+            <MapButton icon="fa-mountain-sun" :disabled="(!project_down || loadedDimensionStore.surface_density_function === undefined) && ! loadedDimensionStore.terrain_density_function" v-model="do_hillshade"  :title="$t('map.setting.hillshade')" />
             <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="$t('map.setting.sealevel')" />
             <MapButton icon="fa-table-cells" v-model="show_graticule" :title="$t('map.setting.graticule')" />
         </div>

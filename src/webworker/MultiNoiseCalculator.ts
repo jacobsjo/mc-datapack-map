@@ -129,7 +129,7 @@ class MultiNoiseCalculator {
 			for (let iz = -1; iz < tileSize + 2; iz++) {
 				const x = ix * step + min_x
 				const z = iz * step + min_z
-				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x * 4, 0, z * 4)) ?? Number.POSITIVE_INFINITY
+				const surface = this.state.surfaceDensityFunction?.compute(DensityFunction.context(x * 4, this.state.y, z * 4)) ?? Number.POSITIVE_INFINITY
 				const y = this.state.projectDown ? Math.min(surface, this.state.y) : this.state.y
 				const biome = this.state.biomeSource?.getBiome(x, y >> 2, z, this.state.sampler!).toString() ?? "minecraft:plains"
 				const terrain = this.state.terrainDensityFunction?.compute(DensityFunction.context(x * 4, y , z * 4)) ?? Number.POSITIVE_INFINITY
