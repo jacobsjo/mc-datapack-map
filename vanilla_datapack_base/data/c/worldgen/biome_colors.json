@@ -50,6 +50,7 @@
     "minecraft:mangrove_swamp": { "r": 39, "g": 84, "b": 66 },
     "minecraft:deep_dark": { "r": 8, "g": 39, "b": 31 },
     "minecraft:cherry_grove": { "r": 220, "g": 138, "b": 221},
+    "minecraft:pale_garden": { "r": 144, "g": 144, "b": 144},
     "minecraft:soul_sand_valley": { "r": 140, "g": 132, "b": 108 },
     "minecraft:nether_wastes": { "r": 163, "g": 62, "b": 62 },
     "minecraft:crimson_forest": { "r": 219, "g": 60, "b": 46 },

@@ -147,4 +147,17 @@ export const versionMetadata: { [version: string]: Metadata } = {
 			structure: ResourceLocation.STRUCTURE
 		}
 	},
+	"1_21_2": {
+		vanillaDatapack: "1_21_2",
+		experimentalDatapacks: [
+			{
+				"url": "1_21_2_winter_drop",
+				"translation_key": "dropdown.add.built_in.winter_drop"
+			}
+		],
+		datapackFormat: 56,
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		}
+	},
 }

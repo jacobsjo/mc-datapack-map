@@ -63,13 +63,15 @@ REQUIRED_ASSETS_TYPES = [
 REQUIRED_PATHS = [
     "pack.mcmeta",
     "data/minecraft/datapacks/update_1_20/pack.mcmeta",
-    "data/minecraft/datapacks/update_1_21/pack.mcmeta"
+    "data/minecraft/datapacks/update_1_21/pack.mcmeta",
+    "data/minecraft/datapacks/winter_drop/pack.mcmeta"
 ]
 
 for path in REQUIRED_DATA_TYPES:
     REQUIRED_PATHS.append(f'data/minecraft/{path}')
     REQUIRED_PATHS.append(f'data/minecraft/datapacks/update_1_20/data/minecraft/{path}')
     REQUIRED_PATHS.append(f'data/minecraft/datapacks/update_1_21/data/minecraft/{path}')
+    REQUIRED_PATHS.append(f'data/minecraft/datapacks/winter_drop/data/minecraft/{path}')
 
 for path in REQUIRED_ASSETS_TYPES:
     REQUIRED_PATHS.append("assets/minecraft/" + path)
@@ -120,4 +122,4 @@ if __name__ == "__main__":
     main('tags/1.20.4-', "update_1_21", "_1_20_4")
     main('tags/1.20.6-', "update_1_21", "_1_20_6")
     main('tags/1.21-', "", "_1_21")
-#    main('heads/', "", "_1_21_next")
+    main('heads/', "winter_drop", "_1_21_2")

@@ -10,6 +10,8 @@ import { useSettingsStore } from '../../stores/useSettingsStore';
 import { versionMetadata } from '../../util';
 import { EventTracker } from '../../util/EventTracker';
 
+type Preset = {id: string, image: string, message_key: string, url: string }
+
 const i18n = useI18n()
 
 const settingsStore = useSettingsStore()
@@ -47,8 +49,9 @@ async function loadHandle(handle: FileSystemHandle) {
     emit('close')
 }
 
-async function loadUrl(url: string) {
-    const datapack = Datapack.fromZipUrl(url, versionMetadata[settingsStore.mc_version].datapackFormat)
+async function loadPreset(preset: Preset) {
+    EventTracker.track(`add_datapack/built_in/${preset.id}`)
+    const datapack = Datapack.fromZipUrl(preset.url, versionMetadata[settingsStore.mc_version].datapackFormat)
     datapackStore.addDatapack(datapack)
     emit('close')
 }
@@ -142,9 +145,9 @@ async function loadFolder(event: MouseEvent) {
 }
 
 const PRESET_DATAPACKS = computed(() => {
-    const presets: {image: string, message_key: string, url: string }[] = []
+    const presets: Preset[] = []
     versionMetadata[settingsStore.mc_version].experimentalDatapacks.forEach(ed => {
-        presets.push({ image: UNKOWN_PACK, message_key: ed.translation_key, url: `vanilla_datapacks/vanilla_${ed.url}`})
+        presets.push({id: ed.url, image: UNKOWN_PACK, message_key: ed.translation_key, url: `vanilla_datapacks/vanilla_${ed.url}.zip`})
     })
 
     return presets
@@ -160,8 +163,8 @@ const PRESET_DATAPACKS = computed(() => {
             $t('dropdown.add.folder') }} </DropdownEntry>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
         <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
-        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadUrl(preset.url);"
-            @keypress.enter="loadUrl(preset.url)">{{ $t(preset.message_key) }}</DropdownEntry>
+        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
+            @keypress.enter="loadPreset(preset)">{{ $t(preset.message_key) }}</DropdownEntry>
         <div class="spacer"></div>
         <div class="title">{{ $t('dropdown.add.recents.title') }}</div>
         <div class="enable" v-if="recentStore.avalible && !recentStore.enabled" @click="recentStore.enable()"

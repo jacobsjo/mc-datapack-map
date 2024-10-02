@@ -3,6 +3,7 @@ import { Identifier, XoroshiroRandom } from 'deepslate';
 import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
+import { versionMetadata } from '../util'
 
 const MAX_LONG = BigInt("0x8000000000000000") // 2^63
 
@@ -47,12 +48,7 @@ function parseSeed(input: string): bigint {
         <div class="setting">
             <div class="title">{{ $t('settings.mc_version.label') }}</div>
             <select :aria-label=" $t('settings.mc_version.aria-label')" v-model="settingsStore.mc_version">
-                <option :value="'1_19'">{{ $t('settings.mc_version.mc1_19') }}</option>
-                <option :value="'1_20'">{{ $t('settings.mc_version.mc1_20') }}</option>
-                <option :value="'1_20_2'">{{ $t('settings.mc_version.mc1_20_2') }}</option>
-                <option :value="'1_20_4'">{{ $t('settings.mc_version.mc1_20_4') }}</option>
-                <option :value="'1_20_6'">{{ $t('settings.mc_version.mc1_20_6') }}</option>
-                <option :value="'1_21'">{{ $t('settings.mc_version.mc1_21') }}</option>
+                <option v-for="version in Object.keys(versionMetadata)" :value="version">{{  $t(`settings.mc_version.mc${version}`)}}</option>
             </select>
         </div>
 
