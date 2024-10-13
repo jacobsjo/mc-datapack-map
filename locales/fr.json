@@ -83,5 +83,13 @@
     "dropdown.add.built_in.update_1_21": "Mise à jour 1.21",
     "toggle_sidebar.title": "Basculer la barre latérale",
     "map.info.structures_hidden": "Certaines structures sont cachées. Zoomez pour en voir plus.",
-    "footer.more": "plus…"
+    "footer.more": "plus…",
+    "settings.mc_version.mc1_20_6": "Minecraft 1.20.6",
+    "settings.mc_version.mc1_21": "Minecraft 1.21",
+    "tip_message.kofi": "Offrez moi un café",
+    "tip_message.message": "Si vous trouvez cette carte utile, j'accepte les pourboires !",
+    "tip_message.github": "Sponsor",
+    "tip_message.close": "Fermer",
+    "map.setting.graticule": "Montrer la grille de région",
+    "settings.mc_version.mc1_21_2": "Minecraft 1.21.2"
 }
