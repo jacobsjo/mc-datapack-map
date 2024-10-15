@@ -4,13 +4,14 @@ import { Climate, Json } from "deepslate";
 export class SpawnTarget{
 
     constructor(
-        private paramPoints: Climate.ParamPoint[]
+        private paramPoints: Climate.ParamPoint[],
+        private algorithm: SpawnTarget.Algorithm
     ){
 
     }
 
-    public static fromJson(obj: unknown){
-        return new SpawnTarget(Json.readArray(obj, Climate.ParamPoint.fromJson) ?? [])
+    public static fromJson(obj: unknown, algorithm: SpawnTarget.Algorithm){
+        return new SpawnTarget(Json.readArray(obj, Climate.ParamPoint.fromJson) ?? [], algorithm)
     }
 
     public getSpawnPoint(climateSampler: Climate.Sampler): [number, number] {
@@ -24,13 +25,17 @@ export class SpawnTarget{
         return result
 
         function getFitness(x: number, z: number){
-            const distanceFitness = Math.pow((x * x + z * z) / (2500 * 2500),2);
-
             const climate = climateSampler.sample(x >> 2, 0, z >> 2)
             const surfaceClimate = Climate.target(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0, climate.weirdness)            
             const climateFitness = Math.min(...self.paramPoints.map(p => p.fittness(surfaceClimate)))
 
-            return distanceFitness + climateFitness
+            switch (self.algorithm) {
+                case SpawnTarget.Algorithm.LEGACY_ZERO_BIASED:
+                    const distanceFitness = Math.pow((x * x + z * z) / (2500 * 2500),2);
+                    return distanceFitness + climateFitness
+                case SpawnTarget.Algorithm.BEST_CLIMATE:
+                    return BigInt(x*x + z*z) + BigInt(2048 * 2048) * BigInt(Math.floor(10000 * 10000 * climateFitness))
+            }
         }
 
         function radialSearch(maxRadius: number, radiusStep: number, centerX: number, centerZ: number) {
@@ -53,8 +58,16 @@ export class SpawnTarget{
                 }
             }
         }
-
-
     }
-
 }
+
+export namespace SpawnTarget {
+    export enum Algorithm {
+        LEGACY_ZERO_BIASED,
+        BEST_CLIMATE
+    }
+}
+
+    
+
+

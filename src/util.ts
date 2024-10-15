@@ -1,5 +1,6 @@
 import { Climate, DensityFunction, Identifier, lerp, NoiseRouter, NoiseSettings, WorldgenRegistries } from "deepslate"
 import { ResourceLocation } from "mc-datapack-loader"
+import { SpawnTarget } from "./util/SpawnTarget"
 
 export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
 	return new Climate.TargetPoint(
@@ -80,7 +81,8 @@ type Metadata = {
 	experimentalDatapacks: {
 		url: string,
 		translation_key: string
-	}[]
+	}[],
+	spawnAlgorithm: SpawnTarget.Algorithm
 }
 
 export const versionMetadata: { [version: string]: Metadata } = {
@@ -95,7 +97,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 12,
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_20": {
 		vanillaDatapack: "1_20",
@@ -103,7 +106,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 15,
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_20_2": {
 		vanillaDatapack: "1_20_2",
@@ -111,7 +115,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 18,
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_20_4": {
 		vanillaDatapack: "1_20_4",
@@ -124,7 +129,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 26,
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_20_6": {
 		vanillaDatapack: "1_20_6",
@@ -137,7 +143,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 41,
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_21": {
 		vanillaDatapack: "1_21",
@@ -145,7 +152,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 48,
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
 	"1_21_2": {
 		vanillaDatapack: "1_21_2",
@@ -158,6 +166,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		datapackFormat: 56,
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
-		}
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE
 	},
 }

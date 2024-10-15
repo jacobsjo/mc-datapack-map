@@ -14,6 +14,7 @@ import { CachedBiomeSource } from '../util/CachedBiomeSource';
 import MapButton from './MapButton.vue';
 import { SpawnTarget } from '../util/SpawnTarget';
 import { useI18n } from 'vue-i18n';
+import { versionMetadata } from "../util";
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
@@ -268,7 +269,7 @@ function getMarker(structureId: Identifier, chunk: ChunkPos) {
 function updateSpawnMarker(){
     if (settingsStore.dimension.equals(Identifier.create("overworld"))){
         const crs = map.options.crs!
-        const spawnTarget = SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target)
+        const spawnTarget = SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
         const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
         const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
         spawnMarker.setLatLng(crs.unproject(pos))
