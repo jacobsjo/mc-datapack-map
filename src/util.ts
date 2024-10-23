@@ -146,7 +146,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
-	"1_21": {
+	"1_21_1": {
 		vanillaDatapack: "1_21",
 		experimentalDatapacks: [],
 		datapackFormat: 48,
@@ -155,11 +155,11 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
 	},
-	"1_21_2": {
-		vanillaDatapack: "1_21_2",
+	"1_21_3": {
+		vanillaDatapack: "1_21_3",
 		experimentalDatapacks: [
 			{
-				"url": "1_21_2_winter_drop",
+				"url": "1_21_3_winter_drop",
 				"translation_key": "dropdown.add.built_in.winter_drop"
 			}
 		],

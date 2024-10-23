@@ -11,7 +11,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const collator = computed(() => new Intl.Collator(i18n.locale.value.replace('_','-')))
     
     const dev_mode = ref(false)
-    const mc_version = ref('1_21')
+    const mc_version = ref('1_21_3')
     const world_preset = ref(Identifier.create("normal"))
     const dimension = ref(Identifier.create("overworld"))
     const seed = ref(BigInt(0))
