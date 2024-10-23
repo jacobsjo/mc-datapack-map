@@ -163,7 +163,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 				"translation_key": "dropdown.add.built_in.winter_drop"
 			}
 		],
-		datapackFormat: 56,
+		datapackFormat: 57,
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
