@@ -1,4 +1,4 @@
-import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, DensityFunction, Holder, WorldgenRegistries, NoiseParameters, HolderSet, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, NoiseSettings } from "deepslate";
+import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, DensityFunction, Holder, WorldgenRegistries, NoiseParameters, HolderSet, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, NoiseSettings, LevelHeight } from "deepslate";
 import { ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
@@ -14,7 +14,7 @@ import messages from '@intlify/unplugin-vue-i18n/messages'
 export type LoadedDimension = {
     structure_icons?: Map<string, Identifier>,
     hidden_structures?: Set<string>
-    y_limits?: [number, number],
+    level_height?: LevelHeight,
     noise_settings_id?: Identifier,
     noise_settings_json?: {[x: string]: unknown},
     biome_source_json?: {[x: string]: unknown},
@@ -150,8 +150,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
         const dimension_type_id = Identifier.parse(dimension_json.type)
         const dimension_type_json = await datapackStore.composite_datapack.get(ResourceLocation.DIMENSION_TYPE, dimension_type_id) as any
-        ld.y_limits = [dimension_type_json.min_y, dimension_type_json.min_y + dimension_type_json.height]
-
+        ld.level_height = {minY: dimension_type_json.min_y, height: dimension_type_json.height}
 
         // get json of noise generator
         const generator = Json.readObject(dimension_json.generator) ?? {}
