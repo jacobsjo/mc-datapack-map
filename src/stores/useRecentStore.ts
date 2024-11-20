@@ -6,11 +6,11 @@ import { get, set } from 'idb-keyval'
 import { TextComponent } from "../util/TextComponent";
 
 
-type StoredDatapack = { img: string, text: string, fileHandle: FileSystemHandle }
+export type StoredDatapack = { img: string, text: string, fileHandle: FileSystemHandle, storedInOpfs?: boolean }
 
 export const useRecentStore = defineStore('recents', () => {
 
-    const avalible = "showDirectoryPicker" in window
+    const avalible = "showDirectoryPicker" in window || 'storage' in navigator
     const enabled = ref(false)
     const recents = ref<StoredDatapack[]>([])
 
@@ -33,7 +33,16 @@ export const useRecentStore = defineStore('recents', () => {
         set('recent-datapacks-handle', [])
     }
 
-    async function addRecent(fileHandle: FileSystemHandle, datapack: Datapack) {
+    async function storeAndAddRecent(file: File, datapack: Datapack) {
+        const opfsRoot = await navigator.storage.getDirectory()
+        const fileHandle = await opfsRoot.getFileHandle(file.name, {create: true})
+        const writable = await fileHandle.createWritable()
+        await writable.write(file)
+        await writable.close()
+        addRecent(fileHandle, datapack, true)
+    }
+
+    async function addRecent(fileHandle: FileSystemHandle, datapack: Datapack, storedInOpfs: boolean = false) {
         if (!enabled.value){
             return
         } 
@@ -54,11 +63,12 @@ export const useRecentStore = defineStore('recents', () => {
         recents.value.unshift({
             img: await datapack.getImage(),
             text: TextComponent.parse(pack.description).toString().split('\n')[0],
-            fileHandle: fileHandle
+            fileHandle: fileHandle,
+            storedInOpfs
         })
 
         set('recent-datapacks-meta', recents.value.map(v => {
-            return {img: v.img, text: v.text}
+            return {img: v.img, text: v.text, storedInOpfs: v.storedInOpfs}
         }))
 
         set('recent-datapacks-handle', recents.value.map(v => {
@@ -74,5 +84,5 @@ export const useRecentStore = defineStore('recents', () => {
         }
     }
 
-    return { avalible, enabled, recents, enable, addRecent, removeRecent }
+    return { avalible, enabled, recents, enable, addRecent, storeAndAddRecent, removeRecent }
 })

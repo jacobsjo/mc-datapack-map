@@ -4,7 +4,7 @@ import { Datapack, UNKOWN_PACK } from 'mc-datapack-loader';
 import DropdownEntry from './DropdownEntry.vue';
 import Dropdown from './Dropdown.vue';
 import { computed, onMounted, ref } from 'vue';
-import { useRecentStore } from '../../stores/useRecentStore';
+import { useRecentStore, StoredDatapack } from '../../stores/useRecentStore';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { versionMetadata } from '../../util';
@@ -19,30 +19,46 @@ const datapackStore = useDatapackStore();
 const recentStore = useRecentStore();
 const emit = defineEmits(['close'])
 
-async function loadHandle(handle: FileSystemHandle) {
-    const permission = await handle.requestPermission({mode: 'read'})
+async function loadRecent(recent: StoredDatapack) {
+    const handle = recent.fileHandle
+    if ('requestPermission' in handle){
+        const permission = await handle.requestPermission({mode: 'read'})
+        if (permission !== "granted"){
+            emit('close')
+            return;
+        }
+    }
 
-    if (permission === "granted"){
-
-        var datapack = undefined
-        try {
-            if (handle.kind === 'file') {
-                const file = await (handle as FileSystemFileHandle).getFile()
-                datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
-                recentStore.addRecent(handle, datapack)
-                EventTracker.track(`add_datapack/recent/zip`)
+    var datapack = undefined
+    try {
+        if (handle.kind === 'file') {
+            const file = await (handle as FileSystemFileHandle).getFile()
+            datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
+            // if old version stored local file system handle, store it in opfs now
+            if (!recent.storedInOpfs){
+                console.log('upgrading...')
+                EventTracker.track(`add_datapack/recent/zip/upgraded`)
+                recentStore.storeAndAddRecent(file, datapack)
             } else {
-                datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
+                EventTracker.track(`add_datapack/recent/zip`)
                 recentStore.addRecent(handle, datapack)
-                EventTracker.track(`add_datapack/recent/folder`)
             }
-            datapackStore.addDatapack(datapack)
-        } catch (e){
-            if (e instanceof DOMException){
-                recentStore.removeRecent(handle.name)
-                alert(i18n.t('dropdown.add.recents.not_found'))
-                return
+        } else {
+            datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
+            recentStore.addRecent(handle, datapack)
+            EventTracker.track(`add_datapack/recent/folder`)
+        }
+        datapackStore.addDatapack(datapack)
+    } catch (e){
+        if (e instanceof DOMException){
+            if (recent.storedInOpfs){
+                EventTracker.track(`add_datapack/recent/removed/opfs`)
+            } else {
+                EventTracker.track(`add_datapack/recent/removed/local`)
             }
+            recentStore.removeRecent(handle.name)
+            alert(i18n.t('dropdown.add.recents.not_found'))
+            return
         }
     }
 
@@ -96,7 +112,7 @@ async function loadZip(event: MouseEvent) {
             if (fileHandle !== undefined) {
                 const file = await fileHandle.getFile()
                 const datapack = await addZipDatapack(file)
-                recentStore.addRecent(fileHandle, datapack)
+                recentStore.storeAndAddRecent(file, datapack)
             }
         }
     } else {
@@ -106,7 +122,8 @@ async function loadZip(event: MouseEvent) {
 
         input.onchange = async (evt) => {
             const file = (evt.target as HTMLInputElement).files![0]
-            await addZipDatapack(file)
+            const datapack = await addZipDatapack(file)
+            recentStore.storeAndAddRecent(file, datapack)
         }
 
         input.click()
@@ -176,7 +193,7 @@ const PRESET_DATAPACKS = computed(() => {
             $t('dropdown.add.recents.empty') }} ---</div>
         <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
         <DropdownEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle.name"
-            @click="loadHandle(recent.fileHandle)"> {{ recent.text }} </DropdownEntry>
+            @click="loadRecent(recent)"> {{ recent.text }} </DropdownEntry>
     </Dropdown>
 </template>
 
