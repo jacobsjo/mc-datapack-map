@@ -36,7 +36,6 @@ async function loadRecent(recent: StoredDatapack) {
             datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
             // if old version stored local file system handle, store it in opfs now
             if (!recent.storedInOpfs){
-                console.log('upgrading...')
                 EventTracker.track(`add_datapack/recent/zip/upgraded`)
                 recentStore.storeAndAddRecent(file, datapack)
             } else {

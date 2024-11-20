@@ -51,7 +51,6 @@ export const useRecentStore = defineStore('recents', () => {
         const pack = Json.readObject(mcmeta.pack) ?? {}
 
         const old_id = recents.value.findIndex(r => r.fileHandle.name === fileHandle.name)
-        console.log(old_id)
         if (old_id >= 0) {
             recents.value.splice(old_id, 1)
         }
