@@ -14,14 +14,14 @@ defineProps({
             <img v-if="image !== undefined" :src="image" class="icon" />
         </template>
         <template #smallIcon>
-            <font-awesome-icon v-if="type==='file'" class="smallIcon" icon="fa-file-zipper" title="zip file stored in browser" />
-            <font-awesome-icon v-if="type==='directory'" class="smallIcon" icon="fa-folder-open" title="folder datapack directly opened from disk"/>
-            <img v-if="type==='modrinth'" src="/images/modrinth.svg" class="smallIcon" title="newest version from modrinth"/>
+            <font-awesome-icon v-if="type==='file'" class="smallIcon" icon="fa-file-zipper" :title="$t('dropdown.add.recents.type.zip')" />
+            <font-awesome-icon v-if="type==='directory'" class="smallIcon" icon="fa-folder-open" :title="$t('dropdown.add.recents.type.folder')"/>
+            <img v-if="type==='modrinth'" src="/images/modrinth.svg" class="smallIcon" :title="$t('dropdown.add.recents.type.modrinth')"/>
         </template>
         <div class="main">
             <slot></slot>
             <div class="unavailable" v-if="disabled">
-                unavailable for this version
+                {{ $t('dropdown.add.recents.wrong_version') }}
             </div>
         </div>
     </DropdownEntry>

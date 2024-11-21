@@ -27,9 +27,6 @@ onBeforeMount(async () => {
       <Sidebar />
     </Collapsable>
     <MainMap />
-    <Popup v-if="uiStore.modrinthMenuOpen" @close="uiStore.modrinthMenuOpen = false">
-      <ModrinthMenu @close="uiStore.modrinthMenuOpen = false"/>
-    </Popup>
   </div>
   <div class="layout loading" v-else>
     <p>Loading...</p>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const props = defineProps({
     title: String,
-    icon_url: String
+    icon_url: String,
+    description: String,
 })
 
 defineEmits(['click'])
@@ -9,9 +10,12 @@ defineEmits(['click'])
 </script>
 
 <template>
-    <div class="entry" @click="$emit('click')">
+    <div class="entry" @click="$emit('click')" @keypress.enter="$emit('click')" tabindex="0">
         <img crossorigin="anonymous" :src="icon_url" />
-        <span class="title">{{ title }}</span>
+        <div class="text">
+            <span class="title">{{ title }}</span>
+            <span class="description">{{ description }}</span>
+        </div>
     </div>
 </template>
 
@@ -33,10 +37,26 @@ defineEmits(['click'])
 }
 
 .entry img {
-    max-height: 4rem;
-    max-width: 4rem;
+    height: 4rem;
+    width: 4rem;
+    image-rendering: crisp-edges;
     aspect-ratio: 1;
     border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.description {
+    max-height: 2rem;
+    overflow: hidden;
+    line-height: 1rem;
 }
 
 </style>

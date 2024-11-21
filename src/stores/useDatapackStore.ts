@@ -108,10 +108,14 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     async function addModrinthDatapack(slug: string){
         const versionsQuery = versionMetadata[settingsStore.mc_version].canonicalNames.map(v => `"${v}"`).join(',')
-        const versionsUrl = `https://api.modrinth.com/v2/project/${slug}/version?loaders=["datapack"]&game_versions=[${versionsQuery}]`
-        const versionsResponse = await (await fetch(versionsUrl)).json()
+        const datapackVersionsUrl = `https://api.modrinth.com/v2/project/${slug}/version?loaders=["datapack"]&game_versions=[${versionsQuery}]`
+        let versionsResponse = await (await fetch(datapackVersionsUrl)).json()
         if (!Array.isArray(versionsResponse) || versionsResponse.length === 0){
-            return
+            const modVersionsUrl = `https://api.modrinth.com/v2/project/${slug}/version?game_versions=[${versionsQuery}]`
+            versionsResponse = await (await fetch(modVersionsUrl)).json()
+            if (!Array.isArray(versionsResponse) || versionsResponse.length === 0){
+                return
+            }
         }
         const fileInfo = versionsResponse[0].files.find((file: any) => file.primary)
     

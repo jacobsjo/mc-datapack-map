@@ -11,6 +11,8 @@ import { useSettingsStore } from '../../stores/useSettingsStore';
 import { versionMetadata } from '../../util';
 import { EventTracker } from '../../util/EventTracker';
 import { useUiStore } from '../../stores/useUiStore';
+import Popup from '../Popup.vue';
+import ModrinthMenu from '../modrinth/ModrinthMenu.vue';
 
 type Preset = {id: string, image: string, message_key: string, url: string }
 
@@ -24,12 +26,15 @@ const emit = defineEmits(['close'])
 
 const disabledRecents = ref<string[]>([])
 
+const modrinthPopup = ref<any>(null)
+
 async function loadRecent(recent: StoredDatapack) {
     if (recent.modrinthSlug !== undefined) {
         const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
 
         if (datapack !== undefined) {
             recentStore.addRecentModrinth(datapack, recent.modrinthSlug, recent.text)
+            EventTracker.track(`add_datapack/modrinth/${recent.modrinthSlug}/from_recent`)
         } else {
             disabledRecents.value.push(recent.modrinthSlug)
             return
@@ -51,24 +56,24 @@ async function loadRecent(recent: StoredDatapack) {
                 datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
                 // if old version stored local file system handle, store it in opfs now
                 if (!recent.storedInOpfs){
-                    EventTracker.track(`add_datapack/recent/zip/upgraded`)
+                    EventTracker.track(`add_datapack/zip/from_recent/upgraded`)
                     recentStore.storeAndAddRecent(file, datapack)
                 } else {
-                    EventTracker.track(`add_datapack/recent/zip`)
+                    EventTracker.track(`add_datapack/zip/from_recent`)
                     recentStore.addRecentFileHandle(handle, datapack)
                 }
             } else {
                 datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
                 recentStore.addRecentFileHandle(handle, datapack)
-                EventTracker.track(`add_datapack/recent/folder`)
+                EventTracker.track(`add_datapack/folder/from_recent`)
             }
             datapackStore.addDatapack(datapack)
         } catch (e){
             if (e instanceof DOMException){
                 if (recent.storedInOpfs){
-                    EventTracker.track(`add_datapack/recent/removed/opfs`)
+                    EventTracker.track(`add_datapack/removed_from_recent/opfs`)
                 } else {
-                    EventTracker.track(`add_datapack/recent/removed/local`)
+                    EventTracker.track(`add_datapack/removed_from_recent/local`)
                 }
                 recentStore.removeRecentFileHandle(handle.name)
                 alert(i18n.t('dropdown.add.recents.not_found'))
@@ -177,6 +182,7 @@ async function loadFolder(event: MouseEvent) {
 }
 
 function openModrinth() {
+    modrinthPopup.value.show()
     uiStore.modrinthMenuOpen = true
 }
 
@@ -199,6 +205,9 @@ const PRESET_DATAPACKS = computed(() => {
             $t('dropdown.add.folder') }} </DropdownIconEntry>
         <DropdownIconEntry image="/images/modrinth.svg" @click="openModrinth" @keypress.enter="openModrinth"> {{
             $t('dropdown.add.modrinth') }} </DropdownIconEntry>
+        <Popup ref="modrinthPopup" :title="$t('modrinth.title')" v-slot="slotProps">
+            <ModrinthMenu @close="slotProps.close()"/>
+        </Popup>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
         <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
         <DropdownRecentsEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
@@ -214,7 +223,7 @@ const PRESET_DATAPACKS = computed(() => {
             $t('dropdown.add.recents.empty') }} ---</div>
         <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
         <DropdownRecentsEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle?.name ?? recent.modrinthSlug" :type="recent.modrinthSlug ? 'modrinth' : recent.fileHandle?.kind"
-            @click="loadRecent(recent)" :disabled="recent.modrinthSlug !== undefined && disabledRecents.includes(recent.modrinthSlug)"> {{ recent.text }} </DropdownRecentsEntry>
+            @click="loadRecent(recent)" @keypress.enter="loadRecent(recent)" :disabled="recent.modrinthSlug !== undefined && disabledRecents.includes(recent.modrinthSlug)"> {{ recent.text }} </DropdownRecentsEntry>
     </Dropdown>
 </template>
 
@@ -222,6 +231,7 @@ const PRESET_DATAPACKS = computed(() => {
 .spacer {
     width: 100%;
     height: 2px;
+    min-height: 2px;
     background-color: rgb(97, 97, 97);
     align-self: center;
     margin-top: 0.2rem;
