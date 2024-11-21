@@ -40,7 +40,8 @@ const open = ref(true)
 }
 
 .toggle.open {
-    left: 15.8rem
+    left: 15.8rem;
+    border-radius: 1rem;
 }
 
 .icon {

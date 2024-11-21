@@ -41,8 +41,9 @@ export default defineConfig({
             options: {
               cacheName: "modrinth-cdn-cache",
               expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+                purgeOnQuotaError: true
               },
               cacheableResponse: {
                 statuses: [200]

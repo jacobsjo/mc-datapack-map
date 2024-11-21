@@ -63,7 +63,7 @@ export const useRecentStore = defineStore('recents', () => {
         })
     }
 
-    async function addRecentModrinth(datapack: Datapack, slug: string) {
+    async function addRecentModrinth(datapack: Datapack, slug: string, title: string) {
         if (!enabled.value){
             return
         } 
@@ -73,12 +73,9 @@ export const useRecentStore = defineStore('recents', () => {
             recents.value.splice(old_id, 1)
         }
 
-        const mcmeta = Json.readObject((await datapack.getMcmeta())) ?? {}
-        const pack = Json.readObject(mcmeta.pack) ?? {}
-
         addRecent({
             img: await datapack.getImage(),
-            text: TextComponent.parse(pack.description).toString().split('\n')[0],
+            text: title,
             modrinthSlug: slug
         })
     }

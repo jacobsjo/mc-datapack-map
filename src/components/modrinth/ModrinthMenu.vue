@@ -31,13 +31,13 @@ async function runSearch(){
     });
 }
 
-async function addDatapack(slug: string){
+async function addDatapack(slug: string, title: string){
     const datapack = await datapackStore.addModrinthDatapack(slug)
     if (datapack === undefined) {
         return
     }
 
-    recentStore.addRecentModrinth(datapack, slug)
+    recentStore.addRecentModrinth(datapack, slug, title)
     emit('close')
 }
 
@@ -47,7 +47,7 @@ async function addDatapack(slug: string){
     <div class="modrinth_menu">
         <input class="search" :aria-label="$t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="$t('modrinth.search.placeholder')" @change="runSearch"/>
         <div class="results">
-            <ModrinthEntry v-for="result in searchResult" :title="result.title" :icon_url="result.icon_url" @click="addDatapack(result.slug)"/>
+            <ModrinthEntry v-for="result in searchResult" :title="result.title" :icon_url="result.icon_url" @click="addDatapack(result.slug, result.title)"/>
         </div>
     </div>
 </template>

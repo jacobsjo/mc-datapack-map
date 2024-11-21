@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useDatapackStore } from '../../stores/useDatapackStore';
 import { Datapack, UNKOWN_PACK } from 'mc-datapack-loader';
-import DropdownEntry from './DropdownEntry.vue';
+import DropdownIconEntry from './DropdownIconEntry.vue';
+import DropdownRecentsEntry from './DropdownRecentsEntry.vue';
 import Dropdown from './Dropdown.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRecentStore, StoredDatapack } from '../../stores/useRecentStore';
@@ -21,12 +22,17 @@ const recentStore = useRecentStore();
 const uiStore = useUiStore();
 const emit = defineEmits(['close'])
 
+const disabledRecents = ref<string[]>([])
+
 async function loadRecent(recent: StoredDatapack) {
     if (recent.modrinthSlug !== undefined) {
         const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
 
         if (datapack !== undefined) {
-            recentStore.addRecentModrinth(datapack, recent.modrinthSlug)
+            recentStore.addRecentModrinth(datapack, recent.modrinthSlug, recent.text)
+        } else {
+            disabledRecents.value.push(recent.modrinthSlug)
+            return
         }
     } else if (recent.fileHandle !== undefined){
         const handle = recent.fileHandle
@@ -187,16 +193,16 @@ const PRESET_DATAPACKS = computed(() => {
 
 <template>
     <Dropdown>
-        <DropdownEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add.zip')
-        }}</DropdownEntry>
-        <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
-            $t('dropdown.add.folder') }} </DropdownEntry>
-        <DropdownEntry image="/images/modrinth.svg" @click="openModrinth" @keypress.enter="openModrinth"> {{
-            $t('dropdown.add.modrinth') }} </DropdownEntry>
+        <DropdownIconEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add.zip')
+        }}</DropdownIconEntry>
+        <DropdownIconEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
+            $t('dropdown.add.folder') }} </DropdownIconEntry>
+        <DropdownIconEntry image="/images/modrinth.svg" @click="openModrinth" @keypress.enter="openModrinth"> {{
+            $t('dropdown.add.modrinth') }} </DropdownIconEntry>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
         <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
-        <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
-            @keypress.enter="loadPreset(preset)">{{ $t(preset.message_key) }}</DropdownEntry>
+        <DropdownRecentsEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
+            @keypress.enter="loadPreset(preset)">{{ $t(preset.message_key) }}</DropdownRecentsEntry>
         <div class="spacer"></div>
         <div class="title">{{ $t('dropdown.add.recents.title') }}</div>
         <div class="enable" v-if="recentStore.avalible && !recentStore.enabled" @click="recentStore.enable()"
@@ -207,8 +213,8 @@ const PRESET_DATAPACKS = computed(() => {
         <div class="empty" v-if="recentStore.avalible && recentStore.enabled && recentStore.recents.length === 0">--- {{
             $t('dropdown.add.recents.empty') }} ---</div>
         <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
-        <DropdownEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle?.name ?? recent.modrinthSlug"
-            @click="loadRecent(recent)"> {{ recent.text }} </DropdownEntry>
+        <DropdownRecentsEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle?.name ?? recent.modrinthSlug" :type="recent.modrinthSlug ? 'modrinth' : recent.fileHandle?.kind"
+            @click="loadRecent(recent)" :disabled="recent.modrinthSlug !== undefined && disabledRecents.includes(recent.modrinthSlug)"> {{ recent.text }} </DropdownRecentsEntry>
     </Dropdown>
 </template>
 
