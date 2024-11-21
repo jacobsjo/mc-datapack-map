@@ -31,23 +31,20 @@ defineEmits(['close'])
     transform: translate(-50%, -50%);
     padding: 1rem;
     border-radius: 1rem;
-    background-color: lightgray;
+    background-color: rgb(3, 33, 58);
     color: black;
     z-index: 100000;
-    border: 2px solid lightgray;
-    width: 50rem;
-    height: 40rem;
+    border: 2px solid black;
     max-height: calc(100% - 10rem);
-    max-width: calc(100% - 4rem);
+    display: flex;
+    flex-direction: row;
 }
 
 .content {
-    overflow-y: scroll;
-    width: 100%;
-    height: 100%;
     box-sizing: border-box;
+    max-height: inherit;
     padding: 0.4rem;
-    background-color: rgb(165, 165, 165);
+    max-height: calc(100vh - 10rem);
 }
 
 .close_button {

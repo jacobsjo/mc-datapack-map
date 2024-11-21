@@ -106,5 +106,30 @@ export const useDatapackStore = defineStore('datapacks', () => {
     }
 
 
-    return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets }
+    async function addModrinthDatapack(slug: string){
+        const versionsQuery = versionMetadata[settingsStore.mc_version].canonicalNames.map(v => `"${v}"`).join(',')
+        const versionsUrl = `https://api.modrinth.com/v2/project/${slug}/version?loaders=["datapack"]&game_versions=[${versionsQuery}]`
+        const versionsResponse = await (await fetch(versionsUrl)).json()
+        if (!Array.isArray(versionsResponse) || versionsResponse.length === 0){
+            return
+        }
+        const fileInfo = versionsResponse[0].files.find((file: any) => file.primary)
+    
+        if (fileInfo.size > 2e+9) {
+            console.error("File larger than 2 GB, not downloading")
+            return
+        }
+    
+        if (!((fileInfo.filename as string).endsWith('.zip') || (fileInfo.filename as string).endsWith('.jar'))) {
+            console.error("File is not a .zip or .jar file")
+            return
+        }
+    
+        const datapack = Datapack.fromZipUrl(fileInfo.url, versionMetadata[settingsStore.mc_version].datapackFormat)
+        addDatapack(datapack)
+        return datapack
+    }
+    
+
+    return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets, addModrinthDatapack }
 })

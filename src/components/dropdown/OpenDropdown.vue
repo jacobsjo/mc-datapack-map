@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { versionMetadata } from '../../util';
 import { EventTracker } from '../../util/EventTracker';
+import { useUiStore } from '../../stores/useUiStore';
 
 type Preset = {id: string, image: string, message_key: string, url: string }
 
@@ -17,47 +18,56 @@ const i18n = useI18n()
 const settingsStore = useSettingsStore()
 const datapackStore = useDatapackStore();
 const recentStore = useRecentStore();
+const uiStore = useUiStore();
 const emit = defineEmits(['close'])
 
 async function loadRecent(recent: StoredDatapack) {
-    const handle = recent.fileHandle
-    if ('requestPermission' in handle){
-        const permission = await handle.requestPermission({mode: 'read'})
-        if (permission !== "granted"){
-            emit('close')
-            return;
-        }
-    }
+    if (recent.modrinthSlug !== undefined) {
+        const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
 
-    var datapack = undefined
-    try {
-        if (handle.kind === 'file') {
-            const file = await (handle as FileSystemFileHandle).getFile()
-            datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
-            // if old version stored local file system handle, store it in opfs now
-            if (!recent.storedInOpfs){
-                EventTracker.track(`add_datapack/recent/zip/upgraded`)
-                recentStore.storeAndAddRecent(file, datapack)
-            } else {
-                EventTracker.track(`add_datapack/recent/zip`)
-                recentStore.addRecent(handle, datapack)
-            }
-        } else {
-            datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
-            recentStore.addRecent(handle, datapack)
-            EventTracker.track(`add_datapack/recent/folder`)
+        if (datapack !== undefined) {
+            recentStore.addRecentModrinth(datapack, recent.modrinthSlug)
         }
-        datapackStore.addDatapack(datapack)
-    } catch (e){
-        if (e instanceof DOMException){
-            if (recent.storedInOpfs){
-                EventTracker.track(`add_datapack/recent/removed/opfs`)
-            } else {
-                EventTracker.track(`add_datapack/recent/removed/local`)
+    } else if (recent.fileHandle !== undefined){
+        const handle = recent.fileHandle
+        if ('requestPermission' in handle){
+            const permission = await handle.requestPermission({mode: 'read'})
+            if (permission !== "granted"){
+                emit('close')
+                return;
             }
-            recentStore.removeRecent(handle.name)
-            alert(i18n.t('dropdown.add.recents.not_found'))
-            return
+        }
+
+        var datapack = undefined
+        try {
+            if (handle.kind === 'file') {
+                const file = await (handle as FileSystemFileHandle).getFile()
+                datapack = Datapack.fromZipFile(file, versionMetadata[settingsStore.mc_version].datapackFormat)
+                // if old version stored local file system handle, store it in opfs now
+                if (!recent.storedInOpfs){
+                    EventTracker.track(`add_datapack/recent/zip/upgraded`)
+                    recentStore.storeAndAddRecent(file, datapack)
+                } else {
+                    EventTracker.track(`add_datapack/recent/zip`)
+                    recentStore.addRecentFileHandle(handle, datapack)
+                }
+            } else {
+                datapack = Datapack.fromFileSystemDirectoryHandle(handle as FileSystemDirectoryHandle, versionMetadata[settingsStore.mc_version].datapackFormat)
+                recentStore.addRecentFileHandle(handle, datapack)
+                EventTracker.track(`add_datapack/recent/folder`)
+            }
+            datapackStore.addDatapack(datapack)
+        } catch (e){
+            if (e instanceof DOMException){
+                if (recent.storedInOpfs){
+                    EventTracker.track(`add_datapack/recent/removed/opfs`)
+                } else {
+                    EventTracker.track(`add_datapack/recent/removed/local`)
+                }
+                recentStore.removeRecentFileHandle(handle.name)
+                alert(i18n.t('dropdown.add.recents.not_found'))
+                return
+            }
         }
     }
 
@@ -137,7 +147,7 @@ async function loadFolder(event: MouseEvent) {
         try {
             const handle = await window.showDirectoryPicker()
             datapack = Datapack.fromFileSystemDirectoryHandle(handle, versionMetadata[settingsStore.mc_version].datapackFormat)
-            recentStore.addRecent(handle, datapack)
+            recentStore.addRecentFileHandle(handle, datapack)
         } catch (e) {
         }
     } else {
@@ -160,6 +170,10 @@ async function loadFolder(event: MouseEvent) {
     emit('close')
 }
 
+function openModrinth() {
+    uiStore.modrinthMenuOpen = true
+}
+
 const PRESET_DATAPACKS = computed(() => {
     const presets: Preset[] = []
     versionMetadata[settingsStore.mc_version].experimentalDatapacks.forEach(ed => {
@@ -177,6 +191,8 @@ const PRESET_DATAPACKS = computed(() => {
         }}</DropdownEntry>
         <DropdownEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
             $t('dropdown.add.folder') }} </DropdownEntry>
+        <DropdownEntry image="/images/modrinth.svg" @click="openModrinth" @keypress.enter="openModrinth"> {{
+            $t('dropdown.add.modrinth') }} </DropdownEntry>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
         <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
         <DropdownEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
@@ -191,7 +207,7 @@ const PRESET_DATAPACKS = computed(() => {
         <div class="empty" v-if="recentStore.avalible && recentStore.enabled && recentStore.recents.length === 0">--- {{
             $t('dropdown.add.recents.empty') }} ---</div>
         <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
-        <DropdownEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle.name"
+        <DropdownEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle?.name ?? recent.modrinthSlug"
             @click="loadRecent(recent)"> {{ recent.text }} </DropdownEntry>
     </Dropdown>
 </template>

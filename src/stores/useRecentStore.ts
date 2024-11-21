@@ -6,7 +6,7 @@ import { get, set } from 'idb-keyval'
 import { TextComponent } from "../util/TextComponent";
 
 
-export type StoredDatapack = { img: string, text: string, fileHandle: FileSystemHandle, storedInOpfs?: boolean }
+export type StoredDatapack = { img: string, text: string, fileHandle?: FileSystemHandle, storedInOpfs?: boolean, modrinthSlug?: string }
 
 export const useRecentStore = defineStore('recents', () => {
 
@@ -39,35 +39,59 @@ export const useRecentStore = defineStore('recents', () => {
         const writable = await fileHandle.createWritable()
         await writable.write(file)
         await writable.close()
-        addRecent(fileHandle, datapack, true)
+        addRecentFileHandle(fileHandle, datapack, true)
     }
 
-    async function addRecent(fileHandle: FileSystemHandle, datapack: Datapack, storedInOpfs: boolean = false) {
+    async function addRecentFileHandle(fileHandle: FileSystemHandle, datapack: Datapack, storedInOpfs: boolean = false) {
         if (!enabled.value){
             return
         } 
 
-        const mcmeta = Json.readObject((await datapack.getMcmeta())) ?? {}
-        const pack = Json.readObject(mcmeta.pack) ?? {}
-
-        const old_id = recents.value.findIndex(r => r.fileHandle.name === fileHandle.name)
+        const old_id = recents.value.findIndex(r => r.fileHandle?.name === fileHandle.name)
         if (old_id >= 0) {
             recents.value.splice(old_id, 1)
         }
 
-        if (recents.value.length >= 10) {
-            recents.value.pop()
-        }
+        const mcmeta = Json.readObject((await datapack.getMcmeta())) ?? {}
+        const pack = Json.readObject(mcmeta.pack) ?? {}
 
-        recents.value.unshift({
+        addRecent({
             img: await datapack.getImage(),
             text: TextComponent.parse(pack.description).toString().split('\n')[0],
             fileHandle: fileHandle,
             storedInOpfs
         })
+    }
+
+    async function addRecentModrinth(datapack: Datapack, slug: string) {
+        if (!enabled.value){
+            return
+        } 
+
+        const old_id = recents.value.findIndex(r => r.modrinthSlug === slug)
+        if (old_id >= 0) {
+            recents.value.splice(old_id, 1)
+        }
+
+        const mcmeta = Json.readObject((await datapack.getMcmeta())) ?? {}
+        const pack = Json.readObject(mcmeta.pack) ?? {}
+
+        addRecent({
+            img: await datapack.getImage(),
+            text: TextComponent.parse(pack.description).toString().split('\n')[0],
+            modrinthSlug: slug
+        })
+    }
+
+    function addRecent(stored: StoredDatapack) {
+        if (recents.value.length >= 10) {
+            recents.value.pop()
+        }
+
+        recents.value.unshift(stored)
 
         set('recent-datapacks-meta', recents.value.map(v => {
-            return {img: v.img, text: v.text, storedInOpfs: v.storedInOpfs}
+            return {img: v.img, text: v.text, storedInOpfs: v.storedInOpfs, modrinthSlug: v.modrinthSlug}
         }))
 
         set('recent-datapacks-handle', recents.value.map(v => {
@@ -76,12 +100,13 @@ export const useRecentStore = defineStore('recents', () => {
 
     }
 
-    function removeRecent(name: string){
-        const recent = recents.value.findIndex(r => r.fileHandle.name === name)
+
+    function removeRecentFileHandle(name: string){
+        const recent = recents.value.findIndex(r => r.fileHandle?.name === name)
         if (recent >= 0){
             recents.value.splice(recent, 1)
         }
     }
 
-    return { avalible, enabled, recents, enable, addRecent, storeAndAddRecent, removeRecent }
+    return { avalible, enabled, recents, enable, addRecentFileHandle, storeAndAddRecent, removeRecentFileHandle, addRecentModrinth }
 })

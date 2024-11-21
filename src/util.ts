@@ -75,6 +75,7 @@ export function hashCode(str: string) {
 type Metadata = {
 	vanillaDatapack: string,
 	datapackFormat: number,
+	canonicalNames: string[],
 	resourceLocations: {
 		structure: ResourceLocation
 	},
@@ -95,6 +96,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 			}
 		],
 		datapackFormat: 12,
+		canonicalNames: ["1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
@@ -104,6 +106,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		vanillaDatapack: "1_20",
 		experimentalDatapacks: [],
 		datapackFormat: 15,
+		canonicalNames: ["1.20", "1.20.1"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
@@ -113,6 +116,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		vanillaDatapack: "1_20_2",
 		experimentalDatapacks: [],
 		datapackFormat: 18,
+		canonicalNames: ["1.20.2"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
@@ -127,6 +131,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 			}
 		],
 		datapackFormat: 26,
+		canonicalNames: ["1.20.3", "1.20.4"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
@@ -141,6 +146,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 			}
 		],
 		datapackFormat: 41,
+		canonicalNames: ["1.20.5", "1.20.6"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
@@ -150,6 +156,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		vanillaDatapack: "1_21",
 		experimentalDatapacks: [],
 		datapackFormat: 48,
+		canonicalNames: ["1.21", "1.21.1"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
@@ -164,6 +171,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 			}
 		],
 		datapackFormat: 57,
+		canonicalNames: ["1.21.2", "1.21.3"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},

@@ -4,13 +4,19 @@ import Collapsable from './components/Collapsable.vue';
 import MainMap from './components/MainMap.vue';
 import Sidebar from './components/Sidebar.vue';
 import { useLoadedDimensionStore } from './stores/useLoadedDimensionStore';
+import { useUiStore } from './stores/useUiStore';
+import Popup from './components/Popup.vue';
+import ModrinthMenu from './components/modrinth/ModrinthMenu.vue';
 
 const loaded = ref(false)
+
+const uiStore = useUiStore()
 
 onBeforeMount(async () => {
   const loadedDimensionStore = useLoadedDimensionStore()
   await loadedDimensionStore.reload()
   loaded.value = true
+
 })
 
 </script>
@@ -21,6 +27,9 @@ onBeforeMount(async () => {
       <Sidebar />
     </Collapsable>
     <MainMap />
+    <Popup v-if="uiStore.modrinthMenuOpen" @close="uiStore.modrinthMenuOpen = false">
+      <ModrinthMenu @close="uiStore.modrinthMenuOpen = false"/>
+    </Popup>
   </div>
   <div class="layout loading" v-else>
     <p>Loading...</p>

@@ -15,20 +15,55 @@ export default defineConfig({
       injectRegister: 'script',
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,zip,txt}'],
-        maximumFileSizeToCacheInBytes: 5000000,
+        globPatterns: ['**/*.{js,css,html,svg,png,zip,txt,webp,jar}'],
+        maximumFileSizeToCacheInBytes: 2e+9, // 2 GB
         runtimeCaching: [
           {
-            urlPattern: new RegExp('https://raw.githubusercontent.com/jacobsjo/mcicons/icons/item/.*'),
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/jacobsjo\/mcicons\/icons\/item\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: "mcicons-cache",
               expiration: {
                 maxEntries: 3000,
                 maxAgeSeconds: 60 * 60 * 24 * 90 // 90 days
-              }
+              },
+              cacheableResponse: {
+                statuses: [200]
+              },
+              fetchOptions: {
+
+              }            
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.modrinth\.com\/data\/.*\.(zip|jar)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: "modrinth-cdn-cache",
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }              
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.modrinth\.com\/data\/.*\.webp$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: "modrinth-cdn-image-cache",
+              expiration: {
+                maxEntries: 3000,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }              
             }
           }
+
         ],
         skipWaiting: true,
         clientsClaim: true
