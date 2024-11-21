@@ -50,7 +50,7 @@ async function addDatapack(slug: string, title: string){
 
 <template>
     <div class="modrinth_menu">
-        <input class="search" :aria-label="$t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="$t('modrinth.search.placeholder')" @change="runSearch"/>
+        <input class="search" autofocus :aria-label="$t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="$t('modrinth.search.placeholder')" @change="runSearch"/>
         <div class="setting">
             <input type="checkbox" id="include-mods" :aria-label="$t('modrinth.include-mods.aria-label')" v-model="includeMods" @change="runSearch" />
             <label for="include-mods">{{$t('modrinth.include-mods')}}</label>

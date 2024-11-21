@@ -6,14 +6,21 @@ import { useUiStore } from '../stores/useUiStore';
         title: String,
     })
 
+    const visible = ref(false)
+
     const dialog = ref<HTMLDialogElement>()
 
     const showPopup = () => {
+        visible.value = true
         dialog.value?.showModal()
     }
 
     const closePopup = () => {
         dialog.value?.close()
+    }
+
+    const onClose = () => {
+        visible.value = false
     }
 
     defineExpose({
@@ -23,12 +30,14 @@ import { useUiStore } from '../stores/useUiStore';
 </script>
 
 <template>
-    <dialog ref="dialog" class=popup>
-        <div class="title">
-            {{ title }}
+    <dialog @close="onClose" ref="dialog" class=popup>
+        <div v-if="visible">
+            <div class="title">
+                {{ title }}
+            </div>
+            <font-awesome-icon icon="fa-xmark" class="close_button" title="Close" @click="closePopup()" tabindex="0" @keypress.enter="closePopup()"/>
+            <slot v-bind:close="closePopup"></slot>
         </div>
-        <font-awesome-icon icon="fa-xmark" class="close_button" title="Close" @click="closePopup()" tabindex="0" @keypress.enter="closePopup()"/>
-        <slot v-bind:close="closePopup"></slot>
     </dialog>
 </template>
 

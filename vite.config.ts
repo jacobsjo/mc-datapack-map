@@ -18,6 +18,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,zip,txt,webp,jar}'],
         maximumFileSizeToCacheInBytes: 2e+9, // 2 GB
         runtimeCaching: [
+          // structure icons from mcicons
           {
             urlPattern: /^https:\/\/raw\.githubusercontent\.com\/jacobsjo\/mcicons\/icons\/item\/.*/i,
             handler: 'CacheFirst',
@@ -35,6 +36,7 @@ export default defineConfig({
               }            
             }
           },
+          // datapacks/mods downloaded from modrinth cdn
           {
             urlPattern: /^https:\/\/cdn\.modrinth\.com\/data\/.*\.(zip|jar)$/i,
             handler: 'CacheFirst',
@@ -50,6 +52,7 @@ export default defineConfig({
               }              
             }
           },
+          // thumbnails downloaded from modrinth cdn
           {
             urlPattern: /^https:\/\/cdn\.modrinth\.com\/data\/.*\.webp$/i,
             handler: 'CacheFirst',
@@ -58,6 +61,21 @@ export default defineConfig({
               expiration: {
                 maxEntries: 3000,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }              
+            }
+          },
+          // modrinth api request for projects (not search), used as backup for recents in offline mode
+          {
+            urlPattern: /^https:\/\/api\.modrinth\.com\/v2\/project\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: "modrinth-api-cache",
+              expiration: {
+                maxEntries: 3000,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
               },
               cacheableResponse: {
                 statuses: [200]

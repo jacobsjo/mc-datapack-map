@@ -37,7 +37,7 @@ import { EventTracker } from '../util/EventTracker';
                     EventTracker.track(`add_datapack/folder/drag_and_drop`)
                     datapack = Datapack.fromFileSystemDirectoryHandle(handle, datapackVersion)
                     datapackStore.addDatapack(datapack)
-                    recentStore.addRecent(handle, datapack)
+                    recentStore.addRecentFileHandle(handle, datapack)
                 } else if (handle instanceof FileSystemFileHandle) {
                     EventTracker.track(`add_datapack/zip/drag_and_drop`)
                     const file = await handle.getFile()
