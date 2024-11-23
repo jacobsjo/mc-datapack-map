@@ -30,12 +30,12 @@ const modrinthPopup = ref<any>(null)
 
 async function loadRecent(recent: StoredDatapack) {
     if (recent.modrinthSlug !== undefined) {
-        const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
+        try {
+            const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
 
-        if (datapack !== undefined) {
             recentStore.addRecentModrinth(datapack, recent.modrinthSlug, recent.text)
             EventTracker.track(`add_datapack/modrinth/${recent.modrinthSlug}/from_recent`)
-        } else {
+        } catch {
             disabledRecents.value.push(recent.modrinthSlug)
             return
         }

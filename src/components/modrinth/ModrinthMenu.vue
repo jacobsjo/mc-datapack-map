@@ -14,6 +14,7 @@ const emit = defineEmits(['close'])
 const settingsStore = useSettingsStore()
 const queryString = ref("")
 const includeMods = ref(false)
+const ignoreVersion = ref(false)
 
 type SearchResult = {slug: string, title: string, icon_url: string, description: string}
 
@@ -26,8 +27,8 @@ onBeforeMount(async () => {
 })
 
 async function runSearch(){
-    const versionsFacet = versionMetadata[settingsStore.mc_version].canonicalNames.map(v => `"versions:${v}"`).join(',')
-    const searchUrl = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(queryString.value)}&facets=[${includeMods.value ? '' : '["categories:datapack"],'}["categories:worldgen"],["categories!=library"],["categories!=optimization"],["categories!=utility"],[${versionsFacet}]]&limit=15`
+    const versionsFacet = ignoreVersion.value ? '' : `,[${versionMetadata[settingsStore.mc_version].canonicalNames.map(v => `"versions:${v}"`).join(',')}]`
+    const searchUrl = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(queryString.value)}&facets=[${includeMods.value ? '' : '["categories:datapack"],'}["categories:worldgen"],["categories!=library"],["categories!=optimization"],["categories!=utility"]${versionsFacet}]&limit=15`
     const searchResponse = await (await fetch(searchUrl)).json()
     searchResult.value = searchResponse.hits.map((response: any) => {
         return {slug: response.slug, title: response.title, icon_url: response.icon_url, description: response.description}
@@ -51,10 +52,17 @@ async function addDatapack(slug: string, title: string){
 <template>
     <div class="modrinth_menu">
         <input class="search" autofocus :aria-label="$t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="$t('modrinth.search.placeholder')" @change="runSearch"/>
-        <div class="setting">
-            <input type="checkbox" id="include-mods" :aria-label="$t('modrinth.include-mods.aria-label')" v-model="includeMods" @change="runSearch" />
-            <label for="include-mods">{{$t('modrinth.include-mods')}}</label>
-            <Faq class="faq">{{$t('modrinth.include-mods.notice')}}</Faq>
+        <div class="settings">
+            <div class="setting">
+                <input type="checkbox" id="include-mods" :aria-label="$t('modrinth.include-mods.aria-label')" v-model="includeMods" @change="runSearch" />
+                <label for="include-mods">{{$t('modrinth.include-mods')}}</label>
+                <Faq class="faq">{{$t('modrinth.include-mods.notice')}}</Faq>
+            </div>
+            <div class="setting">
+                <input type="checkbox" id="ignore-version" :aria-label="$t('modrinth.ignore-version.aria-label')" v-model="ignoreVersion" @change="runSearch" />
+                <label for="ignore-version">{{$t('modrinth.ignore-version')}}</label>
+                <Faq class="faq">{{$t('modrinth.ignore-version.notice')}}</Faq>
+            </div>
         </div>
         <div class="results" tabindex="-1">
             <ModrinthEntry v-for="result in searchResult" :title="result.title" :icon_url="result.icon_url" :description="result.description" @click="addDatapack(result.slug, result.title)"/>
@@ -83,6 +91,12 @@ async function addDatapack(slug: string, title: string){
     border-radius: 0.3rem;
     border: 2px solid rgb(55, 120, 173);
 
+}
+
+.settings {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 .setting {

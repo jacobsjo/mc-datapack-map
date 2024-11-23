@@ -24,12 +24,12 @@
     display: none;
     position: absolute;
     left: 50%;
-    top: -0.5rem;
-    transform: translate(-50%, -100%);
+    top: calc(100% + 0.5rem);
+    transform: translate(-50%, 0);
     background-color: rgba(0, 0, 0, 0.75);
     padding: 0.2rem 0.6rem;
     border-radius: 0.5rem;
-    max-width: 10rem;
+    max-width: 15rem;
     width: max-content;
     text-align: center;
 }
@@ -37,15 +37,15 @@
 .popup::after {
 	content: '';
 	position: absolute;
-	bottom: 0;
+	top: 0;
 	left: 50%;
 	width: 0;
 	height: 0;
 	border: 0.5rem solid transparent;
-	border-top-color: rgba(0, 0, 0, 0.75);;
-	border-bottom: 0;
+	border-bottom-color: rgba(0, 0, 0, 0.75);;
+	border-top: 0;
 	margin-left: -0.5rem;
-	margin-bottom: -0.5rem;
+	margin-top: -0.5rem;
 }
 
 .faq:hover .popup,.faq:focus .popup{
