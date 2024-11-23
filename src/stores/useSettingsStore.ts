@@ -8,7 +8,6 @@ import { parseSeed, updateUrlParam, versionMetadata } from "../util";
 
 export const useSettingsStore = defineStore('settings', () => {
     const defaults = {
-        dev_mode: "false",
         mc_version: "1_21_3",
         world_preset: "minecraft:normal",
         dimension: "minecraft:overworld",
@@ -27,7 +26,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
     const collator = computed(() => new Intl.Collator(i18n.locale.value.replace('_','-')))
     
-    const dev_mode = ref(params.dev_mode === "true")
+    const dev_mode = ref(false)
     const mc_version = ref(versionMetadata[params.mc_version] ? params.mc_version : defaults.mc_version)
     const world_preset = ref(Identifier.parse(params.world_preset))
     const dimension = ref(Identifier.parse(params.dimension))
@@ -51,7 +50,6 @@ export const useSettingsStore = defineStore('settings', () => {
     })
 
     watch(dev_mode, (new_dev_mode) => {
-        updateUrlParam('dev_mode', new_dev_mode ? 'true' : undefined)
         EventTracker.track(`change_dev_mode/${new_dev_mode}`)
     })
 
