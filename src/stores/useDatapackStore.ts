@@ -1,14 +1,17 @@
 import { defineStore } from "pinia";
 
 import { AnonymousDatapack, Datapack, DatapackList, ResourceLocation } from "mc-datapack-loader"
-import { computed, reactive } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
-import { versionMetadata } from "../util";
+import { updateUrlParam, versionMetadata } from "../util";
 import { useI18n } from "vue-i18n";
 
 
 export const useDatapackStore = defineStore('datapacks', () => {
+    const uri = window.location.search.substring(1)
+    const datapacksParam = new URLSearchParams(uri).get('datapacks')?.split(',')
+
     const i18n = useI18n()
     const settingsStore = useSettingsStore()
 
@@ -16,10 +19,21 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${metadata.vanillaDatapack}.zip`, metadata.datapackFormat)
 
     let last_key = 0
-    const datapacks = reactive([{ datapack: vanillaDatapack, key: 0 }])
+
+    const ds: {datapack: Datapack, key: number, id?: string}[] = [{ datapack: vanillaDatapack, key: 0 }]
+
+    if (datapacksParam !== undefined) {
+        for (const id of datapacksParam){
+            const promise = getDatapackFromId(id)
+            if (promise === undefined) continue
+            ds.push({datapack: promise, key: ++last_key, id: id})
+        }
+    }
+
+    const datapacks = reactive<{datapack: Datapack, key: number, id?: string}[]>(ds)
 
     var last_version = settingsStore.mc_version
-    settingsStore.$subscribe(() => {
+    settingsStore.$subscribe(async () => {
         if (last_version === settingsStore.mc_version)
             return
 
@@ -32,11 +46,13 @@ export const useDatapackStore = defineStore('datapacks', () => {
             datapacks[i].datapack.setPackVersion(metadata.datapackFormat)
         }
 
-        console.log("updating mc version")
-
         last_version = settingsStore.mc_version
     })
 
+    watch(datapacks, (new_datapacks) => {
+        const ids = new_datapacks.flatMap(d => d.id ? [d.id] : [])
+        updateUrlParam('datapacks', ids.length > 0 ? ids.join(',') : undefined)
+    })
 
     const composite_datapack = Datapack.compose(new class implements DatapackList{
         async getDatapacks(): Promise<AnonymousDatapack[]> {
@@ -105,6 +121,52 @@ export const useDatapackStore = defineStore('datapacks', () => {
         datapacks.splice(id, 1)
     }
 
+    function getDatapackFromId(id: string) {
+        const [namespace, slug] = id.split(':', 2)
+        if (namespace === "modrinth"){
+            return Datapack.fromZipUrl(getModrinthUrl(slug), versionMetadata[settingsStore.mc_version].datapackFormat)
+        }
+    }
 
-    return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets }
+    async function addModrinthDatapack(slug: string){
+        const url = await getModrinthUrl(slug)
+        const datapack = Datapack.fromZipUrl(url, versionMetadata[settingsStore.mc_version].datapackFormat)
+        datapacks.push({ datapack: datapack, key: ++last_key, id: `modrinth:${slug}` })
+        return datapack
+    }
+
+
+    async function getModrinthUrl(slug: string): Promise<string>{
+        async function tryFetch(url: string ){
+            const response = await (await fetch(url)).json().catch(() => {throw new Error('datapack not found')})
+            if (!Array.isArray(response) || response.length === 0) return undefined
+            return response
+        }
+    
+        const versionsResponse = await tryFetch(`https://api.modrinth.com/v2/project/${slug}/version`)
+
+        if (versionsResponse === undefined){
+            throw new Error(`Modrinth project ${slug} not found`)
+        }
+
+        const version
+            =  versionsResponse.find(v => v.loaders.includes('datapack') && v.game_versions.some((mc_version: string) => (versionMetadata[settingsStore.mc_version].canonicalNames.includes(mc_version)))) // Datapack of correct version
+            ?? versionsResponse.find(v => v.loaders.includes('datapack')) // Datapack of any version
+            ?? versionsResponse.find(v => v.game_versions.some((mc_version: string) => (versionMetadata[settingsStore.mc_version].canonicalNames.includes(mc_version)))) // Mod of correct version
+            ?? versionsResponse[0] // Mod of any version
+
+        const fileInfo = version.files.find((file: any) => file.primary)
+    
+        if (fileInfo.size > 2e+9) {
+            throw new Error("File larger than 2 GB, not downloading")
+        }
+    
+        if (!((fileInfo.filename as string).endsWith('.zip') || (fileInfo.filename as string).endsWith('.jar'))) {
+            throw new Error("File is not a .zip or .jar file")
+        }
+    
+        return fileInfo.url
+    }    
+
+    return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets, addModrinthDatapack }
 })

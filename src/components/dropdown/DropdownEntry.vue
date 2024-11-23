@@ -1,15 +1,18 @@
 <script setup lang="ts">
     defineProps({
-        icon: String,
-        image: String,
+        disabled: Boolean
     })
 </script>
 
 <template>
-    <div class="dropdown-entry" tabindex="0">
-        <font-awesome-icon v-if="icon !== undefined" class="icon" :icon="icon"/>
-        <img v-if="image !== undefined" :src="image" class="image"/>
+    <div class="dropdown-entry" :class="{disabled}" tabindex="0">
+        <div class="icon">
+            <slot name="icon"></slot>
+        </div>
         <div class="name"><slot></slot></div>
+        <div v-if="$slots.smallIcon" class="small-icon">
+            <slot name="smallIcon"></slot>
+        </div>
     </div>
 </template>
 
@@ -27,29 +30,37 @@
         transition: 0.3s;
         cursor: pointer;
         user-select: none;
+        position: relative;
     }
 
-    .dropdown-entry:hover{
+    .dropdown-entry.disabled{
+        cursor: default;
+    }
+
+    .dropdown-entry:not(.disabled):hover{
         background-color: rgb(177, 176, 176);
     }
 
     .icon{
-        width: 1.5rem;
-        height: 1.5rem;
-        margin-left: 0.25rem;
-        margin-right: 0.25rem;
-    }
-
-
-    .image{
         width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
+        display: flex;
+        align-content: center;
+        justify-content: center;
     }
+
+    .dropdown-entry.disabled .icon{
+        filter: saturate(0.2);
+    }
+
     .name{
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        flex-grow: 1;
+    }
+
+    .dropdown-entry.disabled .name{
+        color: rgb(202, 202, 202);
     }
 
 </style>

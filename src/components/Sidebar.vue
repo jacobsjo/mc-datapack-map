@@ -10,6 +10,7 @@ import Footer from './Footer.vue';
 import MenuButtons from './MenuButtons.vue';
 import SettingsPanel from './SettingsPanel.vue';
 import TipMessage from './TipMessage.vue';
+import { EventTracker } from '../util/EventTracker';
 
     const datapackStore = useDatapackStore()
     const settingsStore = useSettingsStore()
@@ -33,19 +34,25 @@ import TipMessage from './TipMessage.vue';
                 const handle = await item.getAsFileSystemHandle()
                 var datapack: Datapack
                 if (handle instanceof FileSystemDirectoryHandle){
+                    EventTracker.track(`add_datapack/folder/drag_and_drop`)
                     datapack = Datapack.fromFileSystemDirectoryHandle(handle, datapackVersion)
+                    datapackStore.addDatapack(datapack)
+                    recentStore.addRecentFileHandle(handle, datapack)
                 } else if (handle instanceof FileSystemFileHandle) {
-                    datapack = Datapack.fromZipFile(await handle.getFile(), datapackVersion)
-                } else {
-                    continue
+                    EventTracker.track(`add_datapack/zip/drag_and_drop`)
+                    const file = await handle.getFile()
+                    datapack = Datapack.fromZipFile(file, datapackVersion)
+                    datapackStore.addDatapack(datapack)
+                    recentStore.storeAndAddRecent(file, datapack)
                 }
-                datapackStore.addDatapack(datapack)
-                recentStore.addRecent(handle, datapack)
             } else {
                 if (["application/zip", 'application/java-archive', 'application/x-java-archive'].includes((item as DataTransferItem).type)){
                     const file = (item as DataTransferItem).getAsFile()
                     if (file){
-                        datapackStore.addDatapack(Datapack.fromZipFile(file, datapackVersion))
+                        EventTracker.track(`add_datapack/zip/drag_and_drop`)
+                        const datapack = Datapack.fromZipFile(file, datapackVersion)
+                        datapackStore.addDatapack(datapack)
+                        recentStore.storeAndAddRecent(file, datapack)
                     }
                 }
             }
