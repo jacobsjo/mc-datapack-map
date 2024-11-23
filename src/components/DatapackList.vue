@@ -8,7 +8,7 @@ const store = useDatapackStore();
 <template>
     <div class="datapack_list">
         <Suspense>
-            <DatapackEntry v-for="(datapack, index) in store.datapacks" :datapack="datapack.datapack" :key="datapack.key" @close="store.removeDatapack(index)"/>
+            <DatapackEntry v-for="(datapack, index) in store.datapacks" :datapack="datapack.datapack" :key="datapack.key" :removable="index > 0" @close="store.removeDatapack(index)"/>
         </Suspense>
 
     </div>
