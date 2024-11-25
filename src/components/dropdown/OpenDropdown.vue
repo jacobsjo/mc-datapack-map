@@ -34,7 +34,8 @@ async function loadRecent(recent: StoredDatapack) {
             const datapack = await datapackStore.addModrinthDatapack(recent.modrinthSlug)
 
             recentStore.addRecentModrinth(datapack, recent.modrinthSlug, recent.text)
-            EventTracker.track(`add_datapack/modrinth/${recent.modrinthSlug}/from_recent`)
+            EventTracker.track(`add_datapack/modrinth/from_recent`)
+            EventTracker.track(`add_datapack/modrinth/${recent.modrinthSlug}`)
         } catch {
             disabledRecents.value.push(recent.modrinthSlug)
             return
