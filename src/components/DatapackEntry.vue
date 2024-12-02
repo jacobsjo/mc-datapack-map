@@ -7,7 +7,8 @@ import { versionMetadata } from '../util';
 import { computed } from 'vue';
 
     const props = defineProps({
-        datapack: Object
+        datapack: Object,
+        removable: Boolean
     })
 
     const settings = useSettingsStore()
@@ -29,7 +30,7 @@ import { computed } from 'vue';
         <div class="description">
             <MinecraftText :component="desciption" />
         </div>
-        <font-awesome-icon icon="fa-xmark" class="close_button" tabindex="0" :title="$t('datapack_list.remove_datapack.title')" @click="$emit('close')" @keypress.enter="$emit('close')" />
+        <font-awesome-icon v-if="removable" icon="fa-xmark" class="close_button" tabindex="0" :title="$t('datapack_list.remove_datapack.title')" @click="$emit('close')" @keypress.enter="$emit('close')" />
     </div>
 </template>
 
