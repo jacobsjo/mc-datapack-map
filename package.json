@@ -14,7 +14,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@vueuse/components": "^10.2.0",
-    "deepslate": "git://github.com/jacobsjo/deepslate.git#dimension-padding-built",
+    "deepslate": "https://github.com/jacobsjo/deepslate.git#dimension-padding-built",
     "idb-keyval": "^6.2.1",
     "leaflet": "^1.9.4",
     "mc-datapack-loader": "0.5.0",
