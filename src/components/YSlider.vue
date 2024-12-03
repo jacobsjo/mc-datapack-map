@@ -9,10 +9,10 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 const loadedDimensionStore = useLoadedDimensionStore()
 const settingsStore = useSettingsStore()
 
-const y_limits = ref(await loadedDimensionStore.loaded_dimension.y_limits)
+const level_height = ref(await loadedDimensionStore.loaded_dimension.level_height)
 
 loadedDimensionStore.$subscribe(async (mutation, state) => {
-    y_limits.value = await loadedDimensionStore.loaded_dimension.y_limits
+    level_height.value = await loadedDimensionStore.loaded_dimension.level_height
 })
 
 const props = defineProps({
@@ -25,10 +25,10 @@ defineEmits(['update:y'])
 
 <template>
     <div class="slider">
-        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="y_limits !== undefined" direction="btt" height="18rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
+        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="level_height !== undefined" direction="btt" height="18rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
             v-bind:model-value="y"
             @change="y => $emit('update:y', y)"
-            :max="y_limits[1]" :min="y_limits[0]"
+            :max="level_height.minY + level_height.height" :min="level_height.minY"
             :tooltip-formatter="v => $t('map.yslider.y-label', {y: v})" />
     </div>
 </template>

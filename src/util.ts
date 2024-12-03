@@ -116,7 +116,8 @@ type Metadata = {
 		url: string,
 		translation_key: string
 	}[],
-	spawnAlgorithm: SpawnTarget.Algorithm
+	spawnAlgorithm: SpawnTarget.Algorithm,
+	dimensionPaddingEnabled: boolean
 }
 
 export const versionMetadata: { [version: string]: Metadata } = {
@@ -133,7 +134,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_20": {
 		vanillaDatapack: "1_20",
@@ -143,7 +145,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_20_2": {
 		vanillaDatapack: "1_20_2",
@@ -153,7 +156,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_20_4": {
 		vanillaDatapack: "1_20_4",
@@ -168,7 +172,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_20_6": {
 		vanillaDatapack: "1_20_6",
@@ -183,7 +188,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_21_1": {
 		vanillaDatapack: "1_21",
@@ -193,7 +199,8 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED
+		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		dimensionPaddingEnabled: false
 	},
 	"1_21_3": {
 		vanillaDatapack: "1_21_3",
@@ -208,6 +215,19 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: false
 	},
+	"1_21_4": {
+		vanillaDatapack: "1_21_4",
+		experimentalDatapacks: [],
+		datapackFormat: 61,
+		canonicalNames: ["1.21.4"],
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: true
+	},
+
 }

@@ -51,7 +51,7 @@ var map: L.Map
 var markers: L.LayerGroup
 var spawnMarker: L.Marker
 
-var marker_map = new Map<string, { marker?: L.Marker, structure?: Identifier }>()
+var marker_map = new Map<string, { marker?: L.Marker, structure?: {id: Identifier, pos: BlockPos}}>()
 var needs_zoom = ref(false)
 
 
@@ -159,7 +159,7 @@ function updateMarkers() {
     }
 
     const cachedBiomeSource = new CachedBiomeSource(biomeSource)
-    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings)
+    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings, loadedDimensionStore.loaded_dimension.level_height ?? {minY: 0, height: 256})
 
     const bounds = map.getBounds()
 
@@ -179,8 +179,6 @@ function updateMarkers() {
     for (const id of searchStore.structure_sets.sets) {
         const set = StructureSet.REGISTRY.get(id)
         if (!set) continue
-
-        console.log(set)
 
         var minZoom = 2
 
@@ -202,7 +200,7 @@ function updateMarkers() {
 
                 if (inBounds){
                     if (stored === undefined) {
-                        const m: { marker?: L.Marker, structure?: Identifier } = {}
+                        const m: { marker?: L.Marker, structure?: {id: Identifier, pos: BlockPos} } = {}
 
                         marker_map.set(storage_id, m)
 
@@ -211,17 +209,17 @@ function updateMarkers() {
                             if (marker_map.get(storage_id) !== m) return
 
                             cachedBiomeSource.setupCache(chunk[0] << 2, chunk[1] << 2)
-                            const structureId = set.getStructureInChunk(chunk[0], chunk[1], context)
+                            const structure = set.getStructureInChunk(chunk[0], chunk[1], context)
 
-                            const marker = structureId && searchStore.structures.has(structureId.toString()) ? getMarker(structureId, chunk) : undefined
-                            m.structure = structureId
+                            const marker = structure && searchStore.structures.has(structure.id.toString()) ? getMarker(structure.id, structure.pos) : undefined
+                            m.structure = structure
                             m.marker = marker
                         })
                     } else {
                         if (stored.structure){
-                            const should_have_marker = searchStore.structures.has(stored.structure?.toString())
+                            const should_have_marker = searchStore.structures.has(stored.structure?.id.toString())
                             if (should_have_marker && stored.marker === undefined){
-                                stored.marker = getMarker(stored.structure, chunk)
+                                stored.marker = getMarker(stored.structure.id, stored.structure.pos)
                             } else if (!should_have_marker && stored.marker !== undefined){
                                 stored.marker.remove()
                                 stored.marker = undefined
@@ -247,11 +245,11 @@ function updateMarkers() {
     needs_zoom.value = _needs_zoom
 }
 
-function getMarker(structureId: Identifier, chunk: ChunkPos) {
+function getMarker(structureId: Identifier, pos: BlockPos) {
     const crs = map.options.crs!
-    const pos = new L.Point(chunk[0] << 4, - chunk[1] << 4)
-    const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${chunk[0] << 4}, ${chunk[1] << 4}`)
-    const marker = L.marker(crs.unproject(pos))
+    const mapPos = new L.Point(pos[0], -pos[2])
+    const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${pos[0]}, ${pos[1]}, ${pos[2]}`)
+    const marker = L.marker(crs.unproject(mapPos))
     marker.bindPopup(popup).addTo(markers)
     const iconUrl = loadedDimensionStore.getIcon(structureId)
     marker.setIcon(L.icon({
@@ -289,12 +287,12 @@ loadedDimensionStore.$subscribe((mutation, state) => {
     updateMarkers()
     updateSpawnMarker()
 
-    const y_limits = loadedDimensionStore.loaded_dimension.y_limits
-    if (y_limits){
+    const level_height = loadedDimensionStore.loaded_dimension.level_height
+    if (level_height){
         if (project_down.value && loadedDimensionStore.surface_density_function !== undefined){
-            y.value = y_limits[1] ?? y.value
+            y.value = level_height.minY + level_height.height || y.value
         } else {
-            y.value = Math.max(Math.min(y.value, y_limits[1]), y_limits[0])
+            y.value = Math.max(Math.min(y.value, level_height.minY + level_height.height), level_height.minY)
         }
     } 
 })

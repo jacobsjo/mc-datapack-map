@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 import { AnonymousDatapack, Datapack, DatapackList, ResourceLocation } from "mc-datapack-loader"
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry } from "deepslate";
+import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry, Json } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore";
 import { updateUrlParam, versionMetadata } from "../util";
 import { useI18n } from "vue-i18n";
@@ -104,13 +104,19 @@ export const useDatapackStore = defineStore('datapacks', () => {
         promises.push(new Promise(async (resolve) => {
             await registerType(ResourceLocation.WORLDGEN_BIOME, WorldgenRegistries.BIOME, () => {return {}})
             await registerTag(ResourceLocation.WORLDGEN_BIOME_TAG, WorldgenRegistries.BIOME)
-            await registerType(ResourceLocation.WORLDGEN_STRUCTURE, WorldgenStructure.REGISTRY, WorldgenStructure.fromJson)
+            await registerType(ResourceLocation.WORLDGEN_STRUCTURE, WorldgenStructure.REGISTRY, worldgenStructureFromJson)
             await registerTag(ResourceLocation.WORLDGEN_STRUCTURE_TAG, WorldgenStructure.REGISTRY)
             resolve()
         }))
         await Promise.all(promises)
+    }
 
-
+    function worldgenStructureFromJson(obj: unknown){
+        const root = Json.readObject(obj) ?? {}
+        if (!versionMetadata[settingsStore.mc_version].dimensionPaddingEnabled){
+            delete root.dimension_padding
+        }
+        return WorldgenStructure.fromJson(obj)
     }
 
     function addDatapack(datapack: Datapack) {
