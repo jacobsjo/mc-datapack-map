@@ -2,15 +2,15 @@
     Most content of this file is Copyright (c) Mojang. This file is not covered by the Licence in LICENSE.txt !
 */
 
+import { versionMetadata } from "../util"
+
 export function getPreset(key: string, mc_version: string){
     if (key === "minecraft:nether"){
         return NETHER_PRESET
-    } else if (key === "minecraft:overworld" && mc_version === "1_19") {
-        return OVERWORLD_PRESET(() => "minecraft:meadow")
-    } else if (key === "minecraft:overworld" || key === "minecraft:overworld_update_1_20") {
-        return OVERWORLD_PRESET(() => "minecraft:cherry_grove")
-    } else if (key === "minecraft:overworld_winter_drop") {
-        return OVERWORLD_PRESET(() => "minecraft:cherry_grove", () => "minecraft:pale_garden")
+    } else if (key.startsWith("minecraft:overworld")) {
+        const cherry_grove = key === "minecraft:overworld_update_1_20" ? "minecraft:cherry_grove" : versionMetadata[mc_version].biomes.cherry_grove
+        const pale_garden = key === "minecraft:overworld_winter_drop" ? "minecraft:pale_garden" : versionMetadata[mc_version].biomes.pale_garden
+        return OVERWORLD_PRESET(() => cherry_grove, () => pale_garden)
     } else {
         return []
     }
@@ -79,7 +79,7 @@ const NETHER_PRESET = [
         }
     ]
     
-function OVERWORLD_PRESET(cherry_grove: () => string, pale_garden: () => string = () => "minecraft:dark_forest"){
+function OVERWORLD_PRESET(cherry_grove: () => string, pale_garden: () => string){
      return [
         {
           "parameters": {
