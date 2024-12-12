@@ -88,5 +88,8 @@
     "minecraft.structure.minecraft.village_taiga": "タイガの村",
     "footer.legel.note": "Minecraft公式のツールではありません。MojangまたはMicrosoftによって承認または関連するものではありません。",
     "dropdown.add.recents.enable.note": "(ローカルストレージの使用を許可)",
-    "map.error.structures_unsupported": "選択された構造物の一部はサポートされていません。申し訳ありません。"
+    "map.error.structures_unsupported": "選択された構造物の一部はサポートされていません。申し訳ありません。",
+    "settings.mc_version.mc1_21_1": "Minecraft 1.21.1",
+    "settings.mc_version.mc1_21_3": "Minecraft 1.21.3",
+    "settings.mc_version.mc1_21_4": "Minecraft 1.21.4"
 }
