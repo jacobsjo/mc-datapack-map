@@ -87,5 +87,13 @@
     "tip_message.message": "Wenn du diese Karte nützlich findest, würde ich mich über ein Trinkgeld freuen!",
     "tip_message.kofi": "Kauf mir nen Kaffee",
     "tip_message.github": "Sponsor",
-    "tip_message.close": "Schließen"
+    "tip_message.close": "zurückgewiesen",
+    "settings.mc_version.mc1_20_6": "Minecraft 1.20.6",
+    "map.setting.graticule": "Zeige das Regionsgitter",
+    "settings.mc_version.mc1_21_1": "Minecraft 1.21.1",
+    "settings.mc_version.mc1_21_3": "Minecraft 1.21.3",
+    "modrinth.ignore-version": "Ignoriere die Minecraft Version",
+    "modrinth.ignore-version.notice": "Datenpakte für andere Versionen könnten nicht so funktionieren wie gedacht",
+    "modrinth.ignore-version.aria-label": "Ignoriere die Minecraft Version in der Suche",
+    "settings.mc_version.mc1_21_4": "Minecraft 1.21.4"
 }
