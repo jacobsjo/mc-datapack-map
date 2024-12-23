@@ -187,7 +187,7 @@ function updateMarkers() {
             minZoom = -2
         } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
             const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
-            minZoom = -Math.log2(1/(chunkFrequency * 256))
+            minZoom = -Math.log2(1/(chunkFrequency * 128))
         }
 
         if (map.getZoom() >= minZoom){
