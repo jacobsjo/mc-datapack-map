@@ -82,9 +82,13 @@ export const useDatapackStore = defineStore('datapacks', () => {
         await Promise.all((await composite_datapack.getIds(location)).map(id => new Promise<void>(async (resolve) => {
             try {
                 const data = await composite_datapack.get(location, id)
-                registry.register(id, loader(data, id))
+                try {
+                    registry.register(id, loader(data, id))
+                } catch (e) {
+                    console.warn(`Failed to register ${location.location}: ${id.toString()}: ${e}`)
+                }
             } catch (e) {
-                console.warn(`Failed to load ${location}: ${id.toString()}: ${e}`)
+                console.warn(`Failed to load ${location.location}: ${id.toString()}: ${e}`)
             }
             resolve()
         })))
