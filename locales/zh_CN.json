@@ -84,5 +84,9 @@
     "dropdown.add.built_in.update_1_21": "更新至 1.21",
     "footer.more": "更多…",
     "settings.mc_version.mc1_20_6": "Minecraft 1.20.6",
-    "minecraft.structure.minecraft.trial_chambers": "试炼密室"
+    "minecraft.structure.minecraft.trial_chambers": "试炼密室",
+    "settings.mc_version.mc1_21_1": "Minecraft 1.21.1",
+    "settings.mc_version.mc1_21_3": "Minecraft 1.21.3",
+    "dropdown.add.modrinth": "从Modrinth中打开",
+    "settings.mc_version.mc1_21_4": "Minecraft 1.21.4"
 }
