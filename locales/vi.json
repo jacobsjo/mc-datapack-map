@@ -1,1 +1,16 @@
-{}
+{
+    "locale.local_name": "Tiếng Việt",
+    "locale.minecraft_locale": "vi-vn",
+    "locale.change_locale.title": "Thấy đổi thứ tiếng",
+    "settings.mc_version.label": "Phiên bản:",
+    "settings.mc_version.aria-label": "Phiên bản Minecraft",
+    "settings.mc_version.mc1_19": "Minecraft 1.19.x",
+    "settings.dev_mode.label": "Chế độ Nhà phát triển:",
+    "settings.dev_mode.aria-label": "Chế độ Nhà phát triển",
+    "settings.world_preset.label": "Cài đặt có sẵn của Thế giới:",
+    "settings.world_preset.aria-label": "Cài đặt có sẵn của Thế giới",
+    "settings.dimension.label": "Chiều không gian:",
+    "settings.dimension.aria-label": "Chiều không gian",
+    "settings.seed.label": "Số nguồn:",
+    "settings.seed.aria-label": "Số nguồn"
+}
