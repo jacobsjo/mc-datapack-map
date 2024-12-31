@@ -1,6 +1,6 @@
 {
     "locale.local_name": "Tiếng Việt",
-    "locale.minecraft_locale": "vi-vn",
+    "locale.minecraft_locale": "vi_vn",
     "locale.change_locale.title": "Thấy đổi thứ tiếng",
     "settings.mc_version.label": "Phiên bản:",
     "settings.mc_version.aria-label": "Phiên bản Minecraft",
