@@ -88,5 +88,17 @@
     "settings.mc_version.mc1_21_1": "Minecraft 1.21.1",
     "settings.mc_version.mc1_21_3": "Minecraft 1.21.3",
     "dropdown.add.modrinth": "从Modrinth中打开",
-    "settings.mc_version.mc1_21_4": "Minecraft 1.21.4"
+    "settings.mc_version.mc1_21_4": "Minecraft 1.21.4",
+    "tip_message.message": "如果您认为这个地图有用，请支持我们！",
+    "tip_message.github": "发起人",
+    "tip_message.close": "关闭",
+    "map.setting.graticule": "显示区域网格",
+    "dropdown.add.recents.type.zip": "保存在浏览器中的ZIP文件",
+    "dropdown.add.recents.type.folder": "直接从磁盘中打开的数据包文件夹",
+    "modrinth.ignore-version": "忽略Minecraft版本",
+    "modrinth.ignore-version.notice": "其他版本的数据包可能不按预期工作",
+    "dropdown.add.recents.type.modrinth": "来自Modrinth的最新版本",
+    "modrinth.title": "从Modrinth打开",
+    "modrinth.search.placeholder": "在Modrinth搜索…",
+    "dropdown.add.built_in.winter_drop": "冬季小更新"
 }
