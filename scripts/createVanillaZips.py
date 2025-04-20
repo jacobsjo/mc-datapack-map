@@ -58,7 +58,8 @@ REQUIRED_ASSETS_TYPES = [
     "lang/zh_cn",
     "lang/tr_tr",
     "lang/ja_jp",
-    "lang/vi_vn"
+    "lang/vi_vn",
+    "lang/th_th"
 ]
 
 REQUIRED_PATHS = [
