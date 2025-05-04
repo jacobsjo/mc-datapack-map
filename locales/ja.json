@@ -107,5 +107,6 @@
     "modrinth.ignore-version": "Minecraftのバージョンを無視",
     "modrinth.ignore-version.notice": "他のバージョンのデータパックでは正常に動作しない可能性があります",
     "modrinth.include-mods.aria-label": "modを含めて検索",
-    "modrinth.include-mods.notice": "Datapack Mapではすべての MOD がサポートされているわけではありません"
+    "modrinth.include-mods.notice": "Datapack Mapではすべての MOD がサポートされているわけではありません",
+    "settings.mc_version.mc1_21_5": "Minecraft 1.21.5"
 }
