@@ -28,7 +28,7 @@ onBeforeMount(async () => {
 
 async function runSearch(){
     const versionsFacet = ignoreVersion.value ? '' : `,[${versionMetadata[settingsStore.mc_version].canonicalNames.map(v => `"versions:${v}"`).join(',')}]`
-    const searchUrl = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(queryString.value)}&facets=[${includeMods.value ? '' : '["categories:datapack"],'}["categories:worldgen"],["categories!=library"],["categories!=optimization"],["categories!=utility"]${versionsFacet}]&limit=15`
+    const searchUrl = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(queryString.value)}&facets=[${includeMods.value ? '' : '["categories:datapack"],'}["categories:worldgen"],["categories!=library"],["categories!=optimization"]${versionsFacet}]&limit=15`
     const searchResponse = await (await fetch(searchUrl)).json()
     searchResult.value = searchResponse.hits.map((response: any) => {
         return {slug: response.slug, title: response.title, icon_url: response.icon_url, description: response.description}
