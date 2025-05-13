@@ -93,12 +93,20 @@
     "tip_message.github": "发起人",
     "tip_message.close": "关闭",
     "map.setting.graticule": "显示区域网格",
-    "dropdown.add.recents.type.zip": "保存在浏览器中的ZIP文件",
+    "dropdown.add.recents.type.zip": "ZIP文件已在浏览器中保存",
     "dropdown.add.recents.type.folder": "直接从磁盘中打开的数据包文件夹",
     "modrinth.ignore-version": "忽略Minecraft版本",
     "modrinth.ignore-version.notice": "其他版本的数据包可能不按预期工作",
-    "dropdown.add.recents.type.modrinth": "来自Modrinth的最新版本",
+    "dropdown.add.recents.type.modrinth": "Modrinth上最新的版本",
     "modrinth.title": "从Modrinth打开",
     "modrinth.search.placeholder": "在Modrinth搜索…",
-    "dropdown.add.built_in.winter_drop": "冬季小更新"
+    "dropdown.add.built_in.winter_drop": "苍园觉醒",
+    "tip_message.kofi": "请我喝杯咖啡",
+    "dropdown.add.recents.wrong_version": "在此版本不可用 ",
+    "modrinth.search.aria-label": "Modrinth上的数据包搜索栏",
+    "modrinth.include-mods": "包含的mods",
+    "modrinth.include-mods.aria-label": "搜索时包含的mods",
+    "settings.mc_version.mc1_21_5": "Minecraft 1.21.5",
+    "modrinth.ignore-version.aria-label": "在搜索时忽略Minecraft版本",
+    "modrinth.include-mods.notice": "并非所有mods都受此地图支持"
 }
