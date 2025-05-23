@@ -61,6 +61,7 @@
     "datapack_list.remove_datapack.title": "Remove pack",
     "menu.add.title": "Add Pack",
     "menu.search_biome.title": "Search Biome",
+    "menu.search_biome.toggle": "Toggle Biome Filter",
     "menu.structure_positions.title": "Structure Positions",
     "menu.reload_datapacks.title": "Reload Packs",
     "dropdown.add.zip": "Open Pack or Mod",

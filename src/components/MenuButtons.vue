@@ -73,7 +73,7 @@ function clearStructureSearch() {
                     :icon="!searchStore.disabled ? 'fa-toggle-on' : 'fa-toggle-off'"
                     class="button transparent"
                     tabindex="0"
-                    :title="$t('menu.search_biome.title')"
+                    :title="$t('menu.search_biome.toggle')"
                     @click.prevent="toggleBiomeSearch"
                 />
             </span>
