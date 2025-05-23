@@ -1,11 +1,13 @@
 import { Identifier, StructurePlacement, StructureSet, WorldgenStructure } from "deepslate";
 import { defineStore } from "pinia";
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 
 
 export const useSearchStore = defineStore('search', () => {
     const biomes = reactive<Set<string>>(new Set())
     const structures = reactive<Set<string>>(new Set())
+
+    const disabled = ref(false)
 
     const structure_sets = computed(() => {
         structures.size // make sure any change to structures triggers recomputation
@@ -39,5 +41,5 @@ export const useSearchStore = defineStore('search', () => {
         return {sets, has_invalid: has_invalid_set}
     })
 
-    return {biomes, structures, structure_sets}
+    return {biomes, structures, structure_sets, disabled}
 })

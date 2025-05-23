@@ -65,8 +65,10 @@ export class BiomeLayer extends L.GridLayer {
 			})
 
 
-		watch(this.searchStore.biomes, () => {
-			this.rerender()
+		watch([this.searchStore.biomes, () => this.searchStore.disabled], ([biomes, disabled], [oldBiomes, oldDisabled]) => {
+			// Do not re-render if no biomes were filtered, regardless of the disabled state
+			if (oldDisabled !== disabled && oldBiomes.size === 0 && biomes.size === 0) return
+			this.rerender() 
 		})
 
 		watch(do_hillshade, () => {
@@ -123,7 +125,10 @@ export class BiomeLayer extends L.GridLayer {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
 				const biome = tile.array[x + 1][z + 1].biome
 
-				if (this.searchStore.biomes.size > 0 && !this.searchStore.biomes.has(biome)) {
+				if (this.searchStore.biomes.size > 0
+					&& !this.searchStore.biomes.has(biome)
+					&& !this.searchStore.disabled
+				) {
 					continue
 				}
 
