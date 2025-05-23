@@ -22,18 +22,21 @@ function reload(event: MouseEvent){
     datapackStore.$patch({})
 }
 
-function clearBiomeSearch(event: Event){
+function toggleBiomeSearch() {
+    searchStore.disabled = !searchStore.disabled
+    searchStore.$patch({})
+}
+
+function clearBiomeSearch() {
     searchStore.biomes.clear()
     searchStore.$patch({})
     searchBiomeDropdownOpen.value = false
-    event.preventDefault()
 }
 
-function clearStructureSearch(event: Event){
+function clearStructureSearch() {
     searchStore.structures.clear()
     searchStore.$patch({})
     structureDropdownOpen.value = false
-    event.preventDefault()
 }
 
 
@@ -51,20 +54,38 @@ function clearStructureSearch(event: Event){
                 @click="openDropdownOpen = true"
                 @keypress.enter="openDropdownOpen = true"
             />
-            <font-awesome-icon
-                icon="fa-magnifying-glass"
-                class="button"
-                tabindex="0"
-                :class="{
-                    open: searchBiomeDropdownOpen,
-                    active: searchStore.biomes.size > 0
-                }"
-                :title="$t('menu.search_biome.title')"
-                @click="searchBiomeDropdownOpen = true"
-                @keypress.enter="searchBiomeDropdownOpen = true"
-                @contextmenu="clearBiomeSearch"    
-                @dblclick="clearBiomeSearch"
-            />
+            <span class="group-button" :class="{active: !searchStore.disabled}">
+                <font-awesome-icon
+                    icon="fa-magnifying-glass"
+                    class="button"
+                    tabindex="0"
+                    :class="{
+                        open: searchBiomeDropdownOpen,
+                        active: searchStore.biomes.size > 0
+                    }"
+                    :title="$t('menu.search_biome.title')"
+                    @click="searchBiomeDropdownOpen = true"
+                    @keypress.enter="searchBiomeDropdownOpen = true"
+                    @contextmenu.prevent="clearBiomeSearch"    
+                    @dblclick.prevent="clearBiomeSearch"
+                />
+                <font-awesome-icon
+                    v-show="!searchStore.disabled"
+                    icon="fa-toggle-on"
+                    class="button transparent"
+                    tabindex="0"
+                    :title="$t('menu.search_biome.title')"
+                    @click.prevent="toggleBiomeSearch"
+                />
+                <font-awesome-icon
+                    v-show="searchStore.disabled"
+                    icon="fa-toggle-off"
+                    class="button transparent"
+                    tabindex="0"
+                    :title="$t('menu.search_biome.title')"
+                    @click.prevent="toggleBiomeSearch"
+                />
+            </span>
             <font-awesome-icon
                 icon="fa-location-dot"
                 class="button"
@@ -76,8 +97,8 @@ function clearStructureSearch(event: Event){
                 :title="$t('menu.structure_positions.title')"
                 @click="structureDropdownOpen = true"
                 @keypress.enter="structureDropdownOpen = true"
-                @contextmenu="clearStructureSearch"    
-                @dblclick="clearStructureSearch"
+                @contextmenu.prevent="clearStructureSearch"    
+                @dblclick.prevent="clearStructureSearch"
             />
 
             <font-awesome-icon v-if="settingsStore.dev_mode" icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
@@ -138,7 +159,21 @@ function clearStructureSearch(event: Event){
 
 .button.active:hover {
     background-color: rgb(168, 192, 30);
+}
 
+.button.transparent {
+    background-color: transparent;
+}
+
+.button.transparent:hover {
+    background-color: transparent;
+}
+
+.group-button {
+    display: flex;
+    flex-direction: row;
+    border-radius: 0.5rem;
+    background-color: rgb(88, 88, 88);
 }
 
 .spacer {
