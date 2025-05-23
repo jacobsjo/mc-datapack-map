@@ -70,16 +70,7 @@ function clearStructureSearch() {
                     @dblclick.prevent="clearBiomeSearch"
                 />
                 <font-awesome-icon
-                    v-show="!searchStore.disabled"
-                    icon="fa-toggle-on"
-                    class="button transparent"
-                    tabindex="0"
-                    :title="$t('menu.search_biome.title')"
-                    @click.prevent="toggleBiomeSearch"
-                />
-                <font-awesome-icon
-                    v-show="searchStore.disabled"
-                    icon="fa-toggle-off"
+                    :icon="!searchStore.disabled ? 'fa-toggle-on' : 'fa-toggle-off'"
                     class="button transparent"
                     tabindex="0"
                     :title="$t('menu.search_biome.title')"
