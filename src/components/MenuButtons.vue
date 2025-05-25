@@ -70,6 +70,7 @@ function clearStructureSearch() {
                     @dblclick.prevent="clearBiomeSearch"
                 />
                 <font-awesome-icon
+                    v-if="searchStore.biomes.size > 0"
                     :icon="!searchStore.disabled ? 'fa-toggle-on' : 'fa-toggle-off'"
                     class="button transparent"
                     tabindex="0"
@@ -165,6 +166,10 @@ function clearStructureSearch() {
     flex-direction: row;
     border-radius: 0.5rem;
     background-color: rgb(88, 88, 88);
+}
+
+.group-button.active {
+    background-color: rgb(77, 87, 23);
 }
 
 .spacer {
