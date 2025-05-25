@@ -15,7 +15,7 @@ function toggleBiome(biome: Identifier){
     } else {
         searchStore.biomes.add(biome.toString())
     }
-    searchStore.$patch({}) // call $subscribe, not sure why this is necessary
+    searchStore.$patch({disabled: false})
 }
 
 function disableGroup(group: string){
@@ -23,6 +23,7 @@ function disableGroup(group: string){
         if (biome.startsWith(group + ":"))
             searchStore.biomes.delete(biome)
     });
+    searchStore.$patch({disabled: false})
 }
 
 function getColorString(biome: Identifier){
