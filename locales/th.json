@@ -93,7 +93,7 @@
     "settings.dimension.label": "มิติ:",
     "settings.dimension.aria-label": "มิติ",
     "settings.seed.label": "เมล็ดพันธุ์:",
-    "settings.seed.aria-label": "เมล็ดพันธุ์",
+    "settings.seed.aria-label": "ซีด",
     "modrinth.search.aria-label": "แถบค้นหาสำหรับดาต้าแพ็คใน Modrinth",
     "modrinth.include-mods": "รวมม็อด",
     "modrinth.include-mods.aria-label": "รวมม็อดไว้ในการค้นหา",
@@ -108,5 +108,6 @@
     "datapack_list.remove_datapack.title": "ลบดาต้าแพ็ค",
     "menu.reload_datapacks.title": "รีโหลดดาต้าแพ็ค",
     "dropdown.add.folder": "เปิดโฟลเดอร์",
-    "dropdown.add.built_in.title": "ดาต้าแพ็กในตัว"
+    "dropdown.add.built_in.title": "ดาต้าแพ็กในตัว",
+    "menu.search_biome.toggle": "สลับตัวกรองไบโอม"
 }
