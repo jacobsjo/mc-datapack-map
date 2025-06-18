@@ -290,5 +290,20 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
-
+	"1_21_6": {
+		vanillaDatapack: "1_21_6",
+		experimentalDatapacks: [],
+		datapackFormat: 80,
+		canonicalNames: ["1.21.6"],
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		},
+		biomes: {
+			cherry_grove: "minecraft:cherry_grove",
+			pale_garden_1: "minecraft:pale_garden",
+			pale_garden_2: "minecraft:pale_garden"
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: true
+	},
 }

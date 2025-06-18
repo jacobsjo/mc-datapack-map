@@ -13,6 +13,7 @@
     "settings.mc_version.mc1_21_3": "Minecraft 1.21.3",
     "settings.mc_version.mc1_21_4": "Minecraft 1.21.4",
     "settings.mc_version.mc1_21_5": "Minecraft 1.21.5",
+    "settings.mc_version.mc1_21_6": "Minecraft 1.21.6",
     "settings.dev_mode.label": "Developer Mode:",
     "settings.dev_mode.aria-label": "Developer Mode",
     "settings.world_preset.label": "World Preset:",
