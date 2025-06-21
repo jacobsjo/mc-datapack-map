@@ -117,7 +117,7 @@ onMounted(() => {
 
     map.addEventListener("contextmenu", async (evt: L.LeafletMouseEvent) => {
         const pos = getPosition(map, evt.latlng)
-        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run tp @s ${pos[0].toFixed(0)} ${(pos[1] + (project_down.value ? 10 : 0)).toFixed(0)} ${pos[2].toFixed()}`)
+        navigator.clipboard.writeText(`/execute in ${settingsStore.dimension.toString()} run minecraft:tp @s ${pos[0].toFixed(0)} ${(pos[1] + (project_down.value ? 10 : 0)).toFixed(0)} ${pos[2].toFixed()}`)
         show_info.value = true
         setTimeout(() => show_info.value = false, 2000)
     })
