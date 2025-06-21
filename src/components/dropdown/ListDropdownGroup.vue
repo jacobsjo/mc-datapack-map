@@ -48,7 +48,7 @@ function isGroupSelected (selected: any, group_name: any) {
         }"
         tabindex="0"
     >
-        <font-awesome-icon class="open_icon" :icon="shown ? 'fa-angle-down' : 'fa-angle-right'"/>
+        <font-awesome-icon class="open_icon" :icon="shown ? 'fa-angle-down' : i18n.t('locale.text_direction') === 'rtl' ? 'fa-angle-left' : 'fa-angle-right'"/>
         {{ group_name }}
     </div>
     <div class="group" v-if="shown">

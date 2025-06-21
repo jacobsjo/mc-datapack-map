@@ -1,5 +1,5 @@
 {
-    "map.error.structures_unsupported": "Alguma das estruturas selecionadas não tem suporte! Desculpe.",
+    "locale.text_direction": "ltr",
     "locale.local_name": "Português (Brasil)",
     "locale.minecraft_locale": "pt_br",
     "locale.change_locale.title": "Alterar idioma",
@@ -76,6 +76,7 @@
     "settings.dimension.aria-label": "Dimensão",
     "settings.seed.label": "Semente:",
     "settings.seed.aria-label": "Semente",
+    "map.error.structures_unsupported": "Alguma das estruturas selecionadas não tem suporte! Desculpe.",
     "map.tooltip.spawn": "Ponto de nascimento",
     "map.yslider.aria-label": "Camada Y",
     "map.yslider.y-label": "Y: {y}",

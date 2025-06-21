@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import L, { control } from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { Graticule } from "../MapLayers/Graticule";
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, watchEffect } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
 import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, Structure, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
@@ -48,6 +48,7 @@ watch(show_graticule, (value) => {
 })
 
 var map: L.Map
+var zoom: L.Control.Zoom
 var markers: L.LayerGroup
 var spawnMarker: L.Marker
 
@@ -66,9 +67,10 @@ onMounted(() => {
         crs: L.CRS.Simple
     })
 
-    L.control.zoom({
-        position: "topright"
-    }).addTo(map)
+    zoom = L.control.zoom({
+        position: i18n.t('locale.text_direction') === 'ltr' ? 'topright' : 'topleft'
+    })
+    zoom.addTo(map)
 
     biomeLayer = new BiomeLayer({
             tileSize: 256,
@@ -96,8 +98,8 @@ onMounted(() => {
 
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
         //        await datapackStore.registered
-        tooltip_left.value = evt.originalEvent.pageX + 10
-        tooltip_top.value = evt.originalEvent.pageY + 10
+        tooltip_left.value = evt.originalEvent.pageX-4
+        tooltip_top.value = evt.originalEvent.pageY-4
 
         const pos = getPosition(map, evt.latlng)
 
@@ -135,6 +137,10 @@ onMounted(() => {
     })*/
 
 });
+
+watch(i18n.locale, () => {
+    zoom.setPosition(i18n.t('locale.text_direction') === 'ltr' ? 'topright' : 'topleft')
+})
 
 function getPosition(map: L.Map, latlng: L.LatLng) {
     const crs = map.options.crs!
@@ -248,7 +254,7 @@ function updateMarkers() {
 function getMarker(structureId: Identifier, pos: BlockPos) {
     const crs = map.options.crs!
     const mapPos = new L.Point(pos[0], -pos[2])
-    const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${pos[0]}, ${pos[1]}, ${pos[2]}`)
+    const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${i18n.t("map.coords.xyz", {x: pos[0], y: pos[1], z: pos[2]})}`)
     const marker = L.marker(crs.unproject(mapPos))
     marker.bindPopup(popup).addTo(markers)
     const iconUrl = loadedDimensionStore.getIcon(structureId)
@@ -271,7 +277,7 @@ function updateSpawnMarker(){
         const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
         const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
         spawnMarker.setLatLng(crs.unproject(pos))
-        spawnMarker.bindPopup(L.popup().setContent(() => `${i18n.t("map.tooltip.spawn")}<br>${spawn[0] + 7}, ${spawn[1] + 7}`))
+        spawnMarker.bindPopup(L.popup().setContent(() => `${i18n.t("map.tooltip.spawn")}<br />${i18n.t("map.coords.xz", {x: spawn[0] + 7, z: spawn[1] + 7})}`))
         spawnMarker.addTo(map)
     } else {
         spawnMarker.removeFrom(map)
@@ -366,6 +372,11 @@ watch(searchStore.structures, () => {
     flex-direction: column;
     align-items: end;
     gap: 0.5rem;
+}
+
+.map_options:dir(rtl) {
+    right: unset;
+    left: 0.85rem;
 }
 
 #tooltip {

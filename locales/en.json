@@ -1,4 +1,5 @@
 {
+    "locale.text_direction": "ltr",
     "locale.local_name": "English",
     "locale.minecraft_locale": "en_us",
     "locale.change_locale.title": "Change Language",
@@ -107,6 +108,8 @@
     "map.setting.sealevel": "Show sea level",
     "map.setting.hillshade": "Enable hillshading",
     "map.setting.graticule": "Show region grid",
+    "map.coords.xyz": "{x}, {y}, {z}",
+    "map.coords.xz": "{x}, {z}",
     "tip_message.message": "If you find this map useful, I would appreciate a Tip!",
     "tip_message.kofi": "Buy Me a Coffee",
     "tip_message.github": "Sponsor",

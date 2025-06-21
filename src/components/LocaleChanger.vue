@@ -21,7 +21,7 @@ function updateUrlSearch(locale: string) {
     <div class="locale-changer">
         <font-awesome-icon icon="fa-earth-europe" class="icon" :title="$t('locale.change_locale.title')" />
         <select v-model="$i18n.locale" @change="() => updateUrlSearch($i18n.locale)">
-            <option v-for="lang in $i18n.availableLocales" :key="lang" :value="lang">
+            <option v-for="lang in $i18n.availableLocales" :key="lang" :value="lang" :dir="$t('locale.text_direction', [], { locale: lang })">
                 {{ $t("locale.local_name", [], { locale: lang }) }}
             </option>
         </select>

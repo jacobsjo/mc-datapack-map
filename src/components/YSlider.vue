@@ -5,6 +5,7 @@ import 'vue-slider-component/theme/default.css'
 import { useDatapackStore } from '../stores/useDatapackStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
+import { useI18n } from 'vue-i18n';
 
 const loadedDimensionStore = useLoadedDimensionStore()
 const settingsStore = useSettingsStore()
@@ -19,13 +20,15 @@ const props = defineProps({
     'y': Number
 })
 
+const i18n = useI18n()
+
 defineEmits(['update:y'])
 
 </script>
 
 <template>
     <div class="slider">
-        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="level_height !== undefined" direction="btt" height="18rem" tooltip-placement="left" tooltip="hover" :lazy="true" :process="false"
+        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="level_height !== undefined" direction="btt" height="18rem" :tooltip-placement="i18n.t('locale.text_direction') === 'rtl' ? 'right' : 'left'" tooltip="hover" :lazy="true" :process="false"
             v-bind:model-value="y"
             @change="y => $emit('update:y', y)"
             :max="level_height.minY + level_height.height" :min="level_height.minY"

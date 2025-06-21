@@ -79,6 +79,11 @@ import { useUiStore } from '../stores/useUiStore';
     transition: 0.3s;
 }
 
+.close_button:dir(rtl) {
+    right: unset;
+    left: 0rem;
+}
+
 .close_button:hover{
     background-color: rgb(255, 133, 133);
 }

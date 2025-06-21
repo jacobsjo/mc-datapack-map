@@ -1,4 +1,5 @@
 {
+    "locale.text_direction": "ltr",
     "modrinth.include-mods.notice": "ไม่ใช่ทุกม็อดที่รองรับแผนที่นี้",
     "map.info.structures_hidden": "สิ่งก่อสร้างบางส่วนถูกซ่อนไว้ ซูมเข้าเพื่อดูเพิ่มเติม",
     "map.error.structures_unsupported": "ขออภัย สิ่งก่อสร้างบางส่วนที่เลือกไว้ไม่รองรับ",

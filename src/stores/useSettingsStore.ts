@@ -1,6 +1,6 @@
 import { Identifier } from "deepslate";
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDatapackStore } from "./useDatapackStore";
 import { EventTracker } from "../util/EventTracker";
@@ -65,6 +65,11 @@ export const useSettingsStore = defineStore('settings', () => {
         if ((await datapackStore.dimensions)?.findIndex((id) => id.equals(dimension.value)) === -1) {
             dimension.value = (await datapackStore.dimensions)[0]
         }
+    })
+
+    watchEffect(() => {
+        document.dir = i18n.t('locale.text_direction','ltr')
+        document.documentElement.lang = i18n.locale.value
     })
 
     function getLocalizedName(type: string, id: Identifier, path_only: boolean){

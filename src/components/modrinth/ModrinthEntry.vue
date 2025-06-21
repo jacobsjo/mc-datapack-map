@@ -10,7 +10,7 @@ defineEmits(['click'])
 </script>
 
 <template>
-    <div class="entry" @click="$emit('click')" @keypress.enter="$emit('click')" tabindex="0">
+    <div class="entry" dir="ltr" @click="$emit('click')" @keypress.enter="$emit('click')" tabindex="0">
         <img crossorigin="anonymous" :src="icon_url" />
         <div class="text">
             <span class="title">{{ title }}</span>

@@ -24,6 +24,11 @@ const open = ref(true)
     z-index: 5000;
 }
 
+.content:dir(rtl) {
+    left: unset;
+    right: 0;
+}
+
 .toggle {
     background-color: rgb(3, 33, 58);
     width: 3rem;
@@ -39,9 +44,21 @@ const open = ref(true)
     display: flex;
 }
 
+.toggle:dir(rtl) {
+    left: unset;
+    right: 0;
+    border-radius: 1rem 0 0 1rem;
+}
+
 .toggle.open {
     left: 15.8rem;
     border-radius: 1rem;
+}
+
+.toggle.open:dir(rtl) {
+    left: unset;
+    right: 15.8rem;
+    border-radius: 1rem 0 0 1rem;
 }
 
 .icon {
@@ -66,4 +83,10 @@ const open = ref(true)
 .slide-leave-to {
     transform: translate(-100%, 0);
 }
+
+.slide-enter-from:dir(rtl),
+.slide-leave-to:dir(rtl) {
+    transform: translate(100%, 0);
+}
+
 </style>
