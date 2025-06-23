@@ -241,11 +241,12 @@ const PRESET_DATAPACKS = computed(() => {
 
 .title {
     color: rgb(53, 53, 53);
-    text-align: left;
+    text-align: initial;
     width: 100%;
+    box-sizing: border-box;
     margin-top: 0;
     font-size: smaller;
-    padding-left: 1rem;
+    padding-inline-start: 1rem;
     margin-bottom: 0.2rem;
 }
 

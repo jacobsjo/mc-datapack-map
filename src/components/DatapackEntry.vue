@@ -44,7 +44,7 @@ import { computed } from 'vue';
         display: flex;
         align-items: center;
         position: relative;
-        padding-right: 0.3rem;
+        padding-inline-end: 0.3rem;
         gap: 0.3rem;
     }
 
@@ -57,6 +57,10 @@ import { computed } from 'vue';
         height: 4rem;
         border-radius: 0.5rem 0 0 0.5rem;
         user-select: none;
+    }
+
+    .image:dir(rtl) {
+        border-radius: 0 0.5rem 0.5rem 0;
     }
 
     .description {

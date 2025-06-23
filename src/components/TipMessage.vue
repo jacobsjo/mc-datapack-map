@@ -78,13 +78,13 @@ a.github:hover {
 a img{
     height: 13px;
     width: 20px;
-    padding-right: 0.3rem;
+    padding-inline-end: 0.3rem;
 }
 
 a svg {
     height: 16px;
     width: 20px;
-    padding-right: 0.3rem;
+    padding-inline-end: 0.3rem;
     margin-bottom: -0.1rem;
 }
 
