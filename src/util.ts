@@ -290,11 +290,11 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
-	"1_21_6": {
-		vanillaDatapack: "1_21_6",
+	"1_21_7": {
+		vanillaDatapack: "1_21_7",
 		experimentalDatapacks: [],
-		datapackFormat: 80,
-		canonicalNames: ["1.21.6"],
+		datapackFormat: 81,
+		canonicalNames: ["1.21.6", "1.21.7"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
