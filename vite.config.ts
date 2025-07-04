@@ -15,12 +15,27 @@ export default defineConfig({
       injectRegister: 'script',
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,zip,txt,webp,jar}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,txt,webp}'],
         maximumFileSizeToCacheInBytes: 2e+9, // 2 GB
         globIgnores: [
           'images/px.png'
         ],
         runtimeCaching: [
+          // vanilla datapacks
+          {
+            urlPattern: /^https?:\/\/(map\.jacobsjo\.eu|localhost:4173)\/vanilla_datapacks\/.*\.zip$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: "vanilla-datapack-cache",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 90 // 90 days
+              },
+              cacheableResponse: {
+                statuses: [200]
+              }              
+            }
+          },
           // structure icons from mcicons
           {
             urlPattern: /^https:\/\/raw\.githubusercontent\.com\/jacobsjo\/mcicons\/icons\/item\/.*/i,
