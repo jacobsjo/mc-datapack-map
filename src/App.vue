@@ -5,6 +5,8 @@ import MainMap from './components/MainMap.vue';
 import Sidebar from './components/Sidebar.vue';
 import { useLoadedDimensionStore } from './stores/useLoadedDimensionStore';
 import { useUiStore } from './stores/useUiStore';
+import Popup from './components/Popup.vue';
+import ModrinthMenu from './components/modrinth/ModrinthMenu.vue';
 
 const loaded = ref(false)
 
@@ -28,7 +30,6 @@ onBeforeMount(async () => {
   </div>
   <div class="layout loading" v-else>
     <p>Loading...</p>
-    <img :src="`/images/px.png?t=${Date.now()}`" alt="" width="1" height="1" style="display:none" />
   </div>
 </template>
 

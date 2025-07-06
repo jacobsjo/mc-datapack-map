@@ -17,9 +17,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,txt,webp}'],
         maximumFileSizeToCacheInBytes: 2e+9, // 2 GB
-        globIgnores: [
-          'images/px.png'
-        ],
         runtimeCaching: [
           // vanilla datapacks
           {
