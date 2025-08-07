@@ -271,7 +271,7 @@ function getMarker(structureId: Identifier, pos: BlockPos) {
 }
 
 function updateSpawnMarker(){
-    if (settingsStore.dimension.equals(Identifier.create("overworld"))){
+    if (settingsStore.dimension.toString() === "minecraft:overworld"){
         const crs = map.options.crs!
         const spawnTarget = SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
         const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)

@@ -1,5 +1,5 @@
 import { Climate, DensityFunction, Identifier, lerp, NoiseRouter, NoiseSettings, WorldgenRegistries } from "deepslate"
-import { ResourceLocation } from "mc-datapack-loader"
+import { PackFormat, ResourceLocation } from "mc-datapack-loader"
 import { SpawnTarget } from "./util/SpawnTarget"
 
 export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
@@ -107,7 +107,7 @@ export function updateUrlParam(param: string, value?: string, default_value?: st
 
 type Metadata = {
 	vanillaDatapack: string,
-	datapackFormat: number,
+	datapackFormat: PackFormat,
 	canonicalNames: string[],
 	resourceLocations: {
 		structure: ResourceLocation
@@ -134,7 +134,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 				translation_key: "dropdown.add.built_in.update_1_20"
 			}
 		],
-		datapackFormat: 12,
+		datapackFormat: new PackFormat(12),
 		canonicalNames: ["1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
@@ -150,7 +150,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_20": {
 		vanillaDatapack: "1_20",
 		experimentalDatapacks: [],
-		datapackFormat: 15,
+		datapackFormat: new PackFormat(15),
 		canonicalNames: ["1.20", "1.20.1"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
@@ -166,7 +166,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_20_2": {
 		vanillaDatapack: "1_20_2",
 		experimentalDatapacks: [],
-		datapackFormat: 18,
+		datapackFormat: new PackFormat(18),
 		canonicalNames: ["1.20.2"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
@@ -187,7 +187,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 				translation_key: "dropdown.add.built_in.update_1_21"
 			}
 		],
-		datapackFormat: 26,
+		datapackFormat: new PackFormat(26),
 		canonicalNames: ["1.20.3", "1.20.4"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
@@ -208,7 +208,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 				translation_key: "dropdown.add.built_in.update_1_21"
 			}
 		],
-		datapackFormat: 41,
+		datapackFormat: new PackFormat(41),
 		canonicalNames: ["1.20.5", "1.20.6"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
@@ -224,7 +224,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_21_1": {
 		vanillaDatapack: "1_21",
 		experimentalDatapacks: [],
-		datapackFormat: 48,
+		datapackFormat: new PackFormat(48),
 		canonicalNames: ["1.21", "1.21.1"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
@@ -245,7 +245,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 				"translation_key": "dropdown.add.built_in.winter_drop"
 			}
 		],
-		datapackFormat: 57,
+		datapackFormat: new PackFormat(57),
 		canonicalNames: ["1.21.2", "1.21.3"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
@@ -261,7 +261,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_21_4": {
 		vanillaDatapack: "1_21_4",
 		experimentalDatapacks: [],
-		datapackFormat: 61,
+		datapackFormat: new PackFormat(61),
 		canonicalNames: ["1.21.4"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
@@ -277,7 +277,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 	"1_21_5": {
 		vanillaDatapack: "1_21_5",
 		experimentalDatapacks: [],
-		datapackFormat: 71,
+		datapackFormat: new PackFormat(71),
 		canonicalNames: ["1.21.5"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
@@ -290,11 +290,27 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
-	"1_21_7": {
-		vanillaDatapack: "1_21_7",
+	"1_21_8": {
+		vanillaDatapack: "1_21_8",
 		experimentalDatapacks: [],
-		datapackFormat: 81,
-		canonicalNames: ["1.21.6", "1.21.7"],
+		datapackFormat: new PackFormat(81),
+		canonicalNames: ["1.21.6", "1.21.7", "1.21.8"],
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		},
+		biomes: {
+			cherry_grove: "minecraft:cherry_grove",
+			pale_garden_1: "minecraft:pale_garden",
+			pale_garden_2: "minecraft:pale_garden"
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: true
+	},
+	"1_21_9": {
+		vanillaDatapack: "1_21_9",
+		experimentalDatapacks: [],
+		datapackFormat: new PackFormat(83, 0),
+		canonicalNames: ["25w32a"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},

@@ -54,17 +54,19 @@ export const useDatapackStore = defineStore('datapacks', () => {
         updateUrlParam('datapacks', ids.length > 0 ? ids.join(',') : undefined)
     })
 
-    const composite_datapack = Datapack.compose(new class implements DatapackList{
+    const datapack_list = new class implements DatapackList{
         async getDatapacks(): Promise<AnonymousDatapack[]> {
             return datapacks.map(d => d.datapack)
         }
-    })
+    }
+
+    const composite_datapack = Datapack.compose(datapack_list)
 
     const dimensions = computed(async () => {
         const world_preset_json = await composite_datapack.get(ResourceLocation.WORLDGEN_WORLD_PRESET, settingsStore.world_preset) as { dimensions: { [key: string]: unknown } }
         return (await composite_datapack.getIds(ResourceLocation.DIMENSION)).concat(Object.keys(world_preset_json.dimensions).map(i => Identifier.parse(i))).filter((value, index, self) =>
             index === self.findIndex((t) => (
-                t.equals(value)
+                t.toString() === value.toString()
             ))
         )
     })

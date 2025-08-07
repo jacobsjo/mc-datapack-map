@@ -52,12 +52,15 @@ export const useRecentStore = defineStore('recents', () => {
             recents.value.splice(old_id, 1)
         }
 
-        const mcmeta = Json.readObject((await datapack.getMcmeta())) ?? {}
-        const pack = Json.readObject(mcmeta.pack) ?? {}
+        const mcmeta = await datapack.getMcmeta()
+        if (mcmeta === undefined){
+            console.log('Not storing datapack in recents, as no pack.mcmeta exists')
+            return
+        }
 
         addRecent({
             img: await datapack.getImage(),
-            text: TextComponent.parse(pack.description).toString().split('\n')[0],
+            text: TextComponent.parse(mcmeta.description).toString().split('\n')[0],
             fileHandle: fileHandle,
             storedInOpfs
         })

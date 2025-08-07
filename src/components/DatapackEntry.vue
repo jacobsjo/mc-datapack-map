@@ -17,10 +17,8 @@ import { computed } from 'vue';
     const datapack = (props.datapack as Datapack)!
     const image = await datapack.getImage()
     const mcMeta = await datapack.getMcmeta()
-    const rawDescription = mcMeta?.pack.description
-    const formatRange = mcMeta?.pack.supported_formats ?? mcMeta?.pack.pack_format ?? 0
-    const supported = computed(() => PackMcmeta.MatchFormatRange(formatRange, versionMetadata[settings.mc_version].datapackFormat))
-    const desciption = TextComponent.parse(rawDescription ?? "")
+    const supported = computed(() => mcMeta !== undefined ? PackMcmeta.MatchFormatRange(mcMeta.formats, versionMetadata[settings.mc_version].datapackFormat) : false)
+    const desciption = TextComponent.parse(mcMeta?.description ?? "")
 
 </script>
 
