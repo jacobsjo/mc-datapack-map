@@ -3,19 +3,23 @@ import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import FindBiomeDropdown from './dropdown/FindBiomeDropdown.vue';
 import OpenDropdown from './dropdown/OpenDropdown.vue';
+import CoordinateDropdown from './dropdown/CoordinateDropdown.vue';
 import { vOnClickOutside }from '@vueuse/components';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
+import { useCoordinateStore } from '../stores/useCoordinateStore';
 import StructureDropdown from './dropdown/StructureDropdown.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { EventTracker } from '../util/EventTracker';
 
 const datapackStore = useDatapackStore()
 const searchStore = useSearchStore()
+const coordinateStore = useCoordinateStore()
 const settingsStore = useSettingsStore()
 
 const openDropdownOpen = ref(false)
 const searchBiomeDropdownOpen = ref(false)
 const structureDropdownOpen = ref(false)
+const coordinateDropdownOpen = ref(false)
 
 function reload(event: MouseEvent){
     EventTracker.track("reload")
@@ -37,6 +41,24 @@ function clearStructureSearch() {
     searchStore.structures.clear()
     searchStore.$patch({})
     structureDropdownOpen.value = false
+}
+
+function clearCoordinateSearch() {
+    coordinateStore.clear()
+    coordinateDropdownOpen.value = false
+}
+
+const emit = defineEmits<{
+    navigateToCoordinates: [x: number, z: number]
+    getCurrentMapCenter: []
+}>()
+
+function handleCoordinateNavigation(x: number, z: number) {
+    emit('navigateToCoordinates', x, z)
+}
+
+function handleGetCurrentLocation() {
+    emit('getCurrentMapCenter')
 }
 
 
@@ -93,6 +115,20 @@ function clearStructureSearch() {
                 @dblclick.prevent="clearStructureSearch"
             />
 
+            <font-awesome-icon
+                icon="fa-crosshairs"
+                class="button"
+                tabindex="0"
+                :class="{
+                    open: coordinateDropdownOpen
+                }"
+                :title="$t('menu.coordinate_search.title')"
+                @click="coordinateDropdownOpen = true"
+                @keypress.enter="coordinateDropdownOpen = true"
+                @contextmenu.prevent="clearCoordinateSearch"    
+                @dblclick.prevent="clearCoordinateSearch"
+            />
+
             <font-awesome-icon v-if="settingsStore.dev_mode" icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
         </div>
         <div class="dropdowns">
@@ -108,6 +144,16 @@ function clearStructureSearch() {
                 <Suspense>
                     <StructureDropdown v-if="structureDropdownOpen" v-on-click-outside="() => {structureDropdownOpen=false}" tabindex="-1"/>
                 </Suspense>
+            </Transition>
+            <Transition>
+                <CoordinateDropdown 
+                    v-if="coordinateDropdownOpen" 
+                    v-on-click-outside="() => {coordinateDropdownOpen=false}" 
+                    @navigate="handleCoordinateNavigation"
+                    @getCurrentLocation="handleGetCurrentLocation"
+                    @close="coordinateDropdownOpen=false"
+                    tabindex="-1"
+                />
             </Transition>
         </div>
     </div>
