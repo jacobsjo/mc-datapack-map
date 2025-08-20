@@ -24,9 +24,12 @@ onBeforeMount(async () => {
 <template>
   <div class="layout" v-if="loaded">
     <Collapsable>
-      <Sidebar />
+      <Sidebar 
+        @navigateToCoordinates="(x, z) => $refs.mainMap?.navigateToCoordinates(x, z)" 
+        @getCurrentMapCenter="() => $refs.mainMap?.getCurrentMapCenter()"
+      />
     </Collapsable>
-    <MainMap />
+    <MainMap ref="mainMap" />
   </div>
   <div class="layout loading" v-else>
     <p>Loading...</p>

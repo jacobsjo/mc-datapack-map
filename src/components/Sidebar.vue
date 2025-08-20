@@ -16,6 +16,12 @@ import { EventTracker } from '../util/EventTracker';
     const settingsStore = useSettingsStore()
     const recentStore = useRecentStore();
 
+    const emit = defineEmits<{
+        navigateToCoordinates: [x: number, z: number]
+        getCurrentMapCenter: []
+        open_popup: []
+    }>()
+
     const file_dragging = ref(false)
     const show_tipmessage = ref(true)
 
@@ -75,7 +81,10 @@ import { EventTracker } from '../util/EventTracker';
         @dragleave="file_dragging=false"
         :class="{file_dragging: file_dragging}"
     >
-        <MenuButtons />
+        <MenuButtons 
+            @navigateToCoordinates="(x, z) => $emit('navigateToCoordinates', x, z)" 
+            @getCurrentMapCenter="() => $emit('getCurrentMapCenter')"
+        />
         <Suspense>
             <SettingsPanel />
         </Suspense>

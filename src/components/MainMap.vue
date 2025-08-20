@@ -9,7 +9,8 @@ import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, St
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
-import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
+import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore';
+import { useCoordinateStore } from '../stores/useCoordinateStore'
 import { CachedBiomeSource } from '../util/CachedBiomeSource';
 import MapButton from './MapButton.vue';
 import { SpawnTarget } from '../util/SpawnTarget';
@@ -19,6 +20,7 @@ import { versionMetadata } from "../util";
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
 const loadedDimensionStore = useLoadedDimensionStore()
+const coordinateStore = useCoordinateStore()
 const i18n = useI18n()
 
 let biomeLayer: BiomeLayer
@@ -305,6 +307,43 @@ loadedDimensionStore.$subscribe((mutation, state) => {
 
 watch(searchStore.structures, () => {
     updateMarkers()
+})
+
+// Coordinate navigation function
+function navigateToCoordinates(x: number, z: number) {
+    if (!map) return
+    
+    const crs = map.options.crs!
+    const point = new L.Point(x, -z)
+    const latlng = crs.unproject(point)
+    
+    // Center the map on the coordinates with a smooth animation
+    map.setView(latlng, map.getZoom(), {
+        animate: true,
+        duration: 0.5
+    })
+}
+
+// Get current map center coordinates
+function getCurrentMapCenter() {
+    if (!map) return
+    
+    const center = map.getCenter()
+    const crs = map.options.crs!
+    const point = crs.project(center)
+    
+    // Convert to Minecraft coordinates
+    const x = Math.round(point.x)
+    const z = Math.round(-point.y)
+    
+    // Update the coordinate store with current location
+    coordinateStore.setCoordinates(x, z)
+}
+
+// Expose the navigation functions
+defineExpose({
+    navigateToCoordinates,
+    getCurrentMapCenter
 })
 
 </script>
