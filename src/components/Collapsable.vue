@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+const i18n = useI18n()
 
 const open = ref(true)
 </script>
 
 <template>
     <div class="toggle" :class="{open}" >
-        <font-awesome-icon icon="fa-bars" class="icon" tabindex="0" @click="open = !open" @keypress.enter="open = !open" :title="$t('toggle_sidebar.title')" />
+        <font-awesome-icon icon="fa-bars" class="icon" tabindex="0" @click="open = !open" @keypress.enter="open = !open" :title="i18n.t('toggle_sidebar.title')" />
     </div>
     <div class="content">
         <Transition name="slide">

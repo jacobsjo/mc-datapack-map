@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import DropdownEntry from './DropdownEntry.vue';
+
+const i18n = useI18n()
 
 defineProps({
     image: String,
@@ -14,14 +17,14 @@ defineProps({
             <img v-if="image !== undefined" :src="image" class="icon" />
         </template>
         <template #smallIcon>
-            <font-awesome-icon v-if="type==='file'" class="smallIcon" icon="fa-file-zipper" :title="$t('dropdown.add.recents.type.zip')" />
-            <font-awesome-icon v-if="type==='directory'" class="smallIcon" icon="fa-folder-open" :title="$t('dropdown.add.recents.type.folder')"/>
-            <img v-if="type==='modrinth'" src="/images/modrinth.svg" class="smallIcon" :title="$t('dropdown.add.recents.type.modrinth')"/>
+            <font-awesome-icon v-if="type==='file'" class="smallIcon" icon="fa-file-zipper" :title="i18n.t('dropdown.add.recents.type.zip')" />
+            <font-awesome-icon v-if="type==='directory'" class="smallIcon" icon="fa-folder-open" :title="i18n.t('dropdown.add.recents.type.folder')"/>
+            <img v-if="type==='modrinth'" src="/images/modrinth.svg" class="smallIcon" :title="i18n.t('dropdown.add.recents.type.modrinth')"/>
         </template>
         <div class="main">
             <slot></slot>
             <div class="unavailable" v-if="disabled">
-                {{ $t('dropdown.add.recents.wrong_version') }}
+                {{ i18n.t('dropdown.add.recents.wrong_version') }}
             </div>
         </div>
     </DropdownEntry>

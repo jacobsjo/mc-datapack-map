@@ -5,6 +5,9 @@ import { useSearchStore } from '../../stores/useBiomeSearchStore'
 import { Identifier, WorldgenRegistries } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n()
 
 const searchStore = useSearchStore()
 const loadedDimensionStore = useLoadedDimensionStore()
@@ -35,7 +38,7 @@ function getColorString(biome: Identifier){
 
 
 <template>
-    <ListDropdown :type="'biome'" :placeholder="$t('dropdown.search_biome.placeholder')" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
+    <ListDropdown :type="'biome'" :placeholder="i18n.t('dropdown.search_biome.placeholder')" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

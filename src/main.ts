@@ -21,7 +21,7 @@ EventTracker.init()
 const uri = window.location.search.substring(1)
 const params = new URLSearchParams(uri)
 var lang = params.get('lang') ?? 'en'
-if (messages[lang] === undefined){
+if (messages?.[lang] === undefined){
     lang = 'en'
     params.set('lang', 'en')
     window.location.search = params.toString()

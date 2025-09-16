@@ -28,11 +28,11 @@ defineEmits(['update:y'])
 
 <template>
     <div class="slider">
-        <vue-slider :dot-attrs="{'aria-label': $t('map.yslider.aria-label')}" v-if="level_height !== undefined" direction="btt" height="18rem" :tooltip-placement="i18n.t('locale.text_direction') === 'rtl' ? 'right' : 'left'" tooltip="hover" :lazy="true" :process="false"
+        <vue-slider :dot-attrs="{'aria-label': i18n.t('map.yslider.aria-label')}" v-if="level_height !== undefined" direction="btt" height="18rem" :tooltip-placement="i18n.t('locale.text_direction') === 'rtl' ? 'right' : 'left'" tooltip="hover" :lazy="true" :process="false"
             v-bind:model-value="y"
             @change="y => $emit('update:y', y)"
             :max="level_height.minY + level_height.height" :min="level_height.minY"
-            :tooltip-formatter="v => $t('map.yslider.y-label', {y: v})" />
+            :tooltip-formatter="v => i18n.t('map.yslider.y-label', {y: v})" />
     </div>
 </template>
 

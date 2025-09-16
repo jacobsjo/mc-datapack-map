@@ -3,11 +3,11 @@ import { ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList";
-import { VANILLA_ITEMS } from "../BuildIn/VanillaItems";
-import { getCustomDensityFunction, hashCode } from "../util";
-import { useDatapackStore } from "./useDatapackStore";
-import { useSettingsStore } from "./useSettingsStore";
+import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList.js";
+import { VANILLA_ITEMS } from "../BuildIn/VanillaItems.js";
+import { getCustomDensityFunction, hashCode } from "../util.js";
+import { useDatapackStore } from "./useDatapackStore.js";
+import { useSettingsStore } from "./useSettingsStore.js";
 
 import messages from '@intlify/unplugin-vue-i18n/messages'
 
@@ -132,7 +132,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 }
             }
 
-            i18n.setLocaleMessage(locale, messages[locale]) 
+            i18n.setLocaleMessage(locale, messages?.[locale] ?? {}) 
             if (locale === "en"){
                 i18n.mergeLocaleMessage(locale, default_messages)
             }

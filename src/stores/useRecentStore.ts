@@ -3,7 +3,7 @@ import { Datapack } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { get, set } from 'idb-keyval'
-import { TextComponent } from "../util/TextComponent";
+import { TextComponent } from "../util/TextComponent.js";
 
 
 export type StoredDatapack = { img: string, text: string, fileHandle?: FileSystemHandle, storedInOpfs?: boolean, modrinthSlug?: string }

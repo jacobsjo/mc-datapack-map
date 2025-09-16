@@ -1,12 +1,12 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
 import { Climate } from "deepslate";
-import { calculateHillshade, getCustomDensityFunction, hashCode } from "../util";
+import { calculateHillshade, getCustomDensityFunction, hashCode } from "../util.js";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
-import { useSearchStore } from "../stores/useBiomeSearchStore";
-import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore";
-import { useSettingsStore } from "../stores/useSettingsStore";
-import { useDatapackStore } from "../stores/useDatapackStore";
+import { useSearchStore } from "../stores/useBiomeSearchStore.js";
+import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore.js";
+import { useSettingsStore } from "../stores/useSettingsStore.js";
+import { useDatapackStore } from "../stores/useDatapackStore.js";
 import { Ref, toRaw, watch } from "vue";
 import { ResourceLocation } from "mc-datapack-loader";
 

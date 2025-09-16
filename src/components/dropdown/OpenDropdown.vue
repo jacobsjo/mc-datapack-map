@@ -200,29 +200,29 @@ const PRESET_DATAPACKS = computed(() => {
 
 <template>
     <Dropdown>
-        <DropdownIconEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ $t('dropdown.add.zip')
+        <DropdownIconEntry icon="fa-file-zipper" @click="loadZip" @keypress.enter="loadZip">{{ i18n.t('dropdown.add.zip')
         }}</DropdownIconEntry>
         <DropdownIconEntry icon="fa-folder-open" @click="loadFolder" @keypress.enter="loadFolder"> {{
-            $t('dropdown.add.folder') }} </DropdownIconEntry>
+            i18n.t('dropdown.add.folder') }} </DropdownIconEntry>
         <DropdownIconEntry image="/images/modrinth.svg" @click="openModrinth" @keypress.enter="openModrinth"> {{
-            $t('dropdown.add.modrinth') }} </DropdownIconEntry>
-        <Popup ref="modrinthPopup" :title="$t('modrinth.title')" v-slot="slotProps">
+            i18n.t('dropdown.add.modrinth') }} </DropdownIconEntry>
+        <Popup ref="modrinthPopup" :title="i18n.t('modrinth.title')" v-slot="slotProps">
             <ModrinthMenu @close="slotProps.close()"/>
         </Popup>
         <div class="spacer" v-if="PRESET_DATAPACKS.length > 0"></div>
-        <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ $t('dropdown.add.built_in.title') }} </div>
+        <div class="title" v-if="PRESET_DATAPACKS.length > 0">{{ i18n.t('dropdown.add.built_in.title') }} </div>
         <DropdownRecentsEntry v-for="preset in PRESET_DATAPACKS" :image="preset.image" @click="loadPreset(preset);"
-            @keypress.enter="loadPreset(preset)">{{ $t(preset.message_key) }}</DropdownRecentsEntry>
+            @keypress.enter="loadPreset(preset)">{{ i18n.t(preset.message_key) }}</DropdownRecentsEntry>
         <div class="spacer"></div>
-        <div class="title">{{ $t('dropdown.add.recents.title') }}</div>
+        <div class="title">{{ i18n.t('dropdown.add.recents.title') }}</div>
         <div class="enable" v-if="recentStore.avalible && !recentStore.enabled" @click="recentStore.enable()"
             @keypress.enter="recentStore.enable()" tabindex="0">
-            {{ $t('dropdown.add.recents.enable') }}
-            <div class="note">{{ $t('dropdown.add.recents.enable.note') }}</div>
+            {{ i18n.t('dropdown.add.recents.enable') }}
+            <div class="note">{{ i18n.t('dropdown.add.recents.enable.note') }}</div>
         </div>
         <div class="empty" v-if="recentStore.avalible && recentStore.enabled && recentStore.recents.length === 0">--- {{
-            $t('dropdown.add.recents.empty') }} ---</div>
-        <div class="empty small" v-if="!recentStore.avalible">{{ $t('dropdown.add.recents.unavailable') }}</div>
+            i18n.t('dropdown.add.recents.empty') }} ---</div>
+        <div class="empty small" v-if="!recentStore.avalible">{{ i18n.t('dropdown.add.recents.unavailable') }}</div>
         <DropdownRecentsEntry v-for="recent in recentStore.recents" :image="recent.img" :title="recent.fileHandle?.name ?? recent.modrinthSlug" :type="recent.modrinthSlug ? 'modrinth' : recent.fileHandle?.kind"
             @click="loadRecent(recent)" @keypress.enter="loadRecent(recent)" :disabled="recent.modrinthSlug !== undefined && disabledRecents.includes(recent.modrinthSlug)"> {{ recent.text }} </DropdownRecentsEntry>
     </Dropdown>

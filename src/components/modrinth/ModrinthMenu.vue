@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
-import { useSettingsStore } from '../../stores/useSettingsStore';
-import { versionMetadata } from '../../util';
+import { useSettingsStore } from '../../stores/useSettingsStore.js';
+import { versionMetadata } from '../../util.js';
 import ModrinthEntry from './ModrinthEntry.vue';
 import Faq from '../Faq.vue';
-import { Datapack } from 'mc-datapack-loader';
-import { useDatapackStore } from '../../stores/useDatapackStore';
-import { useRecentStore } from '../../stores/useRecentStore';
-import { EventTracker } from '../../util/EventTracker';
+import { useDatapackStore } from '../../stores/useDatapackStore.js';
+import { useRecentStore } from '../../stores/useRecentStore.js';
+import { EventTracker } from '../../util/EventTracker.js';
+import { useI18n } from 'vue-i18n';
 
 const emit = defineEmits(['close'])
+
+const {t, locale} = useI18n()
 
 const settingsStore = useSettingsStore()
 const queryString = ref("")
@@ -51,17 +53,17 @@ async function addDatapack(slug: string, title: string){
 
 <template>
     <div class="modrinth_menu">
-        <input class="search" autofocus :aria-label="$t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="$t('modrinth.search.placeholder')" @change="runSearch"/>
+        <input class="search" autofocus :aria-label="t('modrinth.search.aria-label')" v-model="queryString" type="text" :placeholder="t('modrinth.search.placeholder')" @change="runSearch"/>
         <div class="settings">
             <div class="setting">
-                <input type="checkbox" id="include-mods" :aria-label="$t('modrinth.include-mods.aria-label')" v-model="includeMods" @change="runSearch" />
-                <label for="include-mods">{{$t('modrinth.include-mods')}}</label>
-                <Faq class="faq">{{$t('modrinth.include-mods.notice')}}</Faq>
+                <input type="checkbox" id="include-mods" :aria-label="t('modrinth.include-mods.aria-label')" v-model="includeMods" @change="runSearch" />
+                <label for="include-mods">{{t('modrinth.include-mods')}}</label>
+                <Faq class="faq">{{t('modrinth.include-mods.notice')}}</Faq>
             </div>
             <div class="setting">
-                <input type="checkbox" id="ignore-version" :aria-label="$t('modrinth.ignore-version.aria-label')" v-model="ignoreVersion" @change="runSearch" />
-                <label for="ignore-version">{{$t('modrinth.ignore-version')}}</label>
-                <Faq class="faq">{{$t('modrinth.ignore-version.notice')}}</Faq>
+                <input type="checkbox" id="ignore-version" :aria-label="t('modrinth.ignore-version.aria-label')" v-model="ignoreVersion" @change="runSearch" />
+                <label for="ignore-version">{{t('modrinth.ignore-version')}}</label>
+                <Faq class="faq">{{t('modrinth.ignore-version.notice')}}</Faq>
             </div>
         </div>
         <div class="results" tabindex="-1">

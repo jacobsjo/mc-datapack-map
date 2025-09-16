@@ -317,10 +317,10 @@ watch(searchStore.structures, () => {
             <Suspense>
                 <YSlider class="slider" v-model:y="y" />
             </Suspense>
-            <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="$t('map.setting.project')" />
-            <MapButton icon="fa-mountain-sun" :disabled="(!project_down || loadedDimensionStore.surface_density_function === undefined) && ! loadedDimensionStore.terrain_density_function" v-model="do_hillshade"  :title="$t('map.setting.hillshade')" />
-            <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="$t('map.setting.sealevel')" />
-            <MapButton icon="fa-table-cells" v-model="show_graticule" :title="$t('map.setting.graticule')" />
+            <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="i18n.t('map.setting.project')" />
+            <MapButton icon="fa-mountain-sun" :disabled="(!project_down || loadedDimensionStore.surface_density_function === undefined) && ! loadedDimensionStore.terrain_density_function" v-model="do_hillshade"  :title="i18n.t('map.setting.hillshade')" />
+            <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="i18n.t('map.setting.sealevel')" />
+            <MapButton icon="fa-table-cells" v-model="show_graticule" :title="i18n.t('map.setting.graticule')" />
         </div>
     </div>
     <BiomeTooltip id="tooltip" v-if="show_tooltip" :style="{ left: tooltip_left + 'px', top: tooltip_top + 'px' }"
@@ -328,18 +328,18 @@ watch(searchStore.structures, () => {
     <div class="top">
         <Transition>
             <div class="info zoom" v-if="needs_zoom">
-                {{ $t('map.info.structures_hidden') }}
+                {{ i18n.t('map.info.structures_hidden') }}
             </div>
         </Transition>
         <Transition>
             <div class="info unsupported" v-if="searchStore.structure_sets.has_invalid">
-                {{ $t('map.error.structures_unsupported') }}
+                {{ i18n.t('map.error.structures_unsupported') }}
             </div>
         </Transition>
     </div>
     <Transition>
         <div class="info bottom teleport" v-if="show_info">
-            {{ $t('map.info.teleport_command_copied') }}
+            {{ i18n.t('map.info.teleport_command_copied') }}
         </div>
     </Transition>
 </template>

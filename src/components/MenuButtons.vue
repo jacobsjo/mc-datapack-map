@@ -8,6 +8,9 @@ import { useSearchStore } from '../stores/useBiomeSearchStore';
 import StructureDropdown from './dropdown/StructureDropdown.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { EventTracker } from '../util/EventTracker';
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n()
 
 const datapackStore = useDatapackStore()
 const searchStore = useSearchStore()
@@ -50,7 +53,7 @@ function clearStructureSearch() {
                 class="button"
                 tabindex="0"
                 :class="{open: openDropdownOpen }"
-                :title="$t('menu.add.title')"
+                :title="i18n.t('menu.add.title')"
                 @click="openDropdownOpen = true"
                 @keypress.enter="openDropdownOpen = true"
             />
@@ -63,7 +66,7 @@ function clearStructureSearch() {
                         open: searchBiomeDropdownOpen,
                         active: searchStore.biomes.size > 0
                     }"
-                    :title="$t('menu.search_biome.title')"
+                    :title="i18n.t('menu.search_biome.title')"
                     @click="searchBiomeDropdownOpen = true"
                     @keypress.enter="searchBiomeDropdownOpen = true"
                     @contextmenu.prevent="clearBiomeSearch"    
@@ -74,7 +77,7 @@ function clearStructureSearch() {
                     :icon="!searchStore.disabled ? 'fa-toggle-on' : 'fa-toggle-off'"
                     class="button transparent"
                     tabindex="0"
-                    :title="$t('menu.search_biome.toggle')"
+                    :title="i18n.t('menu.search_biome.toggle')"
                     @click.prevent="toggleBiomeSearch"
                 />
             </span>
@@ -86,14 +89,14 @@ function clearStructureSearch() {
                     open: structureDropdownOpen,
                 active: searchStore.structures.size > 0
                 }"
-                :title="$t('menu.structure_positions.title')"
+                :title="i18n.t('menu.structure_positions.title')"
                 @click="structureDropdownOpen = true"
                 @keypress.enter="structureDropdownOpen = true"
                 @contextmenu.prevent="clearStructureSearch"    
                 @dblclick.prevent="clearStructureSearch"
             />
 
-            <font-awesome-icon v-if="settingsStore.dev_mode" icon="fa-rotate-right" class="button" tabindex="0" :title="$t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
+            <font-awesome-icon v-if="settingsStore.dev_mode" icon="fa-rotate-right" class="button" tabindex="0" :title="i18n.t('menu.reload_datapacks.title')" @click="reload" @keypress.enter="reload" />
         </div>
         <div class="dropdowns">
             <Transition>

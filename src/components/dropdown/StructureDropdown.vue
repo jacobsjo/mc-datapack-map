@@ -1,10 +1,12 @@
 
 <script setup lang="ts">
-import { useSearchStore } from '../../stores/useBiomeSearchStore'
+import { useSearchStore } from '../../stores/useBiomeSearchStore.js'
 import { Identifier, WorldgenStructure } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
-import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
-import { computed } from '@vue/reactivity';
+import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore.js';
+import { useI18n } from 'vue-i18n';
+
+const {t, locale} = useI18n()
 
 const searchStore = useSearchStore()
 const loadedDimensionStore = useLoadedDimensionStore()
@@ -28,7 +30,7 @@ function disableGroup(group: string){
 </script>
 
 <template>
-    <ListDropdown :type="'structure'" :placeholder="$t('dropdown.structure_positions.placeholder')" :entries="WorldgenStructure.REGISTRY.keys().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
+    <ListDropdown :type="'structure'" :placeholder="t('dropdown.structure_positions.placeholder')" :entries="WorldgenStructure.REGISTRY.keys().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

@@ -2,6 +2,9 @@
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { EventTracker } from '../util/EventTracker';
 import { updateUrlParam } from '../util';
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n()
 
 const settingsStore = useSettingsStore()
 
@@ -14,21 +17,21 @@ function updateUrlSearch(locale: string) {
 
 <template>
     <div class="locale-info">
-        <a v-bind:href="`https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/${$i18n.locale}`" target="_blank">
-            <img v-bind:src="`https://weblate.catter.dev/widget/jacobsjo/mc-datapack-map/${$i18n.locale}/svg-badge.svg`" alt="Translation status" />
+        <a v-bind:href="`https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/${i18n.locale.value}`" target="_blank">
+            <img v-bind:src="`https://weblate.catter.dev/widget/jacobsjo/mc-datapack-map/${i18n.locale.value}/svg-badge.svg`" alt="Translation status" />
         </a>
     </div>
     <div class="locale-changer">
-        <font-awesome-icon icon="fa-earth-europe" class="icon" :title="$t('locale.change_locale.title')" />
-        <select v-model="$i18n.locale" @change="() => updateUrlSearch($i18n.locale)">
-            <option v-for="lang in $i18n.availableLocales" :key="lang" :value="lang" :dir="$t('locale.text_direction', [], { locale: lang })">
-                {{ $t("locale.local_name", [], { locale: lang }) }}
+        <font-awesome-icon icon="fa-earth-europe" class="icon" :title="i18n.t('locale.change_locale.title')" />
+        <select v-model="i18n.locale.value" @change="() => updateUrlSearch(i18n.locale.value)">
+            <option v-for="lang in i18n.availableLocales" :key="lang" :value="lang" :dir="i18n.t('locale.text_direction', [], { locale: lang })">
+                {{ i18n.t("locale.local_name", [], { locale: lang }) }}
             </option>
         </select>
     </div>
     <div class="setting">
-        <div class="title">{{ $t('settings.dev_mode.label') }}</div>
-        <input type="checkbox" :aria-label="$t('settings.dev_mode.aria-label')" v-model="settingsStore.dev_mode">
+        <div class="title">{{ i18n.t('settings.dev_mode.label') }}</div>
+        <input type="checkbox" :aria-label="i18n.t('settings.dev_mode.aria-label')" v-model="settingsStore.dev_mode">
     </div>
 </template>
 

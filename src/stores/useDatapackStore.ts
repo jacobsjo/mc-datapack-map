@@ -3,8 +3,8 @@ import { defineStore } from "pinia";
 import { AnonymousDatapack, Datapack, DatapackList, ResourceLocation } from "mc-datapack-loader"
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { DensityFunction, Holder, HolderSet, Identifier, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry, Json } from "deepslate";
-import { useSettingsStore } from "./useSettingsStore";
-import { updateUrlParam, versionMetadata } from "../util";
+import { useSettingsStore } from "./useSettingsStore.js";
+import { updateUrlParam, versionMetadata } from "../util.js";
 import { useI18n } from "vue-i18n";
 
 

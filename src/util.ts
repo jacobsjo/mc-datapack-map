@@ -1,6 +1,6 @@
 import { Climate, DensityFunction, Identifier, lerp, NoiseRouter, NoiseSettings, WorldgenRegistries } from "deepslate"
 import { ResourceLocation } from "mc-datapack-loader"
-import { SpawnTarget } from "./util/SpawnTarget"
+import { SpawnTarget } from "./util/SpawnTarget.js"
 
 export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
 	return new Climate.TargetPoint(

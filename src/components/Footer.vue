@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import LocaleChanger from './LocaleChanger.vue';
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n()
 
 const show_more = ref(false)
 
@@ -10,16 +13,16 @@ const show_more = ref(false)
     <div class="footer">
         <div class="smallprint">
             <p>Copyright © 2023 jacobsjo</p>
-            <p id="note">{{  $t('footer.legel.note') }}</p>
-            <a href="https://jacobsjo.eu/about.html" target="_blank">{{ $t('footer.about') }}</a>
-            <a href="OTHER_LICENSES.txt" target="_blank">{{ $t('footer.licenses') }}</a>
-            <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ $t('footer.translate') }}</a>
-            <a @click="show_more = !show_more" :class="{'highlight': show_more}">{{  $t('footer.more') }} </a>
+            <p id="note">{{  i18n.t('footer.legel.note') }}</p>
+            <a href="https://jacobsjo.eu/about.html" target="_blank">{{ i18n.t('footer.about') }}</a>
+            <a href="OTHER_LICENSES.txt" target="_blank">{{ i18n.t('footer.licenses') }}</a>
+            <a href="https://weblate.catter.dev/projects/jacobsjo/mc-datapack-map/" target="_blank">{{ i18n.t('footer.translate') }}</a>
+            <a @click="show_more = !show_more" :class="{'highlight': show_more}">{{  i18n.t('footer.more') }} </a>
             <div v-if="show_more" class="more">
-            <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ $t('footer.view_source') }}</a>
-            <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ $t('footer.report_issue') }}</a>
-            <a href="https://jacobsjo.eu" target="_blank">{{ $t('footer.other') }}</a>
-            <a href="https://github.com/jacobsjo/mc-datapack-map/wiki" target="_blank">{{ $t('footer.wiki') }}</a>
+            <a href="https://github.com/jacobsjo/mc-datapack-map" target="_blank">{{ i18n.t('footer.view_source') }}</a>
+            <a href="https://github.com/jacobsjo/mc-datapack-map/issues" target="_blank">{{ i18n.t('footer.report_issue') }}</a>
+            <a href="https://jacobsjo.eu" target="_blank">{{ i18n.t('footer.other') }}</a>
+            <a href="https://github.com/jacobsjo/mc-datapack-map/wiki" target="_blank">{{ i18n.t('footer.wiki') }}</a>
             </div>
         </div>
         <LocaleChanger />

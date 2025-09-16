@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { faUnderline } from '@fortawesome/free-solid-svg-icons';
 import { TextComponent } from '../util/TextComponent';
+import { useI18n } from 'vue-i18n';
+
+    const i18n = useI18n()
 
     const props = defineProps({
         component: Object,
@@ -27,7 +29,7 @@ import { TextComponent } from '../util/TextComponent';
             fontWeight: formatting.bold ? 'bold' : `normal`
         }"
     >
-        {{ component.translate ? $t("minecraft." + component.text ?? "") : component.text ?? "" }}
+        {{ component.translate ? i18n.t("minecraft." + (component.text ?? "")) : component.text ?? "" }}
     </span>
     <MinecraftText v-for="c in component.extra" :component="c" :parent-style="formatting" />
 </template>

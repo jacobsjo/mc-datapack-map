@@ -5,6 +5,9 @@ import MinecraftText from './MinecraftText.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { versionMetadata } from '../util';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+    const i18n = useI18n()
 
     const props = defineProps({
         datapack: Object,
@@ -30,7 +33,7 @@ import { computed } from 'vue';
         <div class="description">
             <MinecraftText :component="desciption" />
         </div>
-        <font-awesome-icon v-if="removable" icon="fa-xmark" class="close_button" tabindex="0" :title="$t('datapack_list.remove_datapack.title')" @click="$emit('close')" @keypress.enter="$emit('close')" />
+        <font-awesome-icon v-if="removable" icon="fa-xmark" class="close_button" tabindex="0" :title="i18n.t('datapack_list.remove_datapack.title')" @click="$emit('close')" @keypress.enter="$emit('close')" />
     </div>
 </template>
 

@@ -2,7 +2,7 @@
     Most content of this file is Copyright (c) Mojang. This file is not covered by the Licence in LICENSE.txt !
 */
 
-import { versionMetadata } from "../util"
+import { versionMetadata } from "../util.js"
 
 export function getPreset(key: string, mc_version: string) {
   if (key === "minecraft:nether") {
