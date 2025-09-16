@@ -10,11 +10,13 @@ import App from './App.vue'
 import messages from '@intlify/unplugin-vue-i18n/messages'
 
 import { registerSW } from 'virtual:pwa-register'
+import { EventTracker } from './util/EventTracker.js';
 
 registerSW({ immediate: true })
 
 library.add(faFileZipper, faFolderOpen, faXmark, faRotateRight, faPlus, faBars, faMagnifyingGlass, faToggleOn, faToggleOff, faLocationDot, faAngleRight, faAngleLeft, faAngleDown, faDice, faGlobe, faEarthEurope, faMountainSun, faWater, faArrowsDownToLine, faTableCells, faCircleQuestion);
 
+EventTracker.init()
 
 const uri = window.location.search.substring(1)
 const params = new URLSearchParams(uri)
