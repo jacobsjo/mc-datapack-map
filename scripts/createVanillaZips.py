@@ -4,6 +4,7 @@ import io
 from pathlib import Path
 import shutil
 from shutil import copytree
+import os
 
 TMP_PATH = "/tmp/jacobsjo/createVanillaZips/"
 DATAPACK_PATH = TMP_PATH + "data/minecraft/datapacks/"
@@ -87,16 +88,20 @@ def download_and_extract(url: str):
                 if (file.filename.startswith(path)):
                     jar.extract(file, TMP_PATH)
 
+def download_file(url: str, path: str):
+    r = requests.get(url)
+    with open(path, 'wb') as f:
+        f.write(r.content)
 
-def main(version: str, include_datapack: str = "", suffix: str = ""):
+def main(version: str, include_datapack: str = "", suffix: str = "", additional_biome_preset: str = ""):
     # empty temp folder
     print("Emptying temp folder")
     emptyTmp()
 
     # get client jar
     print("Getting client data")
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}assets-json.zip')
-    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}data.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}-assets-json.zip')
+    download_and_extract(f'https://github.com/misode/mcmeta/archive/refs/{version}-data.zip')
 
     # add datapack base
     print("Copying base files")
@@ -110,6 +115,15 @@ def main(version: str, include_datapack: str = "", suffix: str = ""):
 
     shutil.make_archive("public/vanilla_datapacks/vanilla" + suffix, 'zip', TMP_PATH)
 
+    # download biome parameters
+    print("Collecting biome parameters")
+    os.makedirs(f'public/biome_parameters/minecraft{suffix}', exist_ok=True)
+    download_file(f'https://raw.githubusercontent.com/Ersatz77/mcdata/refs/{version}/generated/reports/biome_parameters/minecraft/overworld.json', f'public/biome_parameters/minecraft{suffix}/overworld.json')
+    download_file(f'https://raw.githubusercontent.com/Ersatz77/mcdata/refs/{version}/generated/reports/biome_parameters/minecraft/nether.json', f'public/biome_parameters/minecraft{suffix}/nether.json')
+
+    if additional_biome_preset != "":
+        download_file(f'https://raw.githubusercontent.com/Ersatz77/mcdata/refs/{version}/generated/reports/biome_parameters/minecraft/{additional_biome_preset}.json', f'public/biome_parameters/minecraft{suffix}/{additional_biome_preset}.json')
+
     print("Done!")
 
 def emptyTmp():
@@ -119,16 +133,18 @@ def emptyTmp():
 
 
 if __name__ == "__main__":
-    main('tags/1.19.4-', "update_1_20", "_1_19")
-    main('tags/1.20.1-', "", "_1_20")
-    main('tags/1.20.2-', "", "_1_20_2")
-    main('tags/1.20.4-', "update_1_21", "_1_20_4")
-    main('tags/1.20.6-', "update_1_21", "_1_20_6")
-    main('tags/1.21-', "", "_1_21")
-    main('tags/1.21.3-', "winter_drop", "_1_21_3")
-    main('tags/1.21.4-', "", "_1_21_4")
-    main('tags/1.21.5-', "", "_1_21_5")
-    main('tags/1.21.8-', "", "_1_21_8")
-    main('tags/1.21.10-', "", "_1_21_10")
-    main('tags/1.21.11-', "", "_1_21_11")
+    main('tags/1.19.4', "update_1_20", "_1_19", "overworld_update_1_20")
+    main('tags/1.20.1', "", "_1_20")
+    main('tags/1.20.2', "", "_1_20_2")
+    main('tags/1.20.4', "update_1_21", "_1_20_4")
+    main('tags/1.20.6', "update_1_21", "_1_20_6")
+    main('tags/1.21', "", "_1_21")
+    main('tags/1.21.3', "winter_drop", "_1_21_3", "overworld_winter_drop")
+    main('tags/1.21.4', "", "_1_21_4")
+    main('tags/1.21.5', "", "_1_21_5")
+    main('tags/1.21.8', "", "_1_21_8")
+    main('tags/1.21.10', "", "_1_21_10")
+    main('tags/1.21.11', "", "_1_21_11")
+    main('tags/26.1', "", "_26_1")
+    main('tags/26.2', "", "_26_2")
 

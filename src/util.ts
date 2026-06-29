@@ -112,11 +112,6 @@ type Metadata = {
 	resourceLocations: {
 		structure: ResourceLocation
 	},
-	biomes: {
-		cherry_grove: string,
-		pale_garden_1: string,
-		pale_garden_2: string
-	}
 	experimentalDatapacks: {
 		url: string,
 		translation_key: string
@@ -139,11 +134,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:meadow",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
@@ -155,11 +145,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
@@ -170,11 +155,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		canonicalNames: ["1.20.2"],
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
-		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
@@ -192,11 +172,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
@@ -213,11 +188,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
@@ -228,11 +198,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		canonicalNames: ["1.21", "1.21.1"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
-		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
@@ -250,11 +215,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:dark_forest",
-			pale_garden_2: "minecraft:dark_forest"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: false
 	},
@@ -265,11 +225,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		canonicalNames: ["1.21.4"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
-		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:pale_garden",
-			pale_garden_2: "minecraft:dark_forest"
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
@@ -282,11 +237,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:pale_garden",
-			pale_garden_2: "minecraft:pale_garden"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
@@ -297,11 +247,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		canonicalNames: ["1.21.6", "1.21.7", "1.21.8"],
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
-		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:pale_garden",
-			pale_garden_2: "minecraft:pale_garden"
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
@@ -314,11 +259,6 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:pale_garden",
-			pale_garden_2: "minecraft:pale_garden"
-		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
@@ -330,10 +270,27 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		biomes: {
-			cherry_grove: "minecraft:cherry_grove",
-			pale_garden_1: "minecraft:pale_garden",
-			pale_garden_2: "minecraft:pale_garden"
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: true
+	},
+	"26_1": {
+		vanillaDatapack: "26_1",
+		experimentalDatapacks: [],
+		datapackFormat: new PackFormat(101, 1),
+		canonicalNames: ["26.1", "26.1.1", "26.1.2"],
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
+		},
+		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		dimensionPaddingEnabled: true
+	},
+	"26_2": {
+		vanillaDatapack: "26_2",
+		experimentalDatapacks: [],
+		datapackFormat: new PackFormat(107, 1),
+		canonicalNames: ["26.2"],
+		resourceLocations: {
+			structure: ResourceLocation.STRUCTURE
 		},
 		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true

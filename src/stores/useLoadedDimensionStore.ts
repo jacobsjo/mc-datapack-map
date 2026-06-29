@@ -3,7 +3,6 @@ import { ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { getPreset } from "../BuildIn/MultiNoiseBiomeParameterList.js";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems.js";
 import { getCustomDensityFunction, hashCode } from "../util.js";
 import { useDatapackStore } from "./useDatapackStore.js";
@@ -178,7 +177,11 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 const parameter_list = await datapackStore.composite_datapack.get(ResourceLocation.WORLDGEN_MULTI_NOISE_BIOME_SOURCE_PRARAMETER_LIST, preset_id) as { preset: string }
                 preset = parameter_list.preset
             }
-            ld.biome_source_json.biomes = getPreset(preset, settingsStore.mc_version)
+
+            const response = await fetch(`biome_parameters/minecraft_${settingsStore.mc_version}/${Identifier.parse(preset).path}.json`)
+            const json = await response.json()
+
+            ld.biome_source_json.biomes = json.biomes
         }
 
 

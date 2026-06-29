@@ -8,7 +8,7 @@ import { parseSeed, updateUrlParam, versionMetadata } from "../util.js";
 
 export const useSettingsStore = defineStore('settings', () => {
     const defaults = {
-        mc_version: "1_21_11",
+        mc_version: "26_2",
         world_preset: "minecraft:normal",
         dimension: "minecraft:overworld",
         seed: "0"

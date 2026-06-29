@@ -63,5 +63,6 @@
     "minecraft:end_barrens": { "r": 199, "g": 204, "b": 137 },
     "minecraft:the_void": { "r": 0, "g": 0, "b": 0 },
     "minecraft:lush_caves": { "r": 112, "g": 255, "b": 79 },
-    "minecraft:dripstone_caves": { "r": 140, "g": 124, "b": 0 }
+    "minecraft:dripstone_caves": { "r": 140, "g": 124, "b": 0 },
+    "minecraft:sulfur_caves": { "r": 234, "g": 214, "b": 35 }
 }
