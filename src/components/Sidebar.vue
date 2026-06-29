@@ -79,7 +79,7 @@ import { EventTracker } from '../util/EventTracker';
         <Suspense>
             <SettingsPanel />
         </Suspense>
-        <TipMessage v-if="show_tipmessage" @close="show_tipmessage=false" />
+        <!--TipMessage v-if="show_tipmessage" @close="show_tipmessage=false" /-->
         <DatapackSelection />
         <Footer @open_popup="$emit('open_popup')" />
     </div>
