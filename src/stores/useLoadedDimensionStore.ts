@@ -4,7 +4,7 @@ import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { VANILLA_ITEMS } from "../BuildIn/VanillaItems.js";
-import { getCustomDensityFunction, hashCode } from "../util.js";
+import { getCustomDensityFunction, hashCode, versionMetadata } from "../util.js";
 import { useDatapackStore } from "./useDatapackStore.js";
 import { useSettingsStore } from "./useSettingsStore.js";
 
@@ -178,7 +178,8 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
                 preset = parameter_list.preset
             }
 
-            const response = await fetch(`biome_parameters/minecraft_${settingsStore.mc_version}/${Identifier.parse(preset).path}.json`)
+            const metadata = versionMetadata[settingsStore.mc_version];
+            const response = await fetch(`biome_parameters/minecraft_${metadata.vanillaDatapack}/${Identifier.parse(preset).path}.json`)
             const json = await response.json()
 
             ld.biome_source_json.biomes = json.biomes
