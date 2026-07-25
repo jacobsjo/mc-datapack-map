@@ -106,6 +106,8 @@
     "settings.mc_version.mc1_21_4": "Minecraft 1.21.4",
     "settings.mc_version.mc1_21_5": "Minecraft 1.21.5",
     "settings.mc_version.mc1_21_8": "Minecraft 1.21.8",
+    "settings.mc_version.mc26_1": "Minecraft 26.1.x",
+    "settings.mc_version.mc26_2": "Minecraft 26.2.x",
     "settings.seed.aria-label": "Semilla",
     "settings.seed.label": "Semilla:",
     "settings.seed.randomize_button.title": "Aleatorizar Semilla",
