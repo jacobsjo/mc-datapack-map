@@ -1,4 +1,14 @@
-import { BiomeSource, Climate, DensityFunction, Holder, WorldgenRegistries, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, LevelHeight } from "deepslate";
+import { 
+    BiomeSource, 
+    Climate, 
+    DensityFunction, 
+    Holder, 
+    WorldgenRegistries, 
+    Json, 
+    NoiseGeneratorSettings, 
+    RandomState, 
+    LevelHeight 
+} from "deepslate";
 import { Identifier, ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
@@ -9,6 +19,7 @@ import { useDatapackStore } from "./useDatapackStore.js";
 import { useSettingsStore } from "./useSettingsStore.js";
 
 import messages from '@intlify/unplugin-vue-i18n/messages'
+import { Deepslate } from "../deepslate/Deepslate.js";
 
 export type LoadedDimension = {
     structure_icons?: Map<string, Identifier>,
@@ -115,7 +126,7 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         handle_structure_icons("c", structure_icons_json, ld)
 
         // stable c:hide_on_map structure tag
-        for (const holder of WorldgenStructure.REGISTRY.getTagRegistry().get(new Identifier("jacobsjo", "hidden_from_map"))?.getEntries() ?? []){
+        for (const holder of Deepslate.getInstance().getStructureTag(new Identifier("jacobsjo", "hidden_from_map"))?.getEntries() ?? []){
             ld.hidden_structures.add(holder.key()?.toString() ?? "")
         }
 

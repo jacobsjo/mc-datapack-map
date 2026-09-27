@@ -1,25 +1,13 @@
-import { Climate, lerp, WorldgenRegistries } from "deepslate"
 import { Identifier, PackFormat, ResourceLocation } from "mc-datapack-loader"
-import { SpawnTarget } from "./util/SpawnTarget.js"
+import { Deepslate } from "./deepslate/Deepslate.js"
 
-export function lerpClimate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: number) {
-	return new Climate.TargetPoint(
-		lerp(c, a.temperature, b.temperature),
-		lerp(c, a.humidity, b.humidity),
-		lerp(c, a.continentalness, b.continentalness),
-		lerp(c, a.erosion, b.erosion),
-		lerp(c, a.depth, b.depth),
-		lerp(c, a.weirdness, b.weirdness)
-	)
+export enum SpawnTargetAlgorithm {
+	LEGACY_ZERO_BIASED,
+	BEST_CLIMATE
 }
-
-export function lerp2Climate(a: Climate.TargetPoint, b: Climate.TargetPoint, c: Climate.TargetPoint, d: Climate.TargetPoint, e: number, f: number) {
-	return lerpClimate(lerpClimate(a, b, e), lerpClimate(c, d, e), f)
-}
-
 
 function idIfExists(id: Identifier) {
-	if (WorldgenRegistries.DENSITY_FUNCTION.has(id))
+	if (Deepslate.getInstance().hasDensityFunction(id))
 		return id
 	return undefined
 }
@@ -116,7 +104,7 @@ type Metadata = {
 		url: string,
 		translation_key: string
 	}[],
-	spawnAlgorithm: SpawnTarget.Algorithm,
+	spawnAlgorithm: SpawnTargetAlgorithm,
 	dimensionPaddingEnabled: boolean
 }
 
@@ -134,7 +122,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_20": {
@@ -145,7 +133,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_20_2": {
@@ -156,7 +144,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_20_4": {
@@ -172,7 +160,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_20_6": {
@@ -188,7 +176,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.LEGACY_STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_21_1": {
@@ -199,7 +187,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.LEGACY_ZERO_BIASED,
+		spawnAlgorithm: SpawnTargetAlgorithm.LEGACY_ZERO_BIASED,
 		dimensionPaddingEnabled: false
 	},
 	"1_21_3": {
@@ -215,7 +203,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: false
 	},
 	"1_21_4": {
@@ -226,7 +214,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"1_21_5": {
@@ -237,7 +225,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"1_21_8": {
@@ -248,7 +236,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"1_21_10": {
@@ -259,7 +247,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"1_21_11": {
@@ -270,7 +258,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"26_1": {
@@ -281,7 +269,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	},
 	"26_2": {
@@ -292,7 +280,7 @@ export const versionMetadata: { [version: string]: Metadata } = {
 		resourceLocations: {
 			structure: ResourceLocation.STRUCTURE
 		},
-		spawnAlgorithm: SpawnTarget.Algorithm.BEST_CLIMATE,
+		spawnAlgorithm: SpawnTargetAlgorithm.BEST_CLIMATE,
 		dimensionPaddingEnabled: true
 	}
 }

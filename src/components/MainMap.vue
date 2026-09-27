@@ -10,12 +10,11 @@ import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore'
-import { CachedBiomeSource } from '../util/CachedBiomeSource';
 import MapButton from './MapButton.vue';
-import { SpawnTarget } from '../util/SpawnTarget';
 import { useI18n } from 'vue-i18n';
 import { versionMetadata } from "../util";
 import { Identifier } from "mc-datapack-loader";
+import { Deepslate } from "../deepslate/Deepslate";
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
@@ -165,7 +164,7 @@ function updateMarkers() {
         return
     }
 
-    const cachedBiomeSource = new CachedBiomeSource(biomeSource)
+    const cachedBiomeSource = new (Deepslate.getInstance().CachedBiomeSource)(biomeSource)
     const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings, loadedDimensionStore.loaded_dimension.level_height ?? {minY: 0, height: 256})
 
     const bounds = map.getBounds()
@@ -274,7 +273,7 @@ function getMarker(structureId: Identifier, pos: BlockPos) {
 function updateSpawnMarker(){
     if (settingsStore.dimension.toString() === "minecraft:overworld"){
         const crs = map.options.crs!
-        const spawnTarget = SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
+        const spawnTarget = Deepslate.getInstance().SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
         const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
         const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
         spawnMarker.setLatLng(crs.unproject(pos))

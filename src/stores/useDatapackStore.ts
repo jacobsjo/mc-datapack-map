@@ -2,10 +2,10 @@ import { defineStore } from "pinia";
 
 import { AnonymousDatapack, Datapack, DatapackList, Identifier, ResourceLocation } from "mc-datapack-loader"
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { DensityFunction, Holder, HolderSet, NoiseParameters, StructureSet, WorldgenRegistries, WorldgenStructure, StructureTemplatePool, Structure, NbtFile, Registry, Json } from "deepslate";
 import { useSettingsStore } from "./useSettingsStore.js";
 import { updateUrlParam, versionMetadata } from "../util.js";
 import { useI18n } from "vue-i18n";
+import { Deepslate } from "../deepslate/Deepslate.js";
 
 
 export const useDatapackStore = defineStore('datapacks', () => {
@@ -79,50 +79,8 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     const registered = computed(reloadDatapack)
 
-    async function registerType<T>(location: ResourceLocation, registry: Registry<T>, loader: (json: any, id: Identifier) => (T | (() => T))): Promise<void>{
-        registry.clear()
-        await Promise.all((await composite_datapack.getIds(location)).map(id => new Promise<void>(async (resolve) => {
-            try {
-                const data = await composite_datapack.get(location, id)
-                try {
-                    registry.register(id, loader(data, id))
-                } catch (e) {
-                    console.warn(`Failed to register ${location.location}: ${id.toString()}: ${e}`)
-                }
-            } catch (e) {
-                console.warn(`Failed to load ${location.location}: ${id.toString()}: ${e}`)
-            }
-            resolve()
-        })))
-    }
-
-    async function registerTag<T>(location: ResourceLocation, registry: Registry<T>){
-        await registerType(location, registry.getTagRegistry(), (json, id) => HolderSet.fromJson<T>(registry, json, id))
-    }
-
     async function reloadDatapack() {
-        const promises: Promise<void>[] = []
-        promises.push(registerType(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, WorldgenRegistries.DENSITY_FUNCTION, (json) => new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json))))
-        promises.push(registerType(ResourceLocation.WORLDGEN_NOISE, WorldgenRegistries.NOISE, NoiseParameters.fromJson))
-        promises.push(registerType(ResourceLocation.WORLDGEN_STRUCTURE_SET, StructureSet.REGISTRY, StructureSet.fromJson))
-        promises.push(registerType(ResourceLocation.WORLDGEN_TEMPLATE_POOL, StructureTemplatePool.REGISTRY, StructureTemplatePool.fromJson))
-        promises.push(registerType(versionMetadata[settingsStore.mc_version].resourceLocations.structure, Structure.REGISTRY, (arrayBuffer) => () => Structure.fromNbt(NbtFile.read(new Uint8Array(arrayBuffer)).root)))
-        promises.push(new Promise(async (resolve) => {
-            await registerType(ResourceLocation.WORLDGEN_BIOME, WorldgenRegistries.BIOME, () => {return {}})
-            await registerTag(ResourceLocation.WORLDGEN_BIOME_TAG, WorldgenRegistries.BIOME)
-            await registerType(ResourceLocation.WORLDGEN_STRUCTURE, WorldgenStructure.REGISTRY, worldgenStructureFromJson)
-            await registerTag(ResourceLocation.WORLDGEN_STRUCTURE_TAG, WorldgenStructure.REGISTRY)
-            resolve()
-        }))
-        await Promise.all(promises)
-    }
-
-    function worldgenStructureFromJson(obj: unknown){
-        const root = Json.readObject(obj) ?? {}
-        if (!versionMetadata[settingsStore.mc_version].dimensionPaddingEnabled){
-            delete root.dimension_padding
-        }
-        return WorldgenStructure.fromJson(obj)
+        await Deepslate.getInstance().loadFromDatapack(composite_datapack, settingsStore.mc_version);
     }
 
     function addDatapack(datapack: Datapack) {

@@ -2,11 +2,11 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { useSearchStore } from '../../stores/useBiomeSearchStore'
-import { WorldgenRegistries } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
 import { useI18n } from 'vue-i18n';
 import { Identifier } from 'mc-datapack-loader';
+import { Deepslate } from '../../deepslate/Deepslate';
 
 const i18n = useI18n()
 
@@ -39,7 +39,7 @@ function getColorString(biome: Identifier){
 
 
 <template>
-    <ListDropdown :type="'biome'" :placeholder="i18n.t('dropdown.search_biome.placeholder')" :entries="WorldgenRegistries.BIOME.keys()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
+    <ListDropdown :type="'biome'" :placeholder="i18n.t('dropdown.search_biome.placeholder')" :entries="Deepslate.getInstance().getBiomes()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

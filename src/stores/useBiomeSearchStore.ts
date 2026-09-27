@@ -1,7 +1,7 @@
-import { StructureSet, WorldgenStructure } from "deepslate";
 import { Identifier } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
+import { Deepslate } from "../deepslate/Deepslate";
 
 
 export const useSearchStore = defineStore('search', () => {
@@ -11,12 +11,14 @@ export const useSearchStore = defineStore('search', () => {
     const disabled = ref(false)
 
     const structure_sets = computed(() => {
+        const deepslate = Deepslate.getInstance()
+
         structures.size // make sure any change to structures triggers recomputation
         const sets: Identifier[] = []
 
         var has_invalid_set = false
-        for (const id of StructureSet.REGISTRY.keys()){
-            const set = StructureSet.REGISTRY.get(id)
+        for (const id of deepslate.getStructureSets()){
+            const set = deepslate.getStructureSet(id)
             if (!set) continue
 
             var set_needed = false
@@ -26,7 +28,7 @@ export const useSearchStore = defineStore('search', () => {
                 if (structures.has(entry.structure.key()?.toString() ?? "<>")){
                     set_needed = true
                     const s = entry.structure.value()
-                    if (s instanceof WorldgenStructure.MineshaftStructure || s instanceof WorldgenStructure.NetherFossilStructure || s instanceof WorldgenStructure.OceanMonumentStructure || s instanceof WorldgenStructure.RuinedPortalStructure){
+                    if (deepslate.isUnsupporedStructure(s)){
                         set_invalid = true
                     }
                 }
