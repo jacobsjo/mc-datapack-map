@@ -2,10 +2,11 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { useSearchStore } from '../../stores/useBiomeSearchStore'
-import { Identifier, WorldgenRegistries } from 'deepslate';
+import { WorldgenRegistries } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore';
 import { useI18n } from 'vue-i18n';
+import { Identifier } from 'mc-datapack-loader';
 
 const i18n = useI18n()
 

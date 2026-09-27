@@ -3,7 +3,8 @@
 declare const self: ServiceWorkerGlobalScope;
 export { };
 
-import { Climate, DensityFunction, WorldgenRegistries, Identifier, Holder, NoiseRouter, NoiseGeneratorSettings, RandomState, NoiseParameters, MultiNoiseBiomeSource, BiomeSource, FixedBiomeSource } from "deepslate"
+import { Climate, DensityFunction, WorldgenRegistries, Holder, NoiseGeneratorSettings, RandomState, NoiseParameters, BiomeSource } from "deepslate"
+import { Identifier } from "mc-datapack-loader";
 
 class MultiNoiseCalculator {
 

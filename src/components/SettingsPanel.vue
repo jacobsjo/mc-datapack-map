@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Identifier, XoroshiroRandom } from 'deepslate';
+import { XoroshiroRandom } from 'deepslate';
 import { ref } from 'vue';
 import { useDatapackStore } from '../stores/useDatapackStore';
 import { useSettingsStore } from '../stores/useSettingsStore';

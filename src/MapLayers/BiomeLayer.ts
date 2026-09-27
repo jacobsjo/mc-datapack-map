@@ -1,6 +1,5 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { Climate } from "deepslate";
 import { calculateHillshade, getCustomDensityFunction, hashCode } from "../util.js";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { useSearchStore } from "../stores/useBiomeSearchStore.js";

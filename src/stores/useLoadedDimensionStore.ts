@@ -1,5 +1,5 @@
-import { BiomeSource, FixedBiomeSource, Identifier, StructureSet, Climate, DensityFunction, Holder, WorldgenRegistries, NoiseParameters, HolderSet, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, NoiseSettings, LevelHeight } from "deepslate";
-import { ResourceLocation } from "mc-datapack-loader";
+import { BiomeSource, Climate, DensityFunction, Holder, WorldgenRegistries, WorldgenStructure, Json, NoiseGeneratorSettings, RandomState, LevelHeight } from "deepslate";
+import { Identifier, ResourceLocation } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { compile, computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";

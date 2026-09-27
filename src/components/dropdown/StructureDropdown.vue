@@ -1,10 +1,11 @@
 
 <script setup lang="ts">
 import { useSearchStore } from '../../stores/useBiomeSearchStore.js'
-import { Identifier, WorldgenStructure } from 'deepslate';
+import { WorldgenStructure } from 'deepslate';
 import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore.js';
 import { useI18n } from 'vue-i18n';
+import { Identifier } from 'mc-datapack-loader';
 
 const {t, locale} = useI18n()
 

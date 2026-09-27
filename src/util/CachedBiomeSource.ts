@@ -1,4 +1,5 @@
-import { BiomeSource, Climate, Identifier } from "deepslate";
+import { BiomeSource, Climate } from "deepslate";
+import { Identifier } from "mc-datapack-loader";
 
 
 const CACHE_SIZE = 11

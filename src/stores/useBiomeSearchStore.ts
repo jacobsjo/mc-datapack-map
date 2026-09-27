@@ -1,4 +1,5 @@
-import { Identifier, StructurePlacement, StructureSet, WorldgenStructure } from "deepslate";
+import { StructureSet, WorldgenStructure } from "deepslate";
+import { Identifier } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
 

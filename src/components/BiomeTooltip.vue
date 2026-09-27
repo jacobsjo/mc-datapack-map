@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Identifier } from 'deepslate';
+import { Identifier } from 'mc-datapack-loader';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useI18n } from 'vue-i18n';
 

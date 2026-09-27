@@ -1,4 +1,3 @@
-import { Json } from "deepslate";
 import { Datapack } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { ref } from "vue";

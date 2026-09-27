@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import "leaflet/dist/leaflet.css";
-import L, { control } from "leaflet";
+import L from "leaflet";
 import { BiomeLayer } from "../MapLayers/BiomeLayer";
 import { Graticule } from "../MapLayers/Graticule";
-import { onMounted, ref, watch, watchEffect } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import BiomeTooltip from './BiomeTooltip.vue';
-import { BlockPos, Chunk, ChunkPos, DensityFunction, Identifier, RandomState, Structure, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
+import { BlockPos, ChunkPos, DensityFunction, StructurePlacement, StructureSet, WorldgenStructure } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -15,6 +15,7 @@ import MapButton from './MapButton.vue';
 import { SpawnTarget } from '../util/SpawnTarget';
 import { useI18n } from 'vue-i18n';
 import { versionMetadata } from "../util";
+import { Identifier } from "mc-datapack-loader";
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()

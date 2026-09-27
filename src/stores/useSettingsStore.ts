@@ -1,10 +1,10 @@
-import { Identifier } from "deepslate";
 import { defineStore } from "pinia";
 import { computed, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDatapackStore } from "./useDatapackStore.js";
 import { EventTracker } from "../util/EventTracker.js";
 import { parseSeed, updateUrlParam, versionMetadata } from "../util.js";
+import { Identifier } from "mc-datapack-loader";
 
 export const useSettingsStore = defineStore('settings', () => {
     const defaults = {

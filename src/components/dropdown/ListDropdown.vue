@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import Dropdown from './Dropdown.vue';
-import { Identifier } from 'deepslate';
+import { Identifier } from 'mc-datapack-loader';
 import ListDropdownGroup from './ListDropdownGroup.vue';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useI18n } from 'vue-i18n';
