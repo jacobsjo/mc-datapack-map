@@ -5,7 +5,7 @@ import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore.js';
 import { useI18n } from 'vue-i18n';
 import { Identifier } from 'mc-datapack-loader';
-import { Deepslate } from '../../deepslate/Deepslate.js';
+import { WorldgenEngine } from '../../deepslate/Deepslate.js';
 
 const {t, locale} = useI18n()
 
@@ -31,7 +31,7 @@ function disableGroup(group: string){
 </script>
 
 <template>
-    <ListDropdown :type="'structure'" :placeholder="t('dropdown.structure_positions.placeholder')" :entries="Deepslate.getInstance().getStructures().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
+    <ListDropdown :type="'structure'" :placeholder="t('dropdown.structure_positions.placeholder')" :entries="WorldgenEngine.getInstance().getStructures().filter(id => !loadedDimensionStore.loaded_dimension.hidden_structures?.has(id.toString()))" :icons="loadedDimensionStore.getIcon" :selected="searchStore.structures" @toggle="toggleStructure" @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

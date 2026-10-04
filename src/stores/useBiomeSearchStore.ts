@@ -1,7 +1,7 @@
 import { Identifier } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import { Deepslate } from "../deepslate/Deepslate";
+import { WorldgenEngine } from "../deepslate/Deepslate";
 
 
 export const useSearchStore = defineStore('search', () => {
@@ -11,7 +11,7 @@ export const useSearchStore = defineStore('search', () => {
     const disabled = ref(false)
 
     const structure_sets = computed(() => {
-        const deepslate = Deepslate.getInstance()
+        const deepslate = WorldgenEngine.getInstance()
 
         structures.size // make sure any change to structures triggers recomputation
         const sets: Identifier[] = []

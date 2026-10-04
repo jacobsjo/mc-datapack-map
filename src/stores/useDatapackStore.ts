@@ -5,7 +5,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useSettingsStore } from "./useSettingsStore.js";
 import { updateUrlParam, versionMetadata } from "../util.js";
 import { useI18n } from "vue-i18n";
-import { Deepslate } from "../deepslate/Deepslate.js";
+import { WorldgenEngine } from "../deepslate/Deepslate.js";
 
 
 export const useDatapackStore = defineStore('datapacks', () => {
@@ -80,7 +80,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
     const registered = computed(reloadDatapack)
 
     async function reloadDatapack() {
-        await Deepslate.getInstance().loadFromDatapack(composite_datapack, settingsStore.mc_version);
+        await WorldgenEngine.getInstance().loadFromDatapack(composite_datapack, settingsStore.mc_version);
     }
 
     function addDatapack(datapack: Datapack) {

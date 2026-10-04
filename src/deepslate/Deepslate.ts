@@ -1,13 +1,13 @@
-import { BiomeSource, Climate, DensityFunction, Holder, HolderSet, Json, NoiseParameters, Registry, Structure, StructureSet, StructureTemplatePool, WorldgenRegistries, WorldgenStructure } from "deepslate"
+import { BiomeSource, Climate, DensityFunction, Holder, HolderSet, Json, NbtFile, NoiseParameters, Registry, Structure, StructureSet, StructureTemplatePool, WorldgenRegistries, WorldgenStructure } from "deepslate"
 import { AnonymousDatapack, Datapack, Identifier, ResourceLocation } from "mc-datapack-loader"
 import { SpawnTargetAlgorithm, versionMetadata } from "../util"
 
 const CACHE_SIZE = 11
 const CACHE_CENTER = 4
 
-export class Deepslate {
+export class WorldgenEngine {
 
-    private static INSTANCE = new Deepslate()
+    private static INSTANCE = new WorldgenEngine()
 
     public static getInstance() {
         return this.INSTANCE
@@ -136,7 +136,7 @@ export class Deepslate {
         }
 
         public static fromJson(obj: unknown, algorithm: SpawnTargetAlgorithm){
-            return new (Deepslate.getInstance().SpawnTarget)(Json.readArray(obj, Climate.ParamPoint.fromJson) ?? [], algorithm)
+            return new (WorldgenEngine.getInstance().SpawnTarget)(Json.readArray(obj, Climate.ParamPoint.fromJson) ?? [], algorithm)
         }
 
         public getSpawnPoint(climateSampler: Climate.Sampler): [number, number] {

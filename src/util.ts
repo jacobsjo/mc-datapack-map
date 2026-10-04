@@ -1,5 +1,5 @@
 import { Identifier, PackFormat, ResourceLocation } from "mc-datapack-loader"
-import { Deepslate } from "./deepslate/Deepslate.js"
+import { WorldgenEngine } from "./deepslate/Deepslate.js"
 
 export enum SpawnTargetAlgorithm {
 	LEGACY_ZERO_BIASED,
@@ -7,7 +7,7 @@ export enum SpawnTargetAlgorithm {
 }
 
 function idIfExists(id: Identifier) {
-	if (Deepslate.getInstance().hasDensityFunction(id))
+	if (WorldgenEngine.getInstance().hasDensityFunction(id))
 		return id
 	return undefined
 }
