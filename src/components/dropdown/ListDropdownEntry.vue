@@ -4,14 +4,17 @@ import { computed, ref } from 'vue';
 const props = defineProps({
     entry: Object,
     selected: Boolean,
-    icons: Function,
-    colors: Function
+    icons: Object,
+    colors: Object
 })
 
 defineEmits(['toggle'])
 
-const icon = computed(() => props.icons?.(props.entry?.id))
-const color = computed(() => props.colors?.(props.entry?.id))
+const icon = computed(() => props.icons?.get(props.entry?.id))
+const color = computed(() => {
+    const color = props.colors?.get(props.entry?.id)
+    return color ? `rgb(${color.r}, ${color.g}, ${color.b})` : undefined
+})
 </script>
 
 <template>

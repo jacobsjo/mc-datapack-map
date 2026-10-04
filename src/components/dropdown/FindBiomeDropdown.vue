@@ -30,16 +30,18 @@ function disableGroup(group: string){
     searchStore.$patch({disabled: false})
 }
 
-function getColorString(biome: Identifier){
-    const color = loadedDimensionStore.getBiomeColor(biome.toString())
-    return `rgb(${color.r}, ${color.g}, ${color.b})`
-}
-
 </script>
 
 
 <template>
-    <ListDropdown :type="'biome'" :placeholder="i18n.t('dropdown.search_biome.placeholder')" :entries="WorldgenEngine.getInstance().getBiomes()" :selected="searchStore.biomes" :colors="getColorString" @toggle="toggleBiome" @disableGroup="disableGroup" />
+    <ListDropdown
+        :type="'biome'"
+        :placeholder="i18n.t('dropdown.search_biome.placeholder')"
+        :entries="WorldgenEngine.getInstance().getBiomes()"
+        :selected="searchStore.biomes"
+        :colors="WorldgenEngine.getInstance().biomeColors"
+        @toggle="toggleBiome"
+        @disableGroup="disableGroup" />
 </template>
 
 <style scoped>

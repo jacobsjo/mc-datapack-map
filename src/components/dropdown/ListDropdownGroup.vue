@@ -11,8 +11,8 @@ const props = defineProps({
         type: String,
         entries: Object,
         selected: Object,
-        icons: Function,
-        colors: Function,
+        icons: Object,
+        colors: Object,
         group_name: String
 })
 

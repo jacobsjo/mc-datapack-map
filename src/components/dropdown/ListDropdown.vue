@@ -13,8 +13,8 @@ const props = defineProps({
         tags: Object,
         entries: Object,
         selected: Object,
-        icons: Function,
-        colors: Function
+        icons: Object,
+        colors: Object
 })
 
 const i18n = useI18n()

@@ -22,8 +22,6 @@ import messages from '@intlify/unplugin-vue-i18n/messages'
 import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
 
 export type LoadedDimension = {
-    structure_icons?: Map<string, Identifier>,
-    hidden_structures?: Set<string>
     level_height?: LevelHeight,
     noise_settings_id?: Identifier,
     noise_settings_json?: {[x: string]: unknown},
@@ -38,7 +36,6 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
 
     const loaded_dimension = reactive<LoadedDimension>({})
     var biome_source: BiomeSource | undefined = undefined
-    var biome_colors: Map<string, { r: number, g: number, b: number } > = new Map<string, { r: number, g: number, b: number}>()
 
     var default_messages: {[key: string]: string} = {}
 
@@ -51,84 +48,12 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     watch(() => settingsStore.dimension, reload)
     watch(() => settingsStore.seed, reload)
     
-    function handle_biome_colors(namespace:string, json: {[key: string]: { r: number, g: number, b: number, name?: string }}){
-        for (const biome in json) {
-            const biome_id = biome.indexOf(":") === -1 ? namespace + ":" + biome : biome
-
-            const entry = json[biome]
-            biome_colors.set(biome_id, {r: entry.r, g: entry.g, b: entry.b})
-            if (entry.name){
-                const [ns, path] = biome_id.split(':')
-                default_messages[`minecraft.biome.${ns}.${path.replace('/','.')}`] = entry.name
-            }
-        }
-    }
-
-    function handle_structure_icons(namespace: string, json: {[key: string]: {item?: string, hidden?: boolean, name?: string} | string}, ld: LoadedDimension ){
-        for (const structure in json) {
-            const structure_id = structure.indexOf(":") === -1 ? namespace + ":" + structure : structure
-
-            const structure_config = json[structure]
-
-            // legacy string handling
-            if (typeof structure_config === 'string'){
-                if (structure_config === 'hidden'){
-                    ld.hidden_structures?.add(structure_id)
-                } else {
-                    ld.structure_icons?.set(structure_id, Identifier.parse(structure_config))
-                }
-                return 
-            }
-            // legacy hidden in structure file
-            if (structure_config.hidden){
-                ld.hidden_structures?.add(structure_id)
-            // TODO: use defined texture
-            // stable: set item as display
-            } else if (structure_config.item){
-                ld.structure_icons?.set(structure_id, Identifier.parse(structure_config.item))
-            }
-
-            if (structure_config.name){
-                const [ns, path] = structure_id.split(':')
-                default_messages[`minecraft.structure.${ns}.${path.replace('/','.')}`] = structure_config.name
-            }
-        }
-    }
-
     async function reload() {
         await datapackStore.reloadDatapack()
 
         const ld: LoadedDimension = {}
 
-        biome_colors.clear()
-        ld.structure_icons = new Map<string, Identifier>()
-        ld.hidden_structures = new Set()
         default_messages = {}
-
-        // legacy biome_colors and structure_icons
-        const ids = await (datapackStore.composite_datapack.getIds(ResourceLocation.DATA_FILE))
-        for (const id of ids) {
-            if (id.path === "biome_colors"){
-                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: { r: number, g: number, b: number, name?: string }}
-                handle_biome_colors(id.namespace, json)
-            } else if (id.path === "structure_icons"){
-                const json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, id) as {[key: string]: {item?: string, hidden?: boolean, name?: string} | string}
-                handle_structure_icons(id.namespace, json, ld)
-            }
-        }
-
-        // stable biome_colors
-        const biome_colors_json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, new Identifier("c", "worldgen/biome_colors")) as {[key: string]: { r: number, g: number, b: number }}
-        handle_biome_colors("c", biome_colors_json)
-
-        // stable structure_icons
-        const structure_icons_json = await datapackStore.composite_datapack.get(ResourceLocation.DATA_FILE, new Identifier("c", "worldgen/structure_icons")) as {[key: string]: {item?: string, hidden?: boolean} | string}
-        handle_structure_icons("c", structure_icons_json, ld)
-
-        // stable c:hide_on_map structure tag
-        for (const holder of WorldgenEngine.getInstance().getStructureTag(new Identifier("jacobsjo", "hidden_from_map"))?.getEntries() ?? []){
-            ld.hidden_structures.add(holder.key()?.toString() ?? "")
-        }
 
         const langs = await datapackStore.composite_datapack.getIds(ResourceLocation.LANGUAGE)
 
@@ -232,28 +157,12 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         }
     })    
 
-    function getIcon(id: Identifier){
-        const item = loaded_dimension.structure_icons?.get(id.toString()) ?? Identifier.create(VANILLA_ITEMS[Math.abs(hashCode(id.toString())) % VANILLA_ITEMS.length]) 
-        return `https://raw.githubusercontent.com/jacobsjo/mcicons/icons/item/${item.path}.png`
-    }
 
-    function getBiomeColor(id: string){
-        var biomeColor = biome_colors.get(id)
-        if (biomeColor === undefined) {
-            const hash = hashCode(id)
-            biomeColor = {
-                r: (hash & 0xFF0000) >> 16,
-                g: (hash & 0x00FF00) >> 8,
-                b: hash & 0x0000FF
-            }
-        }
-        return biomeColor
-    }
 
     function getBiomeSource(){
         return biome_source
     }
 
-    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, terrain_density_function, reload, getIcon, getBiomeColor, getBiomeSource }
+    return { loaded_dimension, noise_generator_settings, sampler, surface_density_function, terrain_density_function, reload, getBiomeSource }
 })
 

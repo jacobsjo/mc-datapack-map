@@ -8,6 +8,7 @@ import { useSettingsStore } from "../stores/useSettingsStore.js";
 import { useDatapackStore } from "../stores/useDatapackStore.js";
 import { Ref, toRaw, watch } from "vue";
 import { ResourceLocation } from "mc-datapack-loader";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
 
 const WORKER_COUNT = 4
 
@@ -118,7 +119,7 @@ export class BiomeLayer extends L.GridLayer {
 		const project_down = this.project_down.value
 		const do_hillshade = this.do_hillshade.value
 		const show_sealevel = this.show_sealevel.value
-		const getBiomeColor = this.loadedDimensionStore.getBiomeColor
+		const biomeColors = WorldgenEngine.getInstance().biomeColors
 
 		for (let x = 0; x < this.tileSize * this.calcResolution; x++) {
 			for (let z = 0; z < this.tileSize * this.calcResolution; z++) {
@@ -145,7 +146,7 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}
 
-				let biomeColor = getBiomeColor(biome)
+				let biomeColor = biomeColors.get(biome)
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
 
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)

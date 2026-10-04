@@ -264,7 +264,7 @@ function getMarker(structureId: Identifier, pos: BlockPos) {
     const popup = L.popup().setContent(() => `${settingsStore.getLocalizedName("structure", structureId, false)}<br />${i18n.t("map.coords.xyz", {x: pos[0], y: pos[1], z: pos[2]})}`)
     const marker = L.marker(crs.unproject(mapPos))
     marker.bindPopup(popup).addTo(markers)
-    const iconUrl = loadedDimensionStore.getIcon(structureId)
+    const iconUrl = WorldgenEngine.getInstance().structureIcons.get(structureId)
     marker.setIcon(L.icon({
         iconUrl: iconUrl,
         iconSize: [32, 32],

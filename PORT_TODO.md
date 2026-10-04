@@ -1,0 +1,1 @@
+- default_messages from StructureIcons and BiomeColors

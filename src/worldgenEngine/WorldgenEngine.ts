@@ -1,6 +1,8 @@
 import { BiomeSource, Climate, DensityFunction, Holder, HolderSet, Json, NbtFile, NoiseParameters, Registry, Structure, StructureSet, StructureTemplatePool, WorldgenRegistries, WorldgenStructure } from "deepslate"
 import { AnonymousDatapack, Datapack, Identifier, ResourceLocation } from "mc-datapack-loader"
 import { SpawnTargetAlgorithm, versionMetadata } from "../util"
+import { BiomeColors } from "../util/BiomeColors"
+import { StructureIcons } from "../util/StructureIcons"
 
 const CACHE_SIZE = 11
 const CACHE_CENTER = 4
@@ -8,6 +10,11 @@ const CACHE_CENTER = 4
 export class WorldgenEngine {
 
     private static INSTANCE = new WorldgenEngine()
+
+    private loadedDimensions = new Map<string, WorldgenEngine.Dimension>()
+    #biomeColor: BiomeColors | undefined
+    #structureIcons: StructureIcons | undefined
+    #hiddenStructures = new Set<string>()
 
     public static getInstance() {
         return this.INSTANCE
@@ -21,8 +28,8 @@ export class WorldgenEngine {
         return WorldgenRegistries.BIOME.keys()
     }
 
-    public getStructures(): Identifier[] {
-        return WorldgenStructure.REGISTRY.keys()
+    public getVisibleStructures(): Identifier[] {
+        return WorldgenStructure.REGISTRY.keys().filter(s => !this.#hiddenStructures.has(s.toString()))
     }
 
     public getStructureSets(): Identifier[] {
@@ -62,7 +69,21 @@ export class WorldgenEngine {
             await this.registerTag(datapack, ResourceLocation.WORLDGEN_STRUCTURE_TAG, WorldgenStructure.REGISTRY)
             resolve()
         }))
+        promises.push(datapack.get(ResourceLocation.DATA_FILE, new Identifier("c", "worldgen/biome_colors")).then(json => {
+            this.#biomeColor = new BiomeColors('c', json as {[key: string]: { r: number, g: number, b: number }})
+        }))
+        promises.push(datapack.get(ResourceLocation.DATA_FILE, new Identifier("c", "worldgen/structure_icons")).then(json => {
+            this.#structureIcons = new StructureIcons('c', json as {[key: string]: {item?: string, name?: string}})
+        }))
+
         await Promise.all(promises)
+
+        this.loadedDimensions.clear()
+        this.#hiddenStructures.clear()
+        for (const holder of this.getStructureTag(new Identifier("jacobsjo", "hidden_from_map"))?.getEntries() ?? []){
+            this.#hiddenStructures.add(holder.key()?.toString() ?? "")
+        }
+
     }
 
     private async registerType<T>(datapack: AnonymousDatapack, location: ResourceLocation, registry: Registry<T>, loader: (json: any, id: Identifier) => (T | (() => T))): Promise<void>{
@@ -84,6 +105,28 @@ export class WorldgenEngine {
 
     private async registerTag<T>(datapack: AnonymousDatapack, location: ResourceLocation, registry: Registry<T>){
         await this.registerType(datapack, location, registry.getTagRegistry(), (json, id) => HolderSet.fromJson<T>(registry, json, id))
+    }
+
+    get structureIcons() {
+        return this.#structureIcons!
+    }
+
+    get biomeColors() {
+        return this.#biomeColor!
+    }
+
+    public isStructureHidden(id: Identifier) {
+        return this.#hiddenStructures.has(id.toString())
+    }
+
+    public getDimension(id: Identifier): WorldgenEngine.Dimension{
+        const idString = id.toString()
+        if (!this.loadedDimensions.has(idString)){
+            this.loadedDimensions.set(idString, new class implements WorldgenEngine.Dimension {
+                
+            })
+        }
+        return this.loadedDimensions.get(idString)!
     }
 
 
@@ -187,4 +230,10 @@ export class WorldgenEngine {
     }
 
 
+}
+
+export namespace WorldgenEngine {
+    export interface Dimension {
+
+    }
 }
