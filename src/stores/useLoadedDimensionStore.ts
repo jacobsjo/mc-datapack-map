@@ -19,7 +19,7 @@ import { useDatapackStore } from "./useDatapackStore.js";
 import { useSettingsStore } from "./useSettingsStore.js";
 
 import messages from '@intlify/unplugin-vue-i18n/messages'
-import { WorldgenEngine } from "../deepslate/Deepslate.js";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
 
 export type LoadedDimension = {
     structure_icons?: Map<string, Identifier>,

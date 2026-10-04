@@ -5,7 +5,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useSettingsStore } from "./useSettingsStore.js";
 import { updateUrlParam, versionMetadata } from "../util.js";
 import { useI18n } from "vue-i18n";
-import { WorldgenEngine } from "../deepslate/Deepslate.js";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
 
 
 export const useDatapackStore = defineStore('datapacks', () => {

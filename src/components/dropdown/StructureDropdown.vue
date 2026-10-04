@@ -5,7 +5,7 @@ import ListDropdown from './ListDropdown.vue';
 import { useLoadedDimensionStore } from '../../stores/useLoadedDimensionStore.js';
 import { useI18n } from 'vue-i18n';
 import { Identifier } from 'mc-datapack-loader';
-import { WorldgenEngine } from '../../deepslate/Deepslate.js';
+import { WorldgenEngine } from '../../worldgenEngine/WorldgenEngine.js';
 
 const {t, locale} = useI18n()
 
