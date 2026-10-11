@@ -2,18 +2,15 @@
 import { ref, watch } from 'vue';
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
-import { useDatapackStore } from '../stores/useDatapackStore';
 import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore';
-import { useSettingsStore } from '../stores/useSettingsStore';
 import { useI18n } from 'vue-i18n';
 
 const loadedDimensionStore = useLoadedDimensionStore()
-const settingsStore = useSettingsStore()
 
-const level_height = ref(await loadedDimensionStore.loaded_dimension.level_height)
+const level_height = ref(await loadedDimensionStore.loaded_dimension.getLevelHeight())
 
 loadedDimensionStore.$subscribe(async (mutation, state) => {
-    level_height.value = await loadedDimensionStore.loaded_dimension.level_height
+    level_height.value = await loadedDimensionStore.loaded_dimension.getLevelHeight()
 })
 
 const props = defineProps({

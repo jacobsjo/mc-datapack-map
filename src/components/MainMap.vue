@@ -104,13 +104,12 @@ onMounted(() => {
     markers = L.layerGroup().addTo(map)
 
     map.addEventListener("mousemove", (evt: L.LeafletMouseEvent) => {
-        //        await datapackStore.registered
         tooltip_left.value = evt.originalEvent.pageX-4
         tooltip_top.value = evt.originalEvent.pageY-4
 
         const pos = getPosition(map, evt.latlng)
 
-        const biome = loadedDimensionStore.getBiomeSource()?.getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2, loadedDimensionStore.sampler) ?? Identifier.create("plains")
+        const biome = loadedDimensionStore.loaded_dimension.getBiome(pos[0] >> 2, pos[1] >> 2, pos[2] >> 2)
 
         tooltip_biome.value = biome
         tooltip_position.value = pos
@@ -154,7 +153,7 @@ function getPosition(map: L.Map, latlng: L.LatLng) {
     const pos = crs.project(latlng)
     pos.y *= -1
 
-    const surface = (loadedDimensionStore.surface_density_function)?.compute(DensityFunction.context((pos.x >> 2) << 2, y.value, (pos.y >> 2) << 2)) ?? Number.POSITIVE_INFINITY
+    const surface = (loadedDimensionStore.loaded_dimension.getSurface((pos.x >> 2) << 2, y.value, (pos.y >> 2) << 2)) ?? Number.POSITIVE_INFINITY
 
     const pos_y: number = project_down.value ? Math.min(surface, y.value) : y.value
     return BlockPos.create(pos.x, pos_y, pos.y)
@@ -166,6 +165,7 @@ function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
 
 
 function updateMarkers() {
+    /*
     const biomeSource = loadedDimensionStore.getBiomeSource()
     if (biomeSource === undefined) {
         return
@@ -255,7 +255,7 @@ function updateMarkers() {
         }
     }
 
-    needs_zoom.value = _needs_zoom
+    needs_zoom.value = _needs_zoom*/
 }
 
 function getMarker(structureId: Identifier, pos: BlockPos) {
@@ -278,6 +278,7 @@ function getMarker(structureId: Identifier, pos: BlockPos) {
 }
 
 function updateSpawnMarker(){
+    /*
     if (settingsStore.dimension.toString() === "minecraft:overworld"){
         const crs = map.options.crs!
         const spawnTarget = WorldgenEngine.getInstance().SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
@@ -289,7 +290,7 @@ function updateSpawnMarker(){
     } else {
         spawnMarker.removeFrom(map)
     }
-
+    */
 }
 
 loadedDimensionStore.$subscribe((mutation, state) => {
@@ -300,9 +301,9 @@ loadedDimensionStore.$subscribe((mutation, state) => {
     updateMarkers()
     updateSpawnMarker()
 
-    const level_height = loadedDimensionStore.loaded_dimension.level_height
+    const level_height = loadedDimensionStore.loaded_dimension.getLevelHeight()
     if (level_height){
-        if (project_down.value && loadedDimensionStore.surface_density_function !== undefined){
+        if (project_down.value && loadedDimensionStore.loaded_dimension.hasSurface()){
             y.value = level_height.minY + level_height.height || y.value
         } else {
             y.value = Math.max(Math.min(y.value, level_height.minY + level_height.height), level_height.minY)
@@ -324,9 +325,9 @@ watch(searchStore.structures, () => {
             <Suspense>
                 <YSlider class="slider" v-model:y="y" />
             </Suspense>
-            <MapButton icon="fa-arrows-down-to-line" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="project_down" :title="i18n.t('map.setting.project')" />
-            <MapButton icon="fa-mountain-sun" :disabled="(!project_down || loadedDimensionStore.surface_density_function === undefined) && ! loadedDimensionStore.terrain_density_function" v-model="do_hillshade"  :title="i18n.t('map.setting.hillshade')" />
-            <MapButton icon="fa-water" :disabled="loadedDimensionStore.surface_density_function === undefined" v-model="show_sealevel" :title="i18n.t('map.setting.sealevel')" />
+            <MapButton icon="fa-arrows-down-to-line" :disabled="!loadedDimensionStore.loaded_dimension.hasSurface()" v-model="project_down" :title="i18n.t('map.setting.project')" />
+            <MapButton icon="fa-mountain-sun" :disabled="(!project_down || !loadedDimensionStore.loaded_dimension.hasSurface()) && !loadedDimensionStore.loaded_dimension.hasTerrain()" v-model="do_hillshade"  :title="i18n.t('map.setting.hillshade')" />
+            <MapButton icon="fa-water" :disabled="loadedDimensionStore.loaded_dimension.hasSurface()" v-model="show_sealevel" :title="i18n.t('map.setting.sealevel')" />
             <MapButton icon="fa-table-cells" v-model="show_graticule" :title="i18n.t('map.setting.graticule')" />
         </div>
     </div>

@@ -7,7 +7,7 @@ import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore.js";
 import { useSettingsStore } from "../stores/useSettingsStore.js";
 import { useDatapackStore } from "../stores/useDatapackStore.js";
 import { Ref, toRaw, watch } from "vue";
-import { ResourceLocation } from "mc-datapack-loader";
+import { Identifier, ResourceLocation } from "mc-datapack-loader";
 import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
 
 const WORKER_COUNT = 4
@@ -53,16 +53,14 @@ export class BiomeLayer extends L.GridLayer {
 
 		this.createWorkers()
 		this.datapackLoader = this.updateWorkers({
-			dimension: true,
-			registires: true,
-			settings: true,
-		}),
+			worldgenEngine: true
+		})
 
-			this.waveImage = new Promise((resolve) => {
-				const waveImage = new Image()
-				waveImage.onload = () => resolve(waveImage)
-				waveImage.src = "images/wave.png"
-			})
+		this.waveImage = new Promise((resolve) => {
+			const waveImage = new Image()
+			waveImage.onload = () => resolve(waveImage)
+			waveImage.src = "images/wave.png"
+		})
 
 
 		watch([this.searchStore.biomes, () => this.searchStore.disabled], ([biomes, disabled], [oldBiomes, oldDisabled]) => {
@@ -81,23 +79,18 @@ export class BiomeLayer extends L.GridLayer {
 
 		watch(this.project_down, () => {
 			this.updateWorkers({
-				settings: true
 			})
 			this.redraw()
 		})
 
 		watch(this.y, () => {
 			this.updateWorkers({
-				settings: true
 			})
 			this.redraw()
 		})
 
-		this.loadedDimensionStore.$subscribe(async (mutation, state) => {
+		this.settingsStore.$subscribe(async (mutation, state) => {
 			await this.updateWorkers({
-				settings: true,
-				dimension: true,
-				registires: true
 			})
 			this.redraw()
 		})
@@ -146,13 +139,13 @@ export class BiomeLayer extends L.GridLayer {
 					)
 				}
 
-				let biomeColor = biomeColors.get(biome)
+				let biomeColor = biomeColors.get(Identifier.parse(biome))
 				tile.ctx.fillStyle = `rgb(${biomeColor.r * hillshade}, ${biomeColor.g * hillshade}, ${biomeColor.b * hillshade})`
 
 				tile.ctx.fillRect(x / this.calcResolution, z / this.calcResolution, 1 / this.calcResolution, 1 / this.calcResolution)
 
 				if (show_sealevel && !belowSurface) {
-					if (y < this.loadedDimensionStore.noise_generator_settings.seaLevel - 2) {
+					if (y < this.loadedDimensionStore.loaded_dimension.getSeaLevel() - 2) {
 						tile.ctx.drawImage(waveImage, x / this.calcResolution % 16, z / this.calcResolution % 16, 4, 4, x / this.calcResolution, z / this.calcResolution, 4, 4)
 					}
 				}
@@ -201,39 +194,23 @@ export class BiomeLayer extends L.GridLayer {
 	}
 
 	async updateWorkers(do_update: {
-		registires?: boolean,
-		dimension?: boolean,
-		settings?: boolean,
+		worldgenEngine?: boolean
 	}) {
 		this.generationVersion++
-		const update: any = { generationVersion: this.generationVersion }
+		const message: {worldgenEngine?: any, settings: any} = {settings: {}}
 
-		if (do_update.registires) {
-			update.densityFunctions = {}
-			for (const id of await this.datapackStore.composite_datapack.getIds(ResourceLocation.WORLDGEN_DENSITY_FUNCTION)) {
-				update.densityFunctions[id.toString()] = await this.datapackStore.composite_datapack.get(ResourceLocation.WORLDGEN_DENSITY_FUNCTION, id)
-			}
-
-			update.noises = {}
-			for (const id of await this.datapackStore.composite_datapack.getIds(ResourceLocation.WORLDGEN_NOISE)) {
-				update.noises[id.toString()] = await this.datapackStore.composite_datapack.get(ResourceLocation.WORLDGEN_NOISE, id)
-			}
+		if (do_update.worldgenEngine) {
+			message.worldgenEngine = WorldgenEngine.getInstance().getMessage()
 		}
 
-		if (do_update.dimension) {
-			update.biomeSourceJson = toRaw(this.loadedDimensionStore.loaded_dimension.biome_source_json)
-			update.noiseGeneratorSettingsJson = toRaw(this.loadedDimensionStore.loaded_dimension.noise_settings_json)
-			update.surfaceDensityFunctionId = getCustomDensityFunction("snowcapped_surface", this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
-			update.terrainDensityFunctionId = getCustomDensityFunction("map_simple_terrain", this.loadedDimensionStore.loaded_dimension.noise_settings_id!, this.settingsStore.dimension)?.toString() ?? "<none>"
-		}
+		message.settings.generationVersion = this.generationVersion
+		message.settings.presetId = this.settingsStore.world_preset.toString()
+		message.settings.dimensionId = this.settingsStore.dimension.toString()
+		message.settings.seed = this.settingsStore.seed
+		message.settings.y = this.y.value
+		message.settings.project_down = this.project_down.value
 
-		if (do_update.settings) {
-			update.seed = this.settingsStore.seed
-			update.y = this.y.value
-			update.project_down = this.project_down.value
-		}
-
-		this.workers.forEach(w => w.postMessage({ update }))
+		this.workers.forEach(w => w.postMessage(message))
 	}
 
 	generateTile(key: string, coords: L.Coords, worker_id: number) {
