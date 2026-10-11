@@ -12,8 +12,6 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     const datapackStore = useDatapackStore()
     const settingsStore = useSettingsStore()
 
-    const version = ref<number>(0)
-
     const loaded_dimension = ref<WorldgenEngine.Dimension>(new class implements WorldgenEngine.Dimension{
         getBiome(x: number, y: number, z: number): Identifier {
             return Identifier.create("minecraft:plains")
@@ -51,7 +49,10 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     watch(() => settingsStore.mc_version, reload)
     watch(() => settingsStore.world_preset, reload)
     watch(() => settingsStore.dimension, reload)
-    watch(() => settingsStore.seed, reload)
+    watch(() => settingsStore.seed, () => {
+        WorldgenEngine.getInstance().clearDimensions()
+        reload()
+    })
 
     
     async function reload() {
@@ -60,10 +61,9 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
         const newDimension = await WorldgenEngine.getInstance().getDimension(settingsStore.dimension, settingsStore.world_preset, settingsStore.seed)
         if (newDimension !== undefined){
             loaded_dimension.value = newDimension
-            version.value ++
         }
     }
 
-    return { loaded_dimension, reload, version }
+    return { loaded_dimension, reload }
 })
 

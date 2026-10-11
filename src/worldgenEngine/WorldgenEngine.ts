@@ -35,6 +35,10 @@ export class WorldgenEngine {
         return this.INSTANCE
     }
 
+    public clearDimensions(): void {
+        this.loadedDimensions.clear()
+    }
+
     public hasDensityFunction(id: Identifier): boolean {
         return WorldgenRegistries.DENSITY_FUNCTION.has(id)
     }

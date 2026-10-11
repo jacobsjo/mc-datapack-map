@@ -268,7 +268,7 @@ function updateSpawnMarker(){
     }
 }
 
-loadedDimensionStore.$subscribe(async (mutation, state) => {
+watch(() => loadedDimensionStore.loaded_dimension, async () => {
     console.log("update makerers")
     for (const marker of marker_map.values()){
         marker.marker?.remove()
