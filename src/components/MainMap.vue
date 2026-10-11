@@ -161,15 +161,6 @@ function isInBounds(pos: ChunkPos, min: ChunkPos, max: ChunkPos) {
 
 
 function updateMarkers() {
-    /*
-    const biomeSource = loadedDimensionStore.getBiomeSource()
-    if (biomeSource === undefined) {
-        return
-    }
-
-    const cachedBiomeSource = new (WorldgenEngine.getInstance().CachedBiomeSource)(biomeSource)
-    const context = new WorldgenStructure.GenerationContext(settingsStore.seed, cachedBiomeSource, loadedDimensionStore.noise_generator_settings, loadedDimensionStore.loaded_dimension.level_height ?? {minY: 0, height: 256})
-
     const bounds = map.getBounds()
 
     const crs = map.options.crs!
@@ -186,21 +177,13 @@ function updateMarkers() {
     const scheduler = ('scheduler' in window) ? ((task: () => void) => (window as any).scheduler.postTask(task, {priority: "background"})) : ((task: () => void) => setTimeout(task, 1))
 
     for (const id of searchStore.structure_sets.sets) {
-        const set = StructureSet.REGISTRY.get(id)
+        const set = loadedDimensionStore.loaded_dimension.getStructureSet(id)
         if (!set) continue
 
-        var minZoom = 2
-
-        if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
-            set.placement.prepare(biomeSource, loadedDimensionStore.sampler, settingsStore.seed)
-            minZoom = -2
-        } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
-            const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
-            minZoom = -Math.log2(1/(chunkFrequency * 128))
-        }
+        var minZoom = set.getMinZoom()
 
         if (map.getZoom() >= minZoom){
-            const chunks: ChunkPos[] = set.placement.getPotentialStructureChunks(settingsStore.seed, minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
+            const chunks: ChunkPos[] = set.getPotentialStructureChunks(minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
 
             for (const chunk of chunks) {
                 const storage_id = `${id.toString()} ${chunk[0]},${chunk[1]}`
@@ -217,8 +200,7 @@ function updateMarkers() {
                         scheduler(() => {
                             if (marker_map.get(storage_id) !== m) return
 
-                            cachedBiomeSource.setupCache(chunk[0] << 2, chunk[1] << 2)
-                            const structure = set.getStructureInChunk(chunk[0], chunk[1], context)
+                            const structure = set.getStructureInChunk(chunk[0], chunk[1])
 
                             const marker = structure && searchStore.structures.has(structure.id.toString()) ? getMarker(structure.id, structure.pos) : undefined
                             m.structure = structure
@@ -251,7 +233,7 @@ function updateMarkers() {
         }
     }
 
-    needs_zoom.value = _needs_zoom*/
+    needs_zoom.value = _needs_zoom
 }
 
 function getMarker(structureId: Identifier, pos: BlockPos) {
@@ -274,11 +256,9 @@ function getMarker(structureId: Identifier, pos: BlockPos) {
 }
 
 function updateSpawnMarker(){
-    /*
     if (settingsStore.dimension.toString() === "minecraft:overworld"){
         const crs = map.options.crs!
-        const spawnTarget = WorldgenEngine.getInstance().SpawnTarget.fromJson(loadedDimensionStore.loaded_dimension.noise_settings_json?.spawn_target, versionMetadata[settingsStore.mc_version].spawnAlgorithm)
-        const spawn = spawnTarget.getSpawnPoint(loadedDimensionStore.sampler)
+        const spawn = loadedDimensionStore.loaded_dimension.getSpawnPoint()
         const pos = new L.Point(spawn[0] + 7, - spawn[1] - 7)
         spawnMarker.setLatLng(crs.unproject(pos))
         spawnMarker.bindPopup(L.popup().setContent(() => `${i18n.t("map.tooltip.spawn")}<br />${i18n.t("map.coords.xz", {x: spawn[0] + 7, z: spawn[1] + 7})}`))
@@ -286,10 +266,10 @@ function updateSpawnMarker(){
     } else {
         spawnMarker.removeFrom(map)
     }
-    */
 }
 
-loadedDimensionStore.$subscribe((mutation, state) => {
+loadedDimensionStore.$subscribe(async (mutation, state) => {
+    console.log("update makerers")
     for (const marker of marker_map.values()){
         marker.marker?.remove()
     }

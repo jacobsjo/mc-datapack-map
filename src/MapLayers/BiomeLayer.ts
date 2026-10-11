@@ -90,6 +90,7 @@ export class BiomeLayer extends L.GridLayer {
 		watch(() => this.settingsStore.seed, updateSettings)
 
 		this.loadedDimensionStore.$subscribe(async (mutation, state) => {
+		    console.info("update layer")
 			await this.updateWorkers({
 				worldgenEngine: true
 			})

@@ -1,4 +1,4 @@
-import { BiomeSource, Climate, DensityFunction, Holder, HolderSet, Json, NbtFile, NoiseGeneratorSettings, NoiseParameters, RandomState, Registry, Structure, StructureSet, StructureTemplatePool, WorldgenRegistries, WorldgenStructure } from "deepslate"
+import { BiomeSource, BlockPos, ChunkPos, Climate, DensityFunction, Holder, HolderSet, Json, NbtFile, NoiseGeneratorSettings, NoiseParameters, RandomState, Registry, Structure, StructurePlacement, StructureSet, StructureTemplatePool, WorldgenRegistries, WorldgenStructure } from "deepslate"
 import { AnonymousDatapack, Identifier, ResourceLocation } from "mc-datapack-loader"
 import { getCustomDensityFunction, SpawnTargetAlgorithm, versionMetadata } from "../util"
 import { BiomeColors } from "../util/BiomeColors"
@@ -91,7 +91,11 @@ export class WorldgenEngine {
             resolve()
         }))
 
-        promises.push(this.registerType(datapack, ResourceLocation.WORLDGEN_NOISE_SETTINGS, WorldgenRegistries.NOISE_SETTINGS, NoiseGeneratorSettings.fromJson))
+        promises.push(this.registerType(datapack, ResourceLocation.WORLDGEN_NOISE_SETTINGS, WorldgenRegistries.NOISE_SETTINGS, (obj) => {
+            const settings = NoiseGeneratorSettings.fromJson(obj) as any
+            settings.spawnTarget = obj.spawn_target
+            return settings
+        }))
         promises.push(this.registerType(datapack, ResourceLocation.DIMENSION, this.#DIMENSION_REGISTRY, (obj) => obj))
         promises.push(this.registerType(datapack, ResourceLocation.WORLDGEN_WORLD_PRESET, this.#WORLD_PRESET_REGISTRY, (obj) => obj))
         promises.push(this.registerType(datapack, ResourceLocation.DIMENSION_TYPE, this.#DIMENSION_TYPE_REGISTRY, (obj) => obj))
@@ -156,7 +160,11 @@ export class WorldgenEngine {
         })
         this.registerTagFromMessage(message.registries, WorldgenStructure.REGISTRY)
 
-        this.registerTypeFromMessage(message.registries, WorldgenRegistries.NOISE_SETTINGS, NoiseGeneratorSettings.fromJson)
+        this.registerTypeFromMessage(message.registries, WorldgenRegistries.NOISE_SETTINGS, (obj) => {
+            const settings = NoiseGeneratorSettings.fromJson(obj) as any
+            settings.spawnTarget = obj.spawn_target
+            return settings
+        })
         this.registerTypeFromMessage(message.registries, this.#DIMENSION_REGISTRY, (obj) => obj)
         this.registerTypeFromMessage(message.registries, this.#WORLD_PRESET_REGISTRY, (obj) => obj)
         this.registerTypeFromMessage(message.registries, this.#DIMENSION_TYPE_REGISTRY, (obj) => obj)
@@ -290,6 +298,10 @@ export class WorldgenEngine {
                         ))
             }
 
+            const structureGenerationContext = new WorldgenStructure.GenerationContext(seed, biomeSource, noiseGeneratorSettings, levelHeight)
+
+            const spawnPoint = this.calculateSpawnPoint(sampler, versionMetadata[this.#mc_version!].spawnAlgorithm === SpawnTargetAlgorithm.LEGACY_ZERO_BIASED, Json.readArray((noiseGeneratorSettings as any).spawnTarget ?? [], Climate.ParamPoint.fromJson) ?? [])
+
             this.loadedDimensions.set(cacheString, new class implements WorldgenEngine.Dimension {
                 getBiome(x: number, y: number, z: number): Identifier {
                     return biomeSource.getBiome(x, y, z, sampler)
@@ -319,112 +331,93 @@ export class WorldgenEngine {
                     return noiseGeneratorSettings.seaLevel
                 }
 
+                getStructureSet(id: Identifier): WorldgenEngine.StructureSet | undefined{
+                    const set = StructureSet.REGISTRY.get(id)
+                    if (set === undefined)
+                        return undefined
+
+                    return new class implements WorldgenEngine.StructureSet {
+                        prepare(): void {
+                            if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
+                                set.placement.prepare(biomeSource, sampler, seed)
+                            }
+                        }
+
+                        getPotentialStructureChunks(minChunkX: number, minChunkZ: number, maxChunkX: number, maxChunkZ: number): ChunkPos[] {
+                            return set.placement.getPotentialStructureChunks(seed, minChunkX, minChunkZ, maxChunkX, maxChunkZ)
+                        }
+
+                        getStructureInChunk(chunkX: number, chunkZ: number): { id: Identifier; pos: BlockPos } | undefined {
+                            return set.getStructureInChunk(chunkX, chunkZ, structureGenerationContext)
+                        }
+                        
+                        getMinZoom() {
+                            if (set.placement instanceof StructurePlacement.ConcentricRingsStructurePlacement){
+                                return -2
+                            } else if (set.placement instanceof StructurePlacement.RandomSpreadStructurePlacement) {
+                                const chunkFrequency = (set.placement.frequency) / (set.placement.spacing * set.placement.spacing)
+                                return -Math.log2(1/(chunkFrequency * 128))
+                            }
+                            return 2
+                        }
+                    }()
+                }  
+                
+                getSpawnPoint(): [number, number] {
+                    return spawnPoint
+                }
+
             }())
         }
         return this.loadedDimensions.get(cacheString)!
     }
 
-
-    public CachedBiomeSource = class implements BiomeSource {
-        private cache: Map<number, Identifier> = new Map()
-        private cache_center_x: number = 0
-        private cache_center_z: number = 0
-
-
-        constructor(
-            private readonly base: BiomeSource
-        ) { }
-
-        public setupCache(x: number, z: number) {
-            this.cache.clear()
-            this.cache_center_x = x
-            this.cache_center_z = z
+    private calculateSpawnPoint(climateSampler: Climate.Sampler, legacy: boolean, paramPoints: Climate.ParamPoint[]): [number, number] {
+        if (paramPoints.length === 0){
+            return [0, 0]
         }
+        var result: [number, number] = [0, 0]
+        var result_fitness = getFitness(0, 0)
 
-        getBiome(x: number, y: number, z: number, climateSampler: Climate.Sampler): Identifier {
-            if ((Math.abs(x - this.cache_center_x) > CACHE_CENTER) || (Math.abs(z - this.cache_center_z) > CACHE_CENTER)){
-                return this.base.getBiome(x, y, z, climateSampler)
-            }
-            
-            const cache_index
-                = (y + 64) * CACHE_SIZE * CACHE_SIZE
-                + (x - this.cache_center_x + CACHE_CENTER) * CACHE_SIZE
-                + (z - this.cache_center_z + CACHE_CENTER)
+        radialSearch(2048, 512, 0, 0)
+        radialSearch(512, 32, result[0], result[1])
 
-            const cached = this.cache.get(cache_index)
-            if (cached) {
-                //console.log('cache hit!')
-                return cached
+        return result
+
+        function getFitness(x: number, z: number){
+            const climate = climateSampler.sample(x >> 2, 0, z >> 2)
+            const surfaceClimate = Climate.target(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0, climate.weirdness)            
+            const climateFitness = Math.min(...paramPoints.map(p => p.fittness(surfaceClimate)))
+
+            if (legacy) {
+                const distanceFitness = Math.pow((x * x + z * z) / (2500 * 2500),2);
+                return distanceFitness + climateFitness
             } else {
-                //console.log('cache miss!')
-                const biome = this.base.getBiome(x, y, z, climateSampler)
-                this.cache.set(cache_index, biome)
-                return biome
+                return BigInt(x*x + z*z) + BigInt(2048 * 2048) * BigInt(Math.floor(10000 * 10000 * climateFitness))
             }
         }
-    }
 
-    public SpawnTarget = class {
+        function radialSearch(maxRadius: number, radiusStep: number, centerX: number, centerZ: number) {
+            var angle = 0
+            var radius = radiusStep
 
-        constructor(
-            private paramPoints: Climate.ParamPoint[],
-            private algorithm: SpawnTargetAlgorithm
-        ){
+            while(radius <= maxRadius) {
+                const x = centerX + Math.floor(Math.sin(angle) * radius)
+                const z = centerZ + Math.floor(Math.cos(angle) * radius)
+                const fitness = getFitness(x, z)
+                if (fitness < result_fitness) {
+                    result = [x, z];
+                    result_fitness = fitness
+                }
 
-        }
-
-        public static fromJson(obj: unknown, algorithm: SpawnTargetAlgorithm){
-            return new (WorldgenEngine.getInstance().SpawnTarget)(Json.readArray(obj, Climate.ParamPoint.fromJson) ?? [], algorithm)
-        }
-
-        public getSpawnPoint(climateSampler: Climate.Sampler): [number, number] {
-            const self = this
-            var result: [number, number] = [0, 0]
-            var result_fitness = getFitness(0, 0)
-
-            radialSearch(2048, 512, 0, 0)
-            radialSearch(512, 32, result[0], result[1])
-
-            return result
-
-            function getFitness(x: number, z: number){
-                const climate = climateSampler.sample(x >> 2, 0, z >> 2)
-                const surfaceClimate = Climate.target(climate.temperature, climate.humidity, climate.continentalness, climate.erosion, 0, climate.weirdness)            
-                const climateFitness = Math.min(...self.paramPoints.map(p => p.fittness(surfaceClimate)))
-
-                switch (self.algorithm) {
-                    case SpawnTargetAlgorithm.LEGACY_ZERO_BIASED:
-                        const distanceFitness = Math.pow((x * x + z * z) / (2500 * 2500),2);
-                        return distanceFitness + climateFitness
-                    case SpawnTargetAlgorithm.BEST_CLIMATE:
-                        return BigInt(x*x + z*z) + BigInt(2048 * 2048) * BigInt(Math.floor(10000 * 10000 * climateFitness))
+                angle += radiusStep / radius
+                if (angle > Math.PI * 2) {
+                    angle = 0
+                    radius += radiusStep
                 }
             }
-
-            function radialSearch(maxRadius: number, radiusStep: number, centerX: number, centerZ: number) {
-                var angle = 0
-                var radius = radiusStep
-
-                while(radius <= maxRadius) {
-                    const x = centerX + Math.floor(Math.sin(angle) * radius)
-                    const z = centerZ + Math.floor(Math.cos(angle) * radius)
-                    const fitness = getFitness(x, z)
-                    if (fitness < result_fitness) {
-                        result = [x, z];
-                        result_fitness = fitness
-                    }
-
-                    angle += radiusStep / radius
-                    if (angle > Math.PI * 2) {
-                        angle = 0
-                        radius += radiusStep
-                    }
-                }
-            }
-        }
+        }        
     }
-
-
 }
 
 export namespace WorldgenEngine {
@@ -436,5 +429,14 @@ export namespace WorldgenEngine {
         hasTerrain(): boolean
         getLevelHeight(): {minY: number, height: number}
         getSeaLevel(): number
+        getStructureSet(id: Identifier): WorldgenEngine.StructureSet | undefined
+        getSpawnPoint(): [number, number]
+    }
+
+    export interface StructureSet {
+        prepare(): void
+        getPotentialStructureChunks(minChunkX: number, minChunkZ: number, maxChunkX: number, maxChunkZ: number): ChunkPos[]
+        getStructureInChunk(chunkX: number, chunkZ: number): {id: Identifier, pos: BlockPos} | undefined
+        getMinZoom(): number
     }
 }
