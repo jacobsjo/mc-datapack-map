@@ -8,10 +8,6 @@ import BiomeTooltip from './BiomeTooltip.vue';
 import {
     BlockPos,
     ChunkPos,
-    DensityFunction,
-    StructurePlacement,
-    StructureSet,
-    WorldgenStructure
 } from 'deepslate';
 import YSlider from './YSlider.vue';
 import { useSearchStore } from '../stores/useBiomeSearchStore';

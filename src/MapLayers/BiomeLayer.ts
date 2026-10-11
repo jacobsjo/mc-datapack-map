@@ -1,14 +1,14 @@
 import * as L from "leaflet"
 //import { last, range, takeWhile } from "lodash";
-import { calculateHillshade, getCustomDensityFunction, hashCode } from "../util.js";
+import { calculateHillshade } from "../util.js";
 import MultiNoiseCalculator from "../webworker/MultiNoiseCalculator?worker"
 import { useSearchStore } from "../stores/useBiomeSearchStore.js";
 import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore.js";
 import { useSettingsStore } from "../stores/useSettingsStore.js";
-import { useDatapackStore } from "../stores/useDatapackStore.js";
-import { Ref, toRaw, watch } from "vue";
-import { Identifier, ResourceLocation } from "mc-datapack-loader";
+import { Ref, watch } from "vue";
+import { Identifier } from "mc-datapack-loader";
 import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
+import { useDatapackStore } from "../stores/useDatapackStore.js";
 
 const WORKER_COUNT = 4
 
@@ -36,8 +36,8 @@ export class BiomeLayer extends L.GridLayer {
 
 	private workers: Worker[] = []
 
-	private datapackStore = useDatapackStore()
 	private loadedDimensionStore = useLoadedDimensionStore()
+	private datapackStore = useDatapackStore()
 	private searchStore = useSearchStore()
 	private settingsStore = useSettingsStore()
 
@@ -77,23 +77,26 @@ export class BiomeLayer extends L.GridLayer {
 			this.rerender()
 		})
 
-		watch(this.project_down, () => {
+		const updateSettings = () => {
 			this.updateWorkers({
 			})
 			this.redraw()
-		})
+		}
 
-		watch(this.y, () => {
-			this.updateWorkers({
-			})
-			this.redraw()
-		})
+		watch(this.project_down, updateSettings)
+		watch(this.y, updateSettings)
+		watch(() => this.settingsStore.world_preset, updateSettings)
+		watch(() => this.settingsStore.dimension, updateSettings)
+		watch(() => this.settingsStore.seed, updateSettings)
 
-		this.settingsStore.$subscribe(async (mutation, state) => {
+		this.loadedDimensionStore.$subscribe(async (mutation, state) => {
 			await this.updateWorkers({
+				worldgenEngine: true
 			})
 			this.redraw()
 		})
+
+		this.datapackStore
 
 	}
 

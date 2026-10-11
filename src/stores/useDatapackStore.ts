@@ -32,11 +32,7 @@ export const useDatapackStore = defineStore('datapacks', () => {
 
     const datapacks = reactive<{datapack: Datapack, key: number, id?: string}[]>(ds)
 
-    var last_version = settingsStore.mc_version
-    settingsStore.$subscribe(async () => {
-        if (last_version === settingsStore.mc_version)
-            return
-
+    watch(() => settingsStore.mc_version, async () => {
         const metadata = versionMetadata[settingsStore.mc_version];
         const vanillaDatapack = Datapack.fromZipUrl(`./vanilla_datapacks/vanilla_${metadata.vanillaDatapack}.zip`, metadata.datapackFormat)
         datapacks[0].datapack = vanillaDatapack
@@ -45,13 +41,12 @@ export const useDatapackStore = defineStore('datapacks', () => {
         for (var i = 1; i < datapacks.length ; i++){
             datapacks[i].datapack.setPackVersion(metadata.datapackFormat)
         }
-
-        last_version = settingsStore.mc_version
     })
 
     watch(datapacks, (new_datapacks) => {
         const ids = new_datapacks.flatMap(d => d.id ? [d.id] : [])
         updateUrlParam('datapacks', ids.length > 0 ? ids.join(',') : undefined)
+        reloadDatapack()
     })
 
     const datapack_list = new class implements DatapackList{
@@ -72,15 +67,14 @@ export const useDatapackStore = defineStore('datapacks', () => {
     })
 
     const world_presets = computed(async () => {
-        // TODO use deepslate HolderSet 
         const normal_world_preset_tag = await composite_datapack.get(ResourceLocation.WORLDGEN_WORLD_PRESET_TAG, Identifier.create("normal")) as { values: string[] }
         return normal_world_preset_tag.values.map(id => Identifier.parse(id))
     })
 
-    const registered = computed(reloadDatapack)
+    const registered = ref<Promise<void>>()
 
     async function reloadDatapack() {
-        await WorldgenEngine.getInstance().loadFromDatapack(composite_datapack, settingsStore.mc_version);
+        registered.value = WorldgenEngine.getInstance().loadFromDatapack(composite_datapack, settingsStore.mc_version);
     }
 
     function addDatapack(datapack: Datapack) {
@@ -137,6 +131,8 @@ export const useDatapackStore = defineStore('datapacks', () => {
     
         return fileInfo.url
     }    
+
+    reloadDatapack()
 
     return { datapacks, composite_datapack, registered, reloadDatapack, addDatapack, removeDatapack, dimensions, world_presets, addModrinthDatapack }
 })

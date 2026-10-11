@@ -3,7 +3,6 @@
 declare const self: ServiceWorkerGlobalScope;
 export { };
 
-//import {Climate, DensityFunction, WorldgenRegistries, Holder, NoiseGeneratorSettings, RandomState, NoiseParameters, BiomeSource } from "deepslate"
 import { Identifier } from "mc-datapack-loader";
 import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine";
 

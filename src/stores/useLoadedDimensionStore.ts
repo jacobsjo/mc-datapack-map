@@ -41,9 +41,6 @@ export const useLoadedDimensionStore = defineStore('loaded_dimension', () => {
     })
 
     watch(() => settingsStore.mc_version, reload)
-    watch(() => settingsStore.world_preset, reload)
-    watch(() => settingsStore.dimension, reload)
-    watch(() => settingsStore.seed, reload)
     
     async function reload() {
         await datapackStore.registered

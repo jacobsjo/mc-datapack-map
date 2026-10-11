@@ -139,7 +139,6 @@ export class WorldgenEngine {
 
 
     public loadFromMessage(message: any){ // Message
-        console.info(message)
         this.#mc_version = message.mc_version
         this.registerTypeFromMessage(message.registries, WorldgenRegistries.DENSITY_FUNCTION, (json) => new DensityFunction.HolderHolder(Holder.parser(WorldgenRegistries.DENSITY_FUNCTION, DensityFunction.fromJson)(json)))
         this.registerTypeFromMessage(message.registries, WorldgenRegistries.NOISE, NoiseParameters.fromJson)

@@ -9,12 +9,14 @@ import StructureDropdown from './dropdown/StructureDropdown.vue';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { EventTracker } from '../util/EventTracker';
 import { useI18n } from 'vue-i18n';
+import { useLoadedDimensionStore } from '../stores/useLoadedDimensionStore';
 
 const i18n = useI18n()
 
 const datapackStore = useDatapackStore()
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()
+const loadedDimensionStore = useLoadedDimensionStore()
 
 const openDropdownOpen = ref(false)
 const searchBiomeDropdownOpen = ref(false)
@@ -22,7 +24,7 @@ const structureDropdownOpen = ref(false)
 
 function reload(event: MouseEvent){
     EventTracker.track("reload")
-    datapackStore.$patch({})
+    datapackStore.reloadDatapack()
 }
 
 function toggleBiomeSearch() {

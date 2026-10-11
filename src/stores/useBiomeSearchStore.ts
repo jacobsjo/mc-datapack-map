@@ -11,14 +11,14 @@ export const useSearchStore = defineStore('search', () => {
     const disabled = ref(false)
 
     const structure_sets = computed(() => {
-        const deepslate = WorldgenEngine.getInstance()
+        const worldgenEngine = WorldgenEngine.getInstance()
 
         structures.size // make sure any change to structures triggers recomputation
         const sets: Identifier[] = []
 
         var has_invalid_set = false
-        for (const id of deepslate.getStructureSets()){
-            const set = deepslate.getStructureSet(id)
+        for (const id of worldgenEngine.getStructureSets()){
+            const set = worldgenEngine.getStructureSet(id)
             if (!set) continue
 
             var set_needed = false
@@ -28,7 +28,7 @@ export const useSearchStore = defineStore('search', () => {
                 if (structures.has(entry.structure.key()?.toString() ?? "<>")){
                     set_needed = true
                     const s = entry.structure.value()
-                    if (deepslate.isUnsupporedStructure(s)){
+                    if (worldgenEngine.isUnsupporedStructure(s)){
                         set_invalid = true
                     }
                 }
