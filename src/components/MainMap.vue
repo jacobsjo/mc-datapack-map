@@ -182,6 +182,8 @@ function updateMarkers() {
 
         var minZoom = set.getMinZoom()
 
+        set.prepare()
+
         if (map.getZoom() >= minZoom){
             const chunks: ChunkPos[] = set.getPotentialStructureChunks(minChunk[0], minChunk[1], maxChunk[0], maxChunk[1])
 
