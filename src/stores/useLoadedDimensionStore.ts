@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { useDatapackStore } from "./useDatapackStore.js";
 import { useSettingsStore } from "./useSettingsStore.js";
 
-import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine263.js";
 import { reactive, ref, watch } from "vue";
 
 

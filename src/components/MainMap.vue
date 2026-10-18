@@ -17,7 +17,7 @@ import MapButton from './MapButton.vue';
 import { useI18n } from 'vue-i18n';
 import { versionMetadata } from "../util";
 import { Identifier } from "mc-datapack-loader";
-import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine263";
 
 const searchStore = useSearchStore()
 const settingsStore = useSettingsStore()

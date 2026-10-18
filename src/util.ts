@@ -1,5 +1,5 @@
 import { Identifier, PackFormat, ResourceLocation } from "mc-datapack-loader"
-import { WorldgenEngine } from "./worldgenEngine/WorldgenEngine.js"
+import { WorldgenEngine } from "./worldgenEngine/WorldgenEngine263.js"
 
 export enum SpawnTargetAlgorithm {
 	LEGACY_ZERO_BIASED,

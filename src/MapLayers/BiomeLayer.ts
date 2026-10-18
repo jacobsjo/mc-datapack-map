@@ -7,7 +7,7 @@ import { useLoadedDimensionStore } from "../stores/useLoadedDimensionStore.js";
 import { useSettingsStore } from "../stores/useSettingsStore.js";
 import { Ref, watch } from "vue";
 import { Identifier } from "mc-datapack-loader";
-import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine.js";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine263.js";
 import { useDatapackStore } from "../stores/useDatapackStore.js";
 
 const WORKER_COUNT = 4

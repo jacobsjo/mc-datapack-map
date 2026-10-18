@@ -1,7 +1,7 @@
 import { Identifier } from "mc-datapack-loader";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine263";
 
 
 export const useSearchStore = defineStore('search', () => {

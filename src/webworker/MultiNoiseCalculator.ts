@@ -4,7 +4,7 @@ declare const self: ServiceWorkerGlobalScope;
 export { };
 
 import { Identifier } from "mc-datapack-loader";
-import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine";
+import { WorldgenEngine } from "../worldgenEngine/WorldgenEngine263";
 
 class MultiNoiseCalculator {
 
